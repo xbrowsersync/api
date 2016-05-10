@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "restify": "latest",
-    "mongojs": "latest"
+    "mongojs": "latest",
+    "q": "latest"
   },
   "devDependencies": {}
 }

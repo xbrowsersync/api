@@ -14,59 +14,57 @@ xBrowserSync.API.Bookmarks = function() {
     var config = require('./config.js');
     var db = require('./db.js');
     
-    var countBookmarks = function(callback) {
-        /*db.bookmarks().count(
-            { "secretCheck" : "e9fe51f94eadabf54dbf2fbbd57188b9abee436e" }, 
-            function(err, result) {
-                return callback(result);
-            });*/
+    var createBookmarks = function(req, res, next) {
+        if (req.params.bookmarks === undefined) {
+            return next(new restify.MissingParameterError("No bookmarks provided."));
+        };
         
-        db.bookmarks().stats(
-            function(err, result) {
-                return callback(result);
+        if (!req.params.secretHash) {
+            return next(new restify.MissingParameterError("No secret hash provided."));
+        };
+        
+        // Check if accepting new syncs
+        db.acceptingNewSyncs()
+            .then(function(result) {
+                if (!result) {
+                    return next(new restify.MethodNotAllowedError("Server not accepting new syncs."));
+                }
+                
+                var bookmark = {};
+                bookmark.bookmarks = req.params.bookmarks;
+                bookmark.secretHash = req.params.secretHash;
+                bookmark.lastAccessed = new Date();
+                bookmark.lastUpdated = new Date();
+                
+                db.bookmarks().save(bookmark, function(err, result) {
+                    if (err) {
+                        return next(err);
+                    };
+                    
+                    var data = {};
+                    
+                    if (!!result) {
+                        data.id = result._id;
+                        data.lastUpdated = result.lastUpdated;
+                    };
+                    
+                    res.send(200, data);
+                    return next();
+                });
+            })
+            .catch(function(err) {
+                return next(err);
             });
     };
     
-    var createBookmarks = function(req, res, next) {
-        if (req.params.bookmarks === undefined) {
-            return next(new restify.MissingParameterError("Missing 'bookmarks' parameter."));
-        };
-        
-        if (!req.params.secrethash) {
-            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
-        };
-        
-        var bookmark = {};
-        bookmark.bookmarks = req.params.bookmarks;
-        bookmark.secrethash = req.params.secrethash;
-        bookmark.lastAccessed = new Date();
-        bookmark.lastUpdated = new Date();
-        
-        db.bookmarks().save(bookmark, function(err, result) {
-            if (err) {
-                return next(err);
-            };
-            
-            var data = {};
-            
-            if (!!result) {
-                data.id = result._id;
-                data.lastUpdated = result.lastUpdated;
-            };
-            
-            res.send(200, data);
-            return next();
-        });
-    };
-    
     var getBookmarks = function(req, res, next) {
-        if (!req.params.secrethash) {
-            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
+        if (!req.params.secretHash) {
+            return next(new restify.MissingParameterError("No secret hash provided."));
         };
         
         db.bookmarks().findOne(
             { _id: mongojs.ObjectId(req.params.id),
-              secrethash: req.params.secrethash }, 
+              secretHash: req.params.secretHash }, 
             function(err, result) {
                 if (err) {
                     return next(err);
@@ -98,13 +96,13 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var getLastUpdated = function(req, res, next) {
-        if (!req.params.secrethash) {
-            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
+        if (!req.params.secretHash) {
+            return next(new restify.MissingParameterError("No secret hash provided."));
         };
         
         db.bookmarks().findOne( 
             { _id: mongojs.ObjectId(req.params.id),
-              secrethash: req.params.secrethash }, 
+              secretHash: req.params.secretHash }, 
             function(err, result) {
                 if (err) {
                     return next(err);
@@ -123,19 +121,19 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var updateBookmarks = function(req, res, next) {
-        if (!req.params.secrethash) {
-            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
+        if (!req.params.secretHash) {
+            return next(new restify.MissingParameterError("No secret hash provided."));
         };
         
         var bookmark = {};
         bookmark.bookmarks = req.params.bookmarks;
-        bookmark.secrethash = req.params.secrethash;
+        bookmark.secretHash = req.params.secretHash;
         bookmark.lastAccessed = new Date();
         bookmark.lastUpdated = new Date();
         
         db.bookmarks().update(
             { _id: mongojs.ObjectId(req.params.id),
-              secrethash: req.params.secrethash }, 
+              secretHash: req.params.secretHash }, 
             { $set: bookmark },
             function(err, result) {
                 if (err) {
@@ -155,7 +153,6 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     return {
-        count: countBookmarks,
         createBookmarks: createBookmarks,
         getBookmarks: getBookmarks,
         getLastUpdated: getLastUpdated,

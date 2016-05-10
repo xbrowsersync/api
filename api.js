@@ -9,13 +9,14 @@ xBrowserSync.API = xBrowserSync.API || {};
 xBrowserSync.API.Main = function() {
     'use strict';
     
-    var server;
     var restify = require('restify');
     var fs = require('fs');
     var config = require('./config.js');
     var db = require('./db.js');
     var bookmarks = require('./bookmarks.js');
     var status = require('./status.js');
+    
+    var server;
     
     var createRoutes = function() {
         // Index page
@@ -26,9 +27,9 @@ xBrowserSync.API.Main = function() {
         
         // Bookmarks
         server.post({ path : '/bookmarks', version: config.version }, bookmarks.createBookmarks);
-        server.get({ path : '/bookmarks/:id/:secrethash', version : config.version }, bookmarks.getBookmarks);
+        server.get({ path : '/bookmarks/:id/:secretHash', version : config.version }, bookmarks.getBookmarks);
         server.post({ path : '/bookmarks/:id', version : config.version }, bookmarks.updateBookmarks);
-        server.get({ path : '/bookmarks/:id/lastupdated/:secrethash', version : config.version }, bookmarks.getLastUpdated);
+        server.get({ path : '/bookmarks/:id/lastupdated/:secretHash', version : config.version }, bookmarks.getLastUpdated);
     };
     
     var createServer = function() {
@@ -61,8 +62,6 @@ xBrowserSync.API.Main = function() {
             burst: config.throttle.burst,
             ip: true
         }));
-        
-        
     };
     
     var getIndexPage = function(req, res, next) {

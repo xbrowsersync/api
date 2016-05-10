@@ -9,9 +9,11 @@ xBrowserSync.API = xBrowserSync.API || {};
 xBrowserSync.API.DB = function() {
     'use strict';
     
-    var db, bookmarks;    
     var mongojs = require('mongojs');
+    var Q = require('q');
     var config = require('./config.js');
+    
+    var db, bookmarks;
     
     var connect = function() {
         db = mongojs(
@@ -29,7 +31,54 @@ xBrowserSync.API.DB = function() {
         return bookmarks;
     };
     
+    var checkAcceptingNewSyncs = function() {
+        var deferred = Q.defer();
+        
+        // Check config variable first
+        if (!config.allowNewSyncs) {
+            return Q.resolve(false);
+        }
+        
+        // Check if total syncs have reached limit set in config  
+        return getTotalSyncs()
+            .then(function(result) {
+                if (result >= config.maxSyncs) {
+                    return false;
+                }
+                
+                return true;
+            });
+    };
+    
+    var getTotalSyncs = function() {
+        var getTotalDef = Q.defer(), bookmarksDef = Q.defer();
+        var totalSyncs = 0;
+        
+        // Count all bookmark syncs
+        getBookmarks().count(
+            function(err, result) {
+                if (!!err) {
+                    bookmarksDef.reject(err);
+                    return;
+                }
+                
+                bookmarksDef.resolve(result);
+            });
+        
+        // Return total syncs
+        Q.all([ bookmarksDef.promise ])
+            .then(function(result) {
+                var totalBookmarks = result[0];                
+                totalSyncs += totalBookmarks;
+                
+                getTotalDef.resolve(totalSyncs);
+            });
+        
+        return getTotalDef.promise;
+    };
+    
     return {
+        acceptingNewSyncs: checkAcceptingNewSyncs,
         bookmarks: getBookmarks,
         connect: connect
     };

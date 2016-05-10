@@ -10,37 +10,28 @@ xBrowserSync.API.Status = function() {
     'use strict';
     
     var config = require('./config.js');
+    var db = require('./db.js');
     var bookmarks = require('./bookmarks.js');
     
-    var status = {
+    var statuses = {
         online: 1
     };
     
     var getStatus = function(req, res, next) {
-        var result = {
-            status: status.online,
+        var status = {
+            status: statuses.online,
+            message: config.statusMessage,
             acceptingNewSyncs: true
         };
         
-        getAcceptingNewSyncs(result, function(result) {
-            res.send(200, result);
-            return next();
-        });
-    };
-    
-    var getAcceptingNewSyncs = function(result, callback) {
-        if (!config.allowNewSyncs) {
-            result.acceptingNewSyncs = false;
-            return callback(result);
-        }
-
-        bookmarks.count(function(count) {
-            if (count >= config.maxSyncs) {
-                result.acceptingNewSyncs = false;
-            }
-            
-            return callback(result);
-        });
+        // Check if accepting new syncs
+        db.acceptingNewSyncs()
+            .then(function(result) {
+                status.acceptingNewSyncs = result;
+                
+                res.send(200, status);
+                return next();
+            });
     };
     
     return {
