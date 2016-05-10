@@ -10,7 +10,7 @@ xBrowserSync.API.Config = function() {
     'use strict';
     
     return {
-        // 
+        // Determines whether users will be allowed to create new syncs on this server
         allowNewSyncs: true,
         
         // 
