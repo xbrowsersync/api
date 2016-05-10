@@ -1,38 +1,48 @@
-"use strict";
+var xBrowserSync = xBrowserSync || {};
+xBrowserSync.API = xBrowserSync.API || {};
 
-// Class name:	xBrowserSync.API.Bookmarks 
-// Description:	Defines bookmarks functions for the API.
+/* ------------------------------------------------------------------------------------
+ * Class name:  xBrowserSync.API.Bookmarks 
+ * Description: Provides API for operations on bookmark data.
+ * ------------------------------------------------------------------------------------ */
 
-module.exports = function() {
-    // Requires
-    var restify = require("restify");
-    var mongojs = require("mongojs");
-    var core;
+xBrowserSync.API.Bookmarks = function() {
+    'use strict';
     
-    var requireCore = function() {
-        return require("./xBrowserSync.API.Core.js");
+    var restify = require('restify');
+    var mongojs = require('mongojs');
+    var config = require('./config.js');
+    var db = require('./db.js');
+    
+    var countBookmarks = function(callback) {
+        /*db.bookmarks().count(
+            { "secretCheck" : "e9fe51f94eadabf54dbf2fbbd57188b9abee436e" }, 
+            function(err, result) {
+                return callback(result);
+            });*/
+        
+        db.bookmarks().stats(
+            function(err, result) {
+                return callback(result);
+            });
     };
     
     var createBookmarks = function(req, res, next) {
-        if (!core) {
-            core = requireCore();
-        };
-        
         if (req.params.bookmarks === undefined) {
-            return next(new restify.MissingParameterError("Missing \"bookmarks\" parameter."));
+            return next(new restify.MissingParameterError("Missing 'bookmarks' parameter."));
         };
         
-        if (!req.params.secretCheck) {
-            return next(new restify.MissingParameterError("Missing \"secretCheck\" parameter."));
+        if (!req.params.secrethash) {
+            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
         };
         
         var bookmark = {};
         bookmark.bookmarks = req.params.bookmarks;
-        bookmark.secretCheck = req.params.secretCheck;
+        bookmark.secrethash = req.params.secrethash;
         bookmark.lastAccessed = new Date();
         bookmark.lastUpdated = new Date();
         
-        core.Globals.Collections.Bookmarks.save(bookmark, function(err, result) {
+        db.bookmarks().save(bookmark, function(err, result) {
             if (err) {
                 return next(err);
             };
@@ -50,17 +60,13 @@ module.exports = function() {
     };
     
     var getBookmarks = function(req, res, next) {
-        if (!core) {
-            core = requireCore();
+        if (!req.params.secrethash) {
+            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
         };
         
-        if (!req.params.secretCheck) {
-            return next(new restify.MissingParameterError("Missing \"secretCheck\" parameter."));
-        };
-        
-        core.Globals.Collections.Bookmarks.findOne(
+        db.bookmarks().findOne(
             { _id: mongojs.ObjectId(req.params.id),
-              secretCheck: req.params.secretCheck }, 
+              secrethash: req.params.secrethash }, 
             function(err, result) {
                 if (err) {
                     return next(err);
@@ -78,7 +84,7 @@ module.exports = function() {
             }
         );
         
-        core.Globals.Collections.Bookmarks.update(
+        db.bookmarks().update(
             { _id: mongojs.ObjectId( req.params.id) }, 
             { $set: { lastAccessed: new Date() } },
             function(err, result) {
@@ -92,17 +98,13 @@ module.exports = function() {
     };
     
     var getLastUpdated = function(req, res, next) {
-        if (!core) {
-            core = requireCore();
+        if (!req.params.secrethash) {
+            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
         };
         
-        if (!req.params.secretCheck) {
-            return next(new restify.MissingParameterError("Missing \"secretCheck\" parameter."));
-        };
-        
-        core.Globals.Collections.Bookmarks.findOne( 
+        db.bookmarks().findOne( 
             { _id: mongojs.ObjectId(req.params.id),
-              secretCheck: req.params.secretCheck }, 
+              secrethash: req.params.secrethash }, 
             function(err, result) {
                 if (err) {
                     return next(err);
@@ -121,23 +123,19 @@ module.exports = function() {
     };
     
     var updateBookmarks = function(req, res, next) {
-        if (!core) {
-            core = requireCore();
-        };
-        
-        if (!req.params.secretCheck) {
-            return next(new restify.MissingParameterError("Missing \"secretCheck\" parameter."));
+        if (!req.params.secrethash) {
+            return next(new restify.MissingParameterError("Missing 'secrethash' parameter."));
         };
         
         var bookmark = {};
         bookmark.bookmarks = req.params.bookmarks;
-        bookmark.secretCheck = req.params.secretCheck;
+        bookmark.secrethash = req.params.secrethash;
         bookmark.lastAccessed = new Date();
         bookmark.lastUpdated = new Date();
         
-        core.Globals.Collections.Bookmarks.update(
+        db.bookmarks().update(
             { _id: mongojs.ObjectId(req.params.id),
-              secretCheck: req.params.secretCheck }, 
+              secrethash: req.params.secrethash }, 
             { $set: bookmark },
             function(err, result) {
                 if (err) {
@@ -157,9 +155,12 @@ module.exports = function() {
     };
     
     return {
-        CreateBookmarks: createBookmarks,
-        GetBookmarks: getBookmarks,
-        GetLastUpdated: getLastUpdated,
-        UpdateBookmarks: updateBookmarks        
-    }; 
-}();
+        count: countBookmarks,
+        createBookmarks: createBookmarks,
+        getBookmarks: getBookmarks,
+        getLastUpdated: getLastUpdated,
+        updateBookmarks: updateBookmarks
+    };
+};
+
+module.exports = xBrowserSync.API.Bookmarks();
