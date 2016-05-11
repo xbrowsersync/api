@@ -11,6 +11,7 @@ xBrowserSync.API.Main = function() {
     
     var restify = require('restify');
     var fs = require('fs');
+    var global = require('./global.js');
     var config = require('./config.js');
     var db = require('./db.js');
     var bookmarks = require('./bookmarks.js');
@@ -34,12 +35,12 @@ xBrowserSync.API.Main = function() {
     
     var createServer = function() {
         server = restify.createServer({
-            name: config.apiName
+            name: global.apiName
         });
         
         server.listen(config.port, config.ipAddress, function() {
             console.log('%s: %s started on %s:%d ...',
-                Date(Date.now()), config.apiName, config.ipAddress, config.port);
+                Date(Date.now()), global.apiName, config.ipAddress, config.port);
         });
         
         server.use(restify.CORS());
@@ -54,7 +55,7 @@ xBrowserSync.API.Main = function() {
         server.use(restify.queryParser());
         
         server.use(restify.bodyParser({
-            maxBodySize: config.maxPayloadSize
+            maxBodySize: config.maxSyncSize
         }));
         
         server.use(restify.throttle({

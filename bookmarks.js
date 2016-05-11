@@ -11,6 +11,7 @@ xBrowserSync.API.Bookmarks = function() {
     
     var restify = require('restify');
     var mongojs = require('mongojs');
+    var global = require('./global.js');
     var config = require('./config.js');
     var db = require('./db.js');
     

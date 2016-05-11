@@ -11,6 +11,7 @@ xBrowserSync.API.DB = function() {
     
     var mongojs = require('mongojs');
     var Q = require('q');
+    var global = require('./global.js');
     var config = require('./config.js');
     
     var db, bookmarks;

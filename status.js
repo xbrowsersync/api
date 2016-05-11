@@ -9,27 +9,29 @@ xBrowserSync.API = xBrowserSync.API || {};
 xBrowserSync.API.Status = function() {
     'use strict';
     
+    var global = require('./global.js');
     var config = require('./config.js');
     var db = require('./db.js');
     var bookmarks = require('./bookmarks.js');
     
-    var statuses = {
-        online: 1
-    };
-    
     var getStatus = function(req, res, next) {
-        var status = {
-            status: statuses.online,
-            message: config.statusMessage,
-            acceptingNewSyncs: true
+        var serviceStatus = {
+            status: config.status,
+            message: config.statusMessage
         };
+        
+        if (config.status === global.serviceStatuses.offline) {
+            res.send(200, serviceStatus);
+            return next();
+        }
         
         // Check if accepting new syncs
         db.acceptingNewSyncs()
             .then(function(result) {
-                status.acceptingNewSyncs = result;
+                serviceStatus.status = (!!result) ? 
+                    global.serviceStatuses.online : global.serviceStatuses.noNewSyncs;
                 
-                res.send(200, status);
+                res.send(200, serviceStatus);
                 return next();
             });
     };
