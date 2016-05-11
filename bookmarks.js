@@ -11,9 +11,8 @@ xBrowserSync.API.Bookmarks = function() {
     
     var restify = require('restify');
     var mongojs = require('mongojs');
-    var global = require('./global.js');
-    var config = require('./config.js');
     var db = require('./db.js');
+    var newSyncsLog = require('./newSyncsLog.js');
     
     var createBookmarks = function(req, res, next) {
         if (req.params.bookmarks === undefined) {
@@ -26,11 +25,20 @@ xBrowserSync.API.Bookmarks = function() {
         
         // Check if accepting new syncs
         db.acceptingNewSyncs()
-            .then(function(result) {
-                if (!result) {
+            .then(function(acceptingNewSyncs) {
+                if (!acceptingNewSyncs) {
                     return next(new restify.MethodNotAllowedError("Server not accepting new syncs."));
                 }
                 
+                // Check daily new sync log
+                return newSyncsLog.dailyNewSyncLimitHit(req);
+            })
+            .then(function(newSyncLimitHit) {
+                if (!!newSyncLimitHit) {
+                    return next(new restify.TooManyRequestsError("New syncs limit exceeded for today."));
+                }
+                
+                // Create new sync
                 var bookmark = {};
                 bookmark.bookmarks = req.params.bookmarks;
                 bookmark.secretHash = req.params.secretHash;
@@ -47,6 +55,9 @@ xBrowserSync.API.Bookmarks = function() {
                     if (!!result) {
                         data.id = result._id;
                         data.lastUpdated = result.lastUpdated;
+                        
+                        // Add to log
+                        newSyncsLog.createLog(req);
                     };
                     
                     res.send(200, data);

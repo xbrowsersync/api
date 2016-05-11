@@ -15,6 +15,9 @@ xBrowserSync.API.Config = function() {
         // Determines whether users will be allowed to create new syncs on this server. Default is true. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs.
         allowNewSyncs: true,
         
+        //
+        dailyNewSyncLimit: 10,
+        
         // 
         db: {
             //  

@@ -11,10 +11,9 @@ xBrowserSync.API.DB = function() {
     
     var mongojs = require('mongojs');
     var Q = require('q');
-    var global = require('./global.js');
     var config = require('./config.js');
     
-    var db, bookmarks;
+    var db, bookmarks, newSyncsLog;
     
     var connect = function() {
         db = mongojs(
@@ -33,12 +32,12 @@ xBrowserSync.API.DB = function() {
     };
     
     var checkAcceptingNewSyncs = function() {
-        var deferred = Q.defer();
-        
         // Check config variable first
         if (!config.allowNewSyncs) {
             return Q.resolve(false);
         }
+        
+        var deferred = Q.defer();
         
         // Check if total syncs have reached limit set in config  
         return getTotalSyncs()
@@ -49,6 +48,14 @@ xBrowserSync.API.DB = function() {
                 
                 return true;
             });
+    };
+    
+    var getNewSyncsLog = function() {
+        if (!newSyncsLog) {
+            newSyncsLog = db.collection('newSyncsLog');
+        }
+        
+        return newSyncsLog;
     };
     
     var getTotalSyncs = function() {
@@ -81,7 +88,8 @@ xBrowserSync.API.DB = function() {
     return {
         acceptingNewSyncs: checkAcceptingNewSyncs,
         bookmarks: getBookmarks,
-        connect: connect
+        connect: connect,
+        newSyncsLog: getNewSyncsLog
     };
 };
 
