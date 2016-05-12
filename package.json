@@ -7,10 +7,10 @@
   "main": "api.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/richjbrowne/xBrowserSync.git"
+    "url": "https://github.com/xBrowserSync/API.git"
   },
   "bugs": {
-    "url": "https://github.com/richjbrowne/xBrowserSync/issues"
+    "url": "https://github.com/xBrowserSync/API/issues"
   },
   "dependencies": {
     "restify": "4.0.x",
