@@ -38,9 +38,9 @@ xBrowserSync.API.Main = function() {
             name: global.apiName
         });
         
-        server.listen(config.port, config.ipAddress, function() {
+        server.listen(config.server.port, config.server.host, function() {
             console.log('%s: %s started on %s:%d ...',
-                Date(Date.now()), global.apiName, config.ipAddress, config.port);
+                Date(Date.now()), global.apiName, config.server.host, config.server.port);
         });
         
         server.use(restify.CORS());
@@ -59,8 +59,8 @@ xBrowserSync.API.Main = function() {
         }));
         
         server.use(restify.throttle({
-            rate: config.throttle.rate,
-            burst: config.throttle.burst,
+            rate: config.server.throttle.rate,
+            burst: config.server.throttle.burst,
             ip: true
         }));
     };

@@ -51,7 +51,7 @@ xBrowserSync.API.NewSyncsLog = function() {
         db.newSyncsLog().save(newLog, function(err, result) {
             if (err) {
                 return next(err);
-            };
+            }
         });
     };
     

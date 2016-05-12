@@ -17,11 +17,11 @@ xBrowserSync.API.Bookmarks = function() {
     var createBookmarks = function(req, res, next) {
         if (req.params.bookmarks === undefined) {
             return next(new restify.MissingParameterError("No bookmarks provided."));
-        };
+        }
         
         if (!req.params.secretHash) {
             return next(new restify.MissingParameterError("No secret hash provided."));
-        };
+        }
         
         // Check if accepting new syncs
         db.acceptingNewSyncs()
@@ -48,7 +48,7 @@ xBrowserSync.API.Bookmarks = function() {
                 db.bookmarks().save(bookmark, function(err, result) {
                     if (err) {
                         return next(err);
-                    };
+                    }
                     
                     var data = {};
                     
@@ -58,7 +58,7 @@ xBrowserSync.API.Bookmarks = function() {
                         
                         // Add to log
                         newSyncsLog.createLog(req);
-                    };
+                    }
                     
                     res.send(200, data);
                     return next();
@@ -72,7 +72,7 @@ xBrowserSync.API.Bookmarks = function() {
     var getBookmarks = function(req, res, next) {
         if (!req.params.secretHash) {
             return next(new restify.MissingParameterError("No secret hash provided."));
-        };
+        }
         
         db.bookmarks().findOne(
             { _id: mongojs.ObjectId(req.params.id),
@@ -80,14 +80,14 @@ xBrowserSync.API.Bookmarks = function() {
             function(err, result) {
                 if (err) {
                     return next(err);
-                };
+                }
                 
                 var data = {};
                 
                 if (result) {
                     data.bookmarks = result.bookmarks;
                     data.lastUpdated = result.lastUpdated;
-                };
+                }
                 
                 res.send(200, data);
                 return next();
@@ -100,7 +100,7 @@ xBrowserSync.API.Bookmarks = function() {
             function(err, result) {
                 if (err) {
                     return next(err);
-                };
+                }
                 
                 return next();
             }
@@ -110,7 +110,7 @@ xBrowserSync.API.Bookmarks = function() {
     var getLastUpdated = function(req, res, next) {
         if (!req.params.secretHash) {
             return next(new restify.MissingParameterError("No secret hash provided."));
-        };
+        }
         
         db.bookmarks().findOne( 
             { _id: mongojs.ObjectId(req.params.id),
@@ -118,13 +118,13 @@ xBrowserSync.API.Bookmarks = function() {
             function(err, result) {
                 if (err) {
                     return next(err);
-                };
+                }
                 
                 var data = {};
                 
                 if (result) {
                     data.lastUpdated = result.lastUpdated;
-                };
+                }
                 
                 res.send(200, data);
                 return next();
@@ -135,7 +135,7 @@ xBrowserSync.API.Bookmarks = function() {
     var updateBookmarks = function(req, res, next) {
         if (!req.params.secretHash) {
             return next(new restify.MissingParameterError("No secret hash provided."));
-        };
+        }
         
         var bookmark = {};
         bookmark.bookmarks = req.params.bookmarks;
@@ -150,13 +150,13 @@ xBrowserSync.API.Bookmarks = function() {
             function(err, result) {
                 if (err) {
                     return next(err);
-                };
+                }
                 
                 var data = {};
                 
                 if (result.n > 0) {
                     data.lastUpdated = bookmark.lastUpdated;
-                };                
+                }                
                 
                 res.send(200, data);
                 return next();

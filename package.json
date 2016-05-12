@@ -22,7 +22,7 @@
   },
   "scripts": {
     "test": "npm run lint",
-    "lint": "echo '=> Linting' && jshint **/*.js",
+    "lint": "echo '=> Linting' && jshint .",
     "postlint": "echo '=> Done'"
   }
 }
