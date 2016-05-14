@@ -64,6 +64,9 @@ xBrowserSync.API.Config = function() {
         // This message will be displayed in the service status panel of the client app when using this xBrowserSync service. Ideally the message should be 130 characters or less. Use this message to inform users of interruptions to the service or if no new syncs are being accepted, as per the commented out example message below.   
 	    statusMessage: '',
 	    //statusMessage: 'This xBrowserSync service is not accepting new syncs. You may sync to this service only if you have already created a sync here.',
+        
+        // Default version for the API routes
+        version: '1.0.0'
     };
 };
 
