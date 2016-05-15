@@ -36,13 +36,28 @@ xBrowserSync.API.Config = function() {
         // The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. Default is 5242. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Using the default values, the maximum amount of disk space used will be 1GB.
         maxSyncs: 5242,
         
-        // The maximum sync size in bytes. Default is 1048576 or 200kB.
+        // The maximum sync size in bytes. Default is 204800 (200kB).
         maxSyncSize: 204800,
         
         // Node.js server settings
         server: {
             // Host name or IP address to use for Node.js server for accepting incoming connections.
             host: '127.0.0.1',
+            
+            // Server logging settings
+            log: {
+                // Determines whether logging is enabled. Default is true.
+                enabled: true,
+                
+                // Bunyan log level to capture: trace, debug, info, warn, error, fatal. Default is info.
+                level: 'info',
+                
+                // Name of the bunyan logger. Default is xBrowserSync_api.
+                name: 'xBrowserSync_api',
+                
+                // Path to the log file to use. Default is /var/log/xBrowserSync_api.log.
+                path: '/var/log/xBrowserSync_api.log'
+            },
             
             // Port to use for Node.js server for accepting incoming connections.
             port: '8080',

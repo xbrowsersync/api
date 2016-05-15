@@ -13,9 +13,10 @@
     "url": "https://github.com/xBrowserSync/API/issues"
   },
   "dependencies": {
-    "restify": "4.0.x",
+    "bunyan": "1.8.x",
     "mongojs": "2.4.x",
-    "q": "1.4.x"
+    "q": "1.4.x",
+    "restify": "4.0.x"    
   },
   "devDependencies": {
     "jshint": "2.9.x"
