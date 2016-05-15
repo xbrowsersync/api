@@ -15,8 +15,8 @@ xBrowserSync.API.Config = function() {
         // Determines whether users will be allowed to create new syncs on this server. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. Default is true.
         allowNewSyncs: true,
         
-        // Maximum number of new syncs that can be created per day by a single IP address in order to prevent new sync flooding. Default is 10.
-        dailyNewSyncLimit: 10,
+        // Maximum number of new syncs that can be created per day by a single IP address in order to prevent new sync flooding. Default is 3.
+        dailyNewSyncLimit: 3,
         
         // Mongo db settings
         db: {

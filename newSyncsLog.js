@@ -87,18 +87,12 @@ xBrowserSync.API.NewSyncsLog = function() {
     };
     
     var getIpAddress = function(req) {
-        var ipFromHeaders, ipFromConnection, ipFromSocket, ipFromConnSocket;
-        
-        try {
-            ipFromHeaders = req.headers['x-forwarded-for'];
-            ipFromHeaders = (ipFromHeaders.indexOf(',') >= 0) ? ipFromHeaders.substring(0, ipFromHeaders.indexOf(',')) : ipFromHeaders;
-        }
-        catch(err) { }
+        var ipFromConnection, ipFromSocket, ipFromConnSocket, ipFromHeaders;
         
         try {
             ipFromConnection = req.connection.remoteAddress;
         }
-        catch(err) { } 
+        catch(err) { }
         
         try {
             ipFromSocket = req.socket.remoteAddress;
@@ -110,7 +104,13 @@ xBrowserSync.API.NewSyncsLog = function() {
         }
         catch(err) { }
         
-        return ipFromHeaders || ipFromConnection || ipFromSocket || ipFromConnSocket;
+        try {
+            ipFromHeaders = req.headers['x-forwarded-for'];
+            ipFromHeaders = (ipFromHeaders.indexOf(',') >= 0) ? ipFromHeaders.substring(0, ipFromHeaders.indexOf(',')) : ipFromHeaders;
+        }
+        catch(err) { }
+        
+        return ipFromConnection || ipFromSocket || ipFromConnSocket || ipFromHeaders;
     };
     
     return {
