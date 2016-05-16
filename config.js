@@ -55,7 +55,7 @@ xBrowserSync.API.Config = function() {
                 // Name of the bunyan logger. Default is xBrowserSync_api.
                 name: 'xBrowserSync_api',
                 
-                // Path to the log file to use. Default is /var/log/xBrowserSync_api.log.
+                // Path to the file to log to. Default is /var/log/xBrowserSync_api.log.
                 path: '/var/log/xBrowserSync_api.log'
             },
             

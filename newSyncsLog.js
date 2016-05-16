@@ -106,7 +106,6 @@ xBrowserSync.API.NewSyncsLog = function() {
         
         try {
             ipFromHeaders = req.headers['x-forwarded-for'];
-            ipFromHeaders = (ipFromHeaders.indexOf(',') >= 0) ? ipFromHeaders.substring(0, ipFromHeaders.indexOf(',')) : ipFromHeaders;
         }
         catch(err) { }
         
