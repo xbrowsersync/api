@@ -11,6 +11,11 @@ xBrowserSync.API.Global = function() {
     
     return {
         apiName: 'xBrowserSync-API',
+        clientIpMethods: {
+            xClientIp: 1,
+            xForwardedFor: 2,
+            remoteAddress: 3
+        },
         serviceStatuses: {
             online: 1,
             offline: 2,

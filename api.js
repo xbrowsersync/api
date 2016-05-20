@@ -35,14 +35,14 @@ xBrowserSync.API.Main = function () {
     };
 
     var createServer = function () {
-        var log = (config.server.log.enabled) ?
+        var log = (config.log.enabled) ?
             bunyan.createLogger({
-                name: config.server.log.name,
-                level: config.server.log.level,
+                name: config.log.name,
+                level: config.log.level,
                 streams: [
                     { 
-                        path: config.server.log.path,
-                        level: config.server.log.level
+                        path: config.log.path,
+                        level: config.log.level
                     }
                 ],
                 serializers: bunyan.stdSerializers
@@ -79,8 +79,8 @@ xBrowserSync.API.Main = function () {
         }));
 
         server.use(restify.throttle({
-            rate: config.server.throttle.rate,
-            burst: config.server.throttle.burst,
+            rate: config.throttle.rate,
+            burst: config.throttle.burst,
             ip: true
         }));
     };

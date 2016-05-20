@@ -10,6 +10,7 @@ xBrowserSync.API.NewSyncsLog = function() {
     'use strict';
     
     var Q = require('q');
+    var global = require('./global.js');
     var config = require('./config.js');
     var db = require('./db.js');
     
@@ -87,34 +88,30 @@ xBrowserSync.API.NewSyncsLog = function() {
     };
     
     var getIpAddress = function(req) {
-        var ipClientIp, ipForwardedFor, ipFromConnection, ipFromSocket, ipFromConnSocket;
+        var methodOrder = config.clientIpMethodOrder;
+        var ipAddress; 
         
-        try {
-            ipClientIp = req.headers['x-client-ip'];
+        // Iterate through the desired methods to get client ip and return the
+        // first valid value
+        for (var i = 0; i < methodOrder.length; i++) {
+            switch (methodOrder[i]) {
+                case global.clientIpMethods.xClientIp:
+                    ipAddress = req.headers['x-client-ip'];
+                    break;
+                case global.clientIpMethods.xForwardedFor:
+                    ipAddress = req.headers['x-forwarded-for'];
+                    break;
+                case global.clientIpMethods.remoteAddress:
+                    ipAddress = req.connection.remoteAddress;
+                    break;
+            }
+            
+            if (!!ipAddress) {
+                return ipAddress;
+            }
         }
-        catch(err) { }
         
-        try {
-            ipForwardedFor = req.headers['x-forwarded-for'];
-        }
-        catch(err) { }
-        
-        try {
-            ipFromConnection = req.connection.remoteAddress;
-        }
-        catch(err) { }
-        
-        try {
-            ipFromSocket = req.socket.remoteAddress;
-        }
-        catch(err) { }
-        
-        try {
-            ipFromConnSocket = req.connection.socket.remoteAddress;
-        }
-        catch(err) { }
-        
-        return ipClientIp || ipForwardedFor || ipFromConnection || ipFromSocket || ipFromConnSocket;
+        return req.headers['x-client-ip'];
     };
     
     return {
