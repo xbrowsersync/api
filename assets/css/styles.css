@@ -1,0 +1,83 @@
+body {
+    background: #c5e1e7;
+    color: #083039;
+    font-family: "Roboto Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.logo {
+    display: block;
+    margin: 30px auto 0 auto;
+}
+
+h2 {
+    font-size: 1.8em;
+}
+
+a {
+    color: #217d94;
+}
+
+#accordion .panel-heading {
+    padding: 0;
+    background-image: none;
+    background-color: #e4eef1;
+}
+
+#accordion .panel-title {
+    position: relative;
+}
+
+#accordion .panel-title a {
+    display: block;
+    padding: 10px 15px;
+}
+
+#accordion .panel-title a:hover, #accordion .panel-title a:focus {
+    text-decoration: none;
+    outline: none;
+}
+
+#accordion .panel-title code {
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: #217d94;
+    margin-left: 4em;
+}
+
+#accordion .panel-title .label {
+    position: absolute;
+    display: inline-block;
+    padding-top: .3em;
+}
+
+#accordion .panel-title .title {
+    text-align: right;
+}
+
+#accordion .panel-body h5 {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.panel-default, .panel-default>.panel-heading {
+    border-color: #6fa4b1;
+}
+
+.panel-default>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: #6fa4b1;
+}
+
+@media (max-width: 768px) {
+    #accordion .panel-title .title {
+        text-align: left;
+    }
+    
+    #accordion .panel-title .col-sm-push-8 {
+        margin-bottom: 0.5em;
+    }
+    
+    #accordion .panel-title code {
+        font-size: 0.8em;
+    }
+}
