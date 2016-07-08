@@ -30,8 +30,8 @@ xBrowserSync.API.Main = function () {
         // Bookmarks
         server.post({ path: '/bookmarks', version: config.version }, bookmarks.createBookmarks);
         server.get({ path: '/bookmarks/:id/:secretHash', version: config.version }, bookmarks.getBookmarks);
-        server.post({ path: '/bookmarks/:id', version: config.version }, bookmarks.updateBookmarks);
-        server.get({ path: '/bookmarks/:id/lastupdated/:secretHash', version: config.version }, bookmarks.getLastUpdated);
+        server.post({ path: '/bookmarks/:id/:secretHash', version: config.version }, bookmarks.updateBookmarks);
+        server.get({ path: '/bookmarks/lastUpdated/:id/:secretHash', version: config.version }, bookmarks.getLastUpdated);
     };
 
     var createServer = function () {
