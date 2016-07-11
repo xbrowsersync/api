@@ -56,7 +56,6 @@ a {
 }
 
 #accordion .panel-body h5 {
-    font-size: 0.9em;
     font-weight: bold;
 }
 
@@ -78,6 +77,8 @@ a {
     }
     
     #accordion .panel-title code {
+        display: block;
+        word-wrap: break-word;
         font-size: 0.8em;
     }
 }

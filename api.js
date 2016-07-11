@@ -21,9 +21,6 @@ xBrowserSync.API.Main = function () {
     var server;
 
     var createRoutes = function () {
-        // Index page
-        server.get('/', getIndexPage);
-
         // Status
         server.get({ path: '/status', version: config.version }, status.getStatus);
 
@@ -32,6 +29,12 @@ xBrowserSync.API.Main = function () {
         server.get({ path: '/bookmarks/:id/:secretHash', version: config.version }, bookmarks.getBookmarks);
         server.post({ path: '/bookmarks/:id/:secretHash', version: config.version }, bookmarks.updateBookmarks);
         server.get({ path: '/bookmarks/lastUpdated/:id/:secretHash', version: config.version }, bookmarks.getLastUpdated);
+
+        // Static content
+        server.get(/.*/, restify.serveStatic({
+            directory: './docs',
+            default: 'index.html'
+        }));
     };
 
     var createServer = function () {
@@ -74,6 +77,8 @@ xBrowserSync.API.Main = function () {
 
         server.use(restify.queryParser());
 
+        //server.use(restify.serveStatic());
+        
         server.use(restify.bodyParser({
             maxBodySize: config.maxSyncSize
         }));
