@@ -15,8 +15,10 @@
   "dependencies": {
     "bunyan": "1.8.x",
     "mongojs": "2.4.x",
+    "node-uuid": "1.4.x",
     "q": "1.4.x",
-    "restify": "4.0.x"    
+    "restify": "4.0.x",
+    "request": "2.73.x"
   },
   "devDependencies": {
     "jshint": "2.9.x"

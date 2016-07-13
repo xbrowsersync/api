@@ -72,6 +72,18 @@ xBrowserSync.API.Config = function() {
         
         // The maximum sync size in bytes. Default is 204800 (200kB).
         maxSyncSize: 204800,
+
+        // Google reCAPTCHA settings
+        recaptcha: {
+            // Determines whether syncs are required to pass recatcha. Default is false.
+            enabled: false,
+
+            // reCAPTCHA site key supplied by Google.
+            siteKey: '',
+
+            // reCAPTCHA secret key supplied by Google.
+            secretKey: ''
+        },
         
         // Node.js server settings
         server: {
@@ -103,7 +115,7 @@ xBrowserSync.API.Config = function() {
             rate: 100
         },
         
-        // Default version for the API routes
+        // Current version for the API routes
         version: '1.0.0'
     };
 };

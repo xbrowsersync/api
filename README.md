@@ -28,9 +28,8 @@ CD into the source directory and install the package and dependencies using NPM:
   ```
   use xBrowserSync 
   db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] }) 
-  db.createCollection("bookmarks") 
-  db.bookmarks.createIndex({ "_id": 1, "secretHash": 1 }) 
-  db.createCollection("newSyncsLog") 
+  db.createCollection("bookmarks")
+  db.createCollection("newSyncsLog")
   db.newSyncsLog.createIndex({ "ipAddress": 1, "syncCreated": 1 })
   ```
 

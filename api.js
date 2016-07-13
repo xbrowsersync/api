@@ -9,29 +9,29 @@ xBrowserSync.API = xBrowserSync.API || {};
 xBrowserSync.API.Main = function () {
     'use strict';
 
-    var restify = require('restify');
     var bunyan = require('bunyan');
     var fs = require('fs');
+    var restify = require('restify');
     var global = require('./global.js');
     var config = require('./config.js');
     var db = require('./db.js');
     var bookmarks = require('./bookmarks.js');
-    var status = require('./status.js');
+    var info = require('./info.js');
 
     var server;
 
     var createRoutes = function () {
-        // Status
-        server.get({ path: '/status', version: config.version }, status.getStatus);
+        // Service Info
+        server.get({ path: '/info', version: config.version }, info.getInfo);
 
         // Bookmarks
         server.post({ path: '/bookmarks', version: config.version }, bookmarks.createBookmarks);
-        server.get({ path: '/bookmarks/:id/:secretHash', version: config.version }, bookmarks.getBookmarks);
-        server.post({ path: '/bookmarks/:id/:secretHash', version: config.version }, bookmarks.updateBookmarks);
-        server.get({ path: '/bookmarks/lastUpdated/:id/:secretHash', version: config.version }, bookmarks.getLastUpdated);
+        server.get({ path: '/bookmarks/:id', version: config.version }, bookmarks.getBookmarks);
+        server.put({ path: '/bookmarks/:id', version: config.version }, bookmarks.updateBookmarks);
+        server.get({ path: '/bookmarks/:id/lastUpdated', version: config.version }, bookmarks.getLastUpdated);
 
         // Static content
-        server.get(/.*/, restify.serveStatic({
+        server.get(/^\/(?!info|bookmarks).*/, restify.serveStatic({
             directory: './docs',
             default: 'index.html'
         }));

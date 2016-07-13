@@ -11,6 +11,7 @@ xBrowserSync.API.DB = function() {
     
     var mongojs = require('mongojs');
     var Q = require('q');
+    var uuid = require('node-uuid');
     var config = require('./config.js');
     
     var db, bookmarks, newSyncsLog;
@@ -21,6 +22,10 @@ xBrowserSync.API.DB = function() {
             config.db.password + '@' +
             config.db.host + '/' +
             config.db.name);
+    };
+
+    var getBinaryFromUuid = function(uuid) {
+        return mongojs.Binary(new Buffer(uuid, 'hex'), mongojs.Binary.SUBTYPE_UUID);
     };
     
     var getBookmarks = function() {
@@ -36,8 +41,6 @@ xBrowserSync.API.DB = function() {
         if (!config.allowNewSyncs) {
             return Q.resolve(false);
         }
-        
-        var deferred = Q.defer();
         
         // Check if total syncs have reached limit set in config  
         return getTotalSyncs()
@@ -57,9 +60,15 @@ xBrowserSync.API.DB = function() {
         
         return newSyncsLog;
     };
+
+    var getNewUuid = function() {
+        var bytes = uuid.v4(null, new Buffer(16));
+        return new Buffer(bytes, 'base64').toString('hex');
+    };
     
     var getTotalSyncs = function() {
-        var getTotalDef = Q.defer(), bookmarksDef = Q.defer();
+        var bookmarksDef = Q.defer();
+        var getTotalDef = Q.defer();
         var totalSyncs = 0;
         
         // Count all bookmark syncs
@@ -89,6 +98,8 @@ xBrowserSync.API.DB = function() {
         acceptingNewSyncs: checkAcceptingNewSyncs,
         bookmarks: getBookmarks,
         connect: connect,
+        getBinaryFromUuid: getBinaryFromUuid,
+        getNewUuid: getNewUuid,
         newSyncsLog: getNewSyncsLog
     };
 };

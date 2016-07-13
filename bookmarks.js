@@ -9,25 +9,22 @@ xBrowserSync.API = xBrowserSync.API || {};
 xBrowserSync.API.Bookmarks = function() {
     'use strict';
     
+    var Q = require('q');
     var restify = require('restify');
-    var mongojs = require('mongojs');
     var db = require('./db.js');
     var newSyncsLog = require('./newSyncsLog.js');
+    var recaptcha = require('./recaptcha.js');
     
     var createBookmarks = function(req, res, next) {
         if (req.params.bookmarks === undefined) {
-            return next(new restify.MissingParameterError("No bookmarks provided."));
-        }
-        
-        if (!req.params.secretHash) {
-            return next(new restify.MissingParameterError("No secret hash provided."));
+            return next(new restify.MissingParameterError('No bookmarks provided.'));
         }
         
         // Check if accepting new syncs
         db.acceptingNewSyncs()
             .then(function(acceptingNewSyncs) {
                 if (!acceptingNewSyncs) {
-                    return next(new restify.MethodNotAllowedError("Server not accepting new syncs."));
+                    return Q.reject(new restify.MethodNotAllowedError('Server not accepting new syncs.'));
                 }
                 
                 // Check daily new sync log
@@ -35,17 +32,30 @@ xBrowserSync.API.Bookmarks = function() {
             })
             .then(function(newSyncLimitHit) {
                 if (!!newSyncLimitHit) {
-                    return next(new restify.TooManyRequestsError("New syncs limit exceeded for today."));
+                    return Q.reject(new restify.TooManyRequestsError('New syncs limit exceeded for today.'));
                 }
-                
+
+                // Check recaptcha
+                if (!!recaptcha.enabled()) {
+                    if (req.params.recaptchaResponse === undefined) {
+                        return Q.reject(new restify.MissingParameterError('reCAPTCHA response missing.'));
+                    }
+
+                    return recaptcha.checkResponse(req.params.recaptchaResponse);
+                }
+            })
+            .then(function() {
+                // Create new id
+                var id = db.getNewUuid();
+
                 // Create new sync
                 var bookmark = {};
+                bookmark._id = db.getBinaryFromUuid(id);
                 bookmark.bookmarks = req.params.bookmarks;
-                bookmark.secretHash = req.params.secretHash;
                 bookmark.lastAccessed = new Date();
                 bookmark.lastUpdated = new Date();
                 
-                db.bookmarks().save(bookmark, function(err, result) {
+                db.bookmarks().insert(bookmark, function(err, result) {
                     if (err) {
                         return next(err);
                     }
@@ -53,7 +63,7 @@ xBrowserSync.API.Bookmarks = function() {
                     var data = {};
                     
                     if (!!result) {
-                        data.id = result._id;
+                        data.id = id;
                         data.lastUpdated = result.lastUpdated;
                         
                         // Add to log
@@ -70,13 +80,15 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var getBookmarks = function(req, res, next) {
-        if (!req.params.secretHash) {
-            return next(new restify.MissingParameterError("No secret hash provided."));
+        if (req.params.id === undefined) {
+            return next(new restify.MissingParameterError('No id provided.'));
         }
+
+        // Get binary from id
+        var binId = db.getBinaryFromUuid(req.params.id);
         
         db.bookmarks().findOne(
-            { _id: mongojs.ObjectId(req.params.id),
-              secretHash: req.params.secretHash }, 
+            { _id: binId }, 
             function(err, result) {
                 if (err) {
                     return next(err);
@@ -95,7 +107,7 @@ xBrowserSync.API.Bookmarks = function() {
         );
         
         db.bookmarks().update(
-            { _id: mongojs.ObjectId( req.params.id) }, 
+            { _id: binId }, 
             { $set: { lastAccessed: new Date() } },
             function(err, result) {
                 if (err) {
@@ -108,13 +120,15 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var getLastUpdated = function(req, res, next) {
-        if (!req.params.secretHash) {
-            return next(new restify.MissingParameterError("No secret hash provided."));
+        if (req.params.id === undefined) {
+            return next(new restify.MissingParameterError('No id provided.'));
         }
+
+        // Get binary from id
+        var binId = db.getBinaryFromUuid(req.params.id);
         
         db.bookmarks().findOne( 
-            { _id: mongojs.ObjectId(req.params.id),
-              secretHash: req.params.secretHash }, 
+            { _id: binId }, 
             function(err, result) {
                 if (err) {
                     return next(err);
@@ -130,22 +144,35 @@ xBrowserSync.API.Bookmarks = function() {
                 return next();
             }
         );
+        
+        db.bookmarks().update(
+            { _id: binId }, 
+            { $set: { lastAccessed: new Date() } },
+            function(err, result) {
+                if (err) {
+                    return next(err);
+                }
+                
+                return next();
+            }
+        );
     };
     
     var updateBookmarks = function(req, res, next) {
-        if (!req.params.secretHash) {
-            return next(new restify.MissingParameterError("No secret hash provided."));
+        if (req.params.bookmarks === undefined) {
+            return next(new restify.MissingParameterError('No bookmarks provided.'));
         }
+
+        // Get binary from id
+        var binId = db.getBinaryFromUuid(req.params.id);
         
         var bookmark = {};
         bookmark.bookmarks = req.params.bookmarks;
-        bookmark.secretHash = req.params.secretHash;
         bookmark.lastAccessed = new Date();
         bookmark.lastUpdated = new Date();
         
         db.bookmarks().update(
-            { _id: mongojs.ObjectId(req.params.id),
-              secretHash: req.params.secretHash }, 
+            { _id: binId }, 
             { $set: bookmark },
             function(err, result) {
                 if (err) {
