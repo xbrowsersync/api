@@ -3,7 +3,7 @@ xBrowserSync.API = xBrowserSync.API || {};
 
 /* ------------------------------------------------------------------------------------
  * Class name:  xBrowserSync.API.Bookmarks 
- * Description: Provides API for operations on bookmark data.
+ * Description: Handles operations on bookmark data.
  * ------------------------------------------------------------------------------------ */
 
 xBrowserSync.API.Bookmarks = function() {
@@ -44,10 +44,9 @@ xBrowserSync.API.Bookmarks = function() {
                     return recaptcha.checkResponse(req.params.recaptchaResponse);
                 }
             })
-            .then(function() {
-                // Create new id
-                var id = db.getNewUuid();
-
+            // Create new id
+            .then(getNewId)
+            .then(function(id) {
                 // Create new sync
                 var bookmark = {};
                 bookmark._id = db.getBinaryFromUuid(id);
@@ -156,6 +155,38 @@ xBrowserSync.API.Bookmarks = function() {
                 return next();
             }
         );
+    };
+
+    var getNewId = function() {
+        var deferred = Q.defer();
+        
+        // Get new id and corresponding binary
+        var id = db.getNewUuid();
+        var binId = db.getBinaryFromUuid(id);
+        
+        // Check if already in use
+        db.bookmarks().findOne( 
+            { _id: binId }, 
+            function findOneCallback(err, result) {
+                if (err) {
+                    return deferred.reject();
+                }
+                
+                // If no result found, use this id
+                if (!result) {
+                    return deferred.resolve(id);
+                }
+
+                // Otherwise generate a new id and check again
+                id = db.getNewUuid();
+                binId = db.getBinaryFromUuid(id);
+                db.bookmarks().findOne(
+                    { _id: binId },
+                    findOneCallback);
+            }
+        );
+
+        return deferred.promise;
     };
     
     var updateBookmarks = function(req, res, next) {

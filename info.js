@@ -3,7 +3,7 @@ xBrowserSync.API = xBrowserSync.API || {};
 
 /* ------------------------------------------------------------------------------------
  * Class name:  xBrowserSync.API.Info 
- * Description: Provides API for querying service information.
+ * Description: Provides API service information.
  * ------------------------------------------------------------------------------------ */
 
 xBrowserSync.API.Info = function() {
