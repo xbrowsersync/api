@@ -75,7 +75,7 @@ xBrowserSync.API.Config = function() {
 
         // Google reCAPTCHA settings
         recaptcha: {
-            // Determines whether syncs are required to pass recatcha. Default is false.
+            // Determines whether new syncs are required to pass recatcha. Default is false.
             enabled: false,
 
             // reCAPTCHA site key supplied by Google.
