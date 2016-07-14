@@ -60,27 +60,27 @@ CD into the source directory and install the package and dependencies using NPM:
   
   Save and exit, then log out and back in again.
 
-  ### If exposing your service to the public it is recommended you also perform the following steps:
+  #### If exposing your service to the public it is recommended you also perform the following steps:
   
   3. Add a Scheduled Task (Windows) or CRON job (Ubuntu/Linux) to clear stale sync data that has not been accessed in a while. The task should run daily with the following command:
    
-  - Windows:
+    - Windows:
   
-    ```
-    mongod.exe xBrowserSync -u %XBROWSERSYNC_DB_USER% -p %XBROWSERSYNC_DB_PWD% --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
-    ```
+      ```
+      mongod.exe xBrowserSync -u %XBROWSERSYNC_DB_USER% -p %XBROWSERSYNC_DB_PWD% --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
+      ```
   
-  - Ubuntu/Linux:
+    - Ubuntu/Linux:
   
-    ```
-    mongo xBrowserSync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
-    ```
+      ```
+      mongo xBrowserSync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
+      ```
   
   4. Sign up for [Google reCAPTCHA](https://www.google.com/recaptcha/) to prevent abuse of your xBrowserSync service.
 
-  - Save the site and secret key values to add to the service configuration (see section 3 below).
-  - Add the domain that your service will be running on.
-  - Disable domain name validation (under Advanced Settings).
+    - Save the site and secret key values to add to the service configuration (see section 3 below).
+    - Add the domain that your service will be running on.
+    - Disable domain name validation (under Advanced Settings).
 
 ## 3. Edit xBrowserSync service configuration
 
