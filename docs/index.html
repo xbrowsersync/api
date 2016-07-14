@@ -27,6 +27,14 @@
       </div>
     </div>
 
+    <div id="alert-noNewSyncs" class="alert alert-warning" role="alert">
+      This service is not currently accepting new syncs.
+    </div>
+    
+    <div id="alert-offline" class="alert alert-danger" role="alert">
+      This service is currently offline.
+    </div>
+    
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
       <h2>Bookmarks</h2>
       
@@ -48,18 +56,21 @@
         </div>
         <div id="CreateBookmarks" class="panel-collapse collapse" role="tabpanel" aria-labelledby="CreateBookmarksHeading">
           <div class="panel-body">
-            <p>Creates a new bookmark sync using the provided encrypted bookmarks and secret hash.</p>
+            <p>Creates a new bookmark sync using the provided encrypted bookmarks and secret hash. Note: if the service has enabled Google reCAPTCHA (as determined in Get Service Information), a
+              reCAPTCHA response is required to be submitted with this method.
+            </p>
 
             <h5>Post body example</h5>
-            <pre>{"bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNH/QQ+Y/RgxdU+8+8/muo4jo/jKnHssSezvjq6aPvYK+EAzAoRmXenAgUwHOjbiAXFqF8gScbbuLRlF0MsTKn/puIyFnvJd..."}</pre>
+            <pre>{"bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds...","recaptchaResponse":"03AHJ_VuuLuPq_VbFUSLeH_IRMgxD7ZJqUHv2sdA_IPdy8ckFW..."}</pre>
             <ul>
               <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+              <li><strong>recaptchaResponse:</strong> Response value provided by Google reCAPTCHA widget.</li>
             </ul>
 
             <h5>Response example</h5>
-            <pre>{"id":"507f191e810c19729de860ea","lastUpdated":"2016-07-06T12:43:16.866Z"}</pre>
+            <pre>{"id":"52758cb942814faa9ab255208025ae59","lastUpdated":"2016-07-06T12:43:16.866Z"}</pre>
             <ul>
-              <li><strong>id:</strong> ID created to identify synced bookmarks.</li>
+              <li><strong>id:</strong> 32 character alphanumeric ID created to identify synced bookmarks.</li>
               <li><strong>lastUpdated:</strong> Last updated timestamp for created bookmarks.</li>
             </ul>
           </div>
@@ -86,11 +97,11 @@
           <div class="panel-body">
             <p>Retrieves an existing bookmark sync corresponding to the provided sync ID and secret hash.</p>
             <ul>
-              <li><strong>id:</strong> ID identifying synced bookmarks.</li>
+              <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
             </ul>
 
             <h5>Response example</h5>
-            <pre>{"bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNH/QQ+Y/RgxdU+8+8/muo4jo/jKnHssSezvjq6aPvYK+EAzAoRmXenAgUwHOjbiAXFqF8gScbbuLRlF0MsTKn/puIyFnvJd...","lastUpdated":"2016-07-06T12:43:16.866Z"}</pre>
+            <pre>{"bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds...","lastUpdated":"2016-07-06T12:43:16.866Z"}</pre>
             <ul>
               <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
               <li><strong>lastUpdated:</strong> Last updated timestamp for retrieved bookmarks.</li>
@@ -118,9 +129,12 @@
         <div id="UpdateBookmarks" class="panel-collapse collapse" role="tabpanel" aria-labelledby="UpdateBookmarksHeading">
           <div class="panel-body">
             <p>Updates an existing bookmark sync corresponding to the provided sync ID and secret hash, using the provided encrypted bookmarks.</p>
+            <ul>
+              <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
+            </ul>
 
             <h5>Post body example</h5>
-            <pre>{"bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNH/QQ+Y/RgxdU+8+8/muo4jo/jKnHssSezvjq6aPvYK+EAzAoRmXenAgUwHOjbiAXFqF8gScbbuLRlF0MsTKn/puIyFnvJd..."}</pre>
+            <pre>{"bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds..."}</pre>
             <ul>
               <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
             </ul>
@@ -154,7 +168,7 @@
           <div class="panel-body">
             <p>Retrieves an existing bookmark sync's last updated time stamp corresponding to the provided sync ID and secret hash.</p>
             <ul>
-              <li><strong>id:</strong> ID identifying synced bookmarks.</li>
+              <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
             </ul>
 
             <h5>Response example</h5>
@@ -166,7 +180,7 @@
         </div>
       </div>
 
-      <h2>Service Status</h2>
+      <h2>Service Information</h2>
 
       <div class="panel panel-default">
         <div class="panel-heading" role="tab" id="GetStatusHeading">
@@ -174,11 +188,11 @@
             <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#GetStatus" aria-expanded="true" aria-controls="GetStatus">
               <div class="row">
                 <div class="col-xs-12 col-sm-4 col-sm-push-8">
-                  <div class="title">Get Status</div>
+                  <div class="title">Get Service Information</div>
                 </div>
                 <div class="col-xs-12 col-sm-8 col-sm-pull-4">
                   <span class="label label-success">Get</span>
-                  <code>/status</code>
+                  <code>/info</code>
                 </div>
               </div>    
             </a>
@@ -186,13 +200,15 @@
         </div>
         <div id="GetStatus" class="panel-collapse collapse" role="tabpanel" aria-labelledby="GetStatusHeading">
           <div class="panel-body">
-            <p>Retrieves the current status of the xBrowserSync service as to determine whether the service is online and accepting new syncs.</p>
+            <p>Retrieves information describing the xBrowserSync service.</p>
 
             <h5>Response example</h5>
-            <pre>{"status":1,"message":""}</pre>
+            <pre>{"status":1,"message":"","recaptcha":{"enabled":true,"siteKey":"6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}}</pre>
             <ul>
               <li><strong>status:</strong> Current service status code. 1 = Online; 2 = Offline; 3 = Not accepting new syncs.</li>
               <li><strong>message:</strong> Current service status message (if provided).</li>
+              <li><strong>recaptcha.enabled:</strong> Whether Google reCAPTCHA response is required when calling Create Bookmarks API method.</li>
+              <li><strong>recaptcha.siteKey:</strong> Google reCAPTCHA site key used by this service. Required when rendering the reCAPTCHA widget.</li>
             </ul>
           </div>
         </div>
@@ -202,5 +218,19 @@
 
   <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      $.get('/info', function(response) {
+        switch (response.status) {
+          case 2:
+            $('#alert-offline').show();
+            break;
+          case 3:
+            $('#alert-noNewSyncs').show();
+            break;
+        }
+      });
+    })
+  </script>
 </body>
 </html>

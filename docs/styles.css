@@ -6,7 +6,7 @@ body {
 
 .logo {
     display: block;
-    margin: 30px auto 0 auto;
+    margin: 20px auto;
 }
 
 h2 {
@@ -65,6 +65,14 @@ a {
 
 .panel-default>.panel-heading+.panel-collapse>.panel-body {
     border-top-color: #6fa4b1;
+}
+
+.alert-warning, .alert-danger {
+    background-image: none;
+}
+
+.alert {
+    display: none;
 }
 
 @media (max-width: 768px) {
