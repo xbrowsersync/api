@@ -60,7 +60,7 @@ CD into the source directory and install the package and dependencies using NPM:
   
   Save and exit, then log out and back in again.
 
-### If exposing your service to the public it is recommended you also perform the following steps
+  ### If exposing your service to the public it is recommended you also perform the following steps:
   
   3. Add a Scheduled Task (Windows) or CRON job (Ubuntu/Linux) to clear stale sync data that has not been accessed in a while. The task should run daily with the following command:
    
