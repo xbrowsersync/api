@@ -16,9 +16,6 @@ xBrowserSync.API.Global = function() {
             xForwardedFor: 2,
             remoteAddress: 3
         },
-        recaptcha: {
-            verificationApiUri: 'https://www.google.com/recaptcha/api/siteverify'
-        },
         serviceStatuses: {
             online: 1,
             offline: 2,

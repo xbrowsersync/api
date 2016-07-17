@@ -17,11 +17,7 @@ xBrowserSync.API.Info = function() {
     var getInfo = function(req, res, next) {
         var serviceInfo = {
             status: config.status,
-            message: config.statusMessage,
-            recaptcha: {
-                enabled: config.recaptcha.enabled,
-                siteKey: config.recaptcha.siteKey
-            }
+            message: config.statusMessage
         };
         
         if (config.status === global.serviceStatuses.offline) {

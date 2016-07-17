@@ -13,7 +13,6 @@ xBrowserSync.API.Bookmarks = function() {
     var restify = require('restify');
     var db = require('./db.js');
     var newSyncsLog = require('./newSyncsLog.js');
-    var recaptcha = require('./recaptcha.js');
     
     var createBookmarks = function(req, res, next) {
         if (req.params.bookmarks === undefined) {
@@ -35,17 +34,9 @@ xBrowserSync.API.Bookmarks = function() {
                     return Q.reject(new restify.TooManyRequestsError('New syncs limit exceeded for today.'));
                 }
 
-                // Check recaptcha
-                if (!!recaptcha.enabled()) {
-                    if (req.params.recaptchaResponse === undefined) {
-                        return Q.reject(new restify.MissingParameterError('reCAPTCHA response missing.'));
-                    }
-
-                    return recaptcha.checkResponse(req.params.recaptchaResponse);
-                }
+                // Create new id
+                return getNewId();
             })
-            // Create new id
-            .then(getNewId)
             .then(function(id) {
                 // Create new sync
                 var bookmark = {};

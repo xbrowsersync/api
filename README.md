@@ -75,12 +75,6 @@ CD into the source directory and install the package and dependencies using NPM:
       ```
       mongo xBrowserSync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
       ```
-  
-  4. Sign up for [Google reCAPTCHA](https://www.google.com/recaptcha/) to prevent abuse of your xBrowserSync service.
-
-    - Save the site and secret key values to add to the service configuration (see section 3 below).
-    - Add the domain that your service will be running on.
-    - Disable domain name validation (under Advanced Settings).
 
 ## 3. Edit xBrowserSync service configuration
 
@@ -90,9 +84,6 @@ Open `config.js` in a text editor and update the following variables with your d
 - `log.path` Path to the file to log to.
 - `maxSyncs` The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service.
 - `maxSyncSize` The maximum sync size in bytes.
-- `recaptcha.enabled` Determines whether new syncs are required to pass recatcha.
-- `recaptcha.siteKey` reCAPTCHA site key supplied by Google.
-- `recaptcha.secretKey` reCAPTCHA secret key supplied by Google.
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
 - `server.port` Port to use for Node.js server for accepting incoming connections.
 
