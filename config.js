@@ -91,7 +91,7 @@ xBrowserSync.API.Config = function() {
         // xBrowserSync service. Ideally the message should be 130 characters or less. Use this message 
         // to inform users of interruptions to the service or if no new syncs are being accepted, as per 
         // the commented out example message below.   
-	    statusMessage: 'Hello world!',
+	    statusMessage: '',
 	    //statusMessage: 'This xBrowserSync service is not accepting new syncs. You may sync to this service only if you have already created a sync here.',,
             
         // Throttling settings to use for Node.js server to prevent request flooding.
