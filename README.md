@@ -1,4 +1,4 @@
-![xBrowserSync](https://raw.githubusercontent.com/xBrowserSync/xbrowsersync.github.io/master/images/logo_150.png "xBrowserSync")
+![xBrowserSync](https://raw.githubusercontent.com/xBrowserSync/xbrowsersync.github.io/master/assets/images/logo-150.png "xBrowserSync")
 
 [xBrowserSync](http://xbrowsersync.org/) is a tool for encrypting and syncing your bookmarks and other browser data to an anonymous cloud service. For full details, see http://xbrowsersync.org.
 
@@ -87,10 +87,16 @@ Open `config.js` in a text editor and update the following variables with your d
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
 - `server.port` Port to use for Node.js server for accepting incoming connections.
 
-## 4. Run xBrowserSync service
+## 4. Create log file
+
+Create the file determined in the `log.path` config variable in the previous step. By default this will be `/var/log/xBrowserSync_api.log` unless you've changed it (Windows users note: this path is still valid for you, Node.js will look for `C:\var\log\xBrowserSync_api.log` so ensure you create the file there unless you want to put it in a friendlier location).
+
+Also, ensure the Node.js service has permission to write to this file.
+
+## 5. Run xBrowserSync service
 
     $ node api.js
 
-# Bugs
+# Issues
 
-If you find a bug in the course of running an xBrowserSync service, please report it [here](https://github.com/xBrowserSync/API/issues/).
+If you've found a bug or wish to request a new feature, please submit it [here](https://github.com/xBrowserSync/API/issues/).
