@@ -76,8 +76,6 @@ xBrowserSync.API.Main = function () {
         );
 
         server.use(restify.queryParser());
-
-        //server.use(restify.serveStatic());
         
         server.use(restify.bodyParser({
             maxBodySize: config.maxSyncSize

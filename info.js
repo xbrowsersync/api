@@ -16,11 +16,12 @@ xBrowserSync.API.Info = function() {
     
     var getInfo = function(req, res, next) {
         var serviceInfo = {
-            status: config.status,
-            message: config.statusMessage
+            status: global.serviceStatuses.offline,
+            message: config.status.message,
+            version: config.version
         };
         
-        if (config.status === global.serviceStatuses.offline) {
+        if (!!config.status.offline) {
             res.send(200, serviceInfo);
             return next();
         }

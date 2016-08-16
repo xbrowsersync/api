@@ -38,7 +38,7 @@ xBrowserSync.API.DB = function() {
     
     var checkAcceptingNewSyncs = function() {
         // Check config variable first
-        if (!config.allowNewSyncs) {
+        if (!config.status.allowNewSyncs) {
             return Q.resolve(false);
         }
         

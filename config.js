@@ -12,11 +12,6 @@ xBrowserSync.API.Config = function() {
     var global = require('./global.js');
     
     return {
-        // Determines whether users will be allowed to create new syncs on this server. Note: 
-        // if this setting is set to false, users who have already synced to this service and have 
-        // a sync ID will still able to get and update their syncs. Default is true.
-        allowNewSyncs: true,
-        
         // Order of methods to use when determining client ip address to enforce daily new sync limit. 
         // When the service is running behind a reverse proxy HTTP headers (xClientIp/xForwardedFor) can 
         // be used, otherwise remoteAddress should be used first to protect against IP spoofing.
@@ -82,18 +77,24 @@ xBrowserSync.API.Config = function() {
             port: '8080'
         },
         
-        // Status of xBrowserSync server, if set to offline as per commented out value, no clients will 
-        // be able to sync to this service. Default is global.serviceStatuses.online.
-        status: global.serviceStatuses.online,
-        //status: global.serviceStatuses.offline,
-        
-        // This message will be displayed in the service status panel of the client app when using this 
-        // xBrowserSync service. Ideally the message should be 130 characters or less. Use this message 
-        // to inform users of interruptions to the service or if no new syncs are being accepted, as per 
-        // the commented out example message below.   
-	    statusMessage: '',
-	    //statusMessage: 'This xBrowserSync service is not accepting new syncs. You may sync to this service only if you have already created a sync here.',,
+        // Status of xBrowserSync server
+        status: {
+            // Determines whether users will be allowed to create new syncs on this server. Note: 
+            // if this setting is set to false, users who have already synced to this service and have 
+            // a sync ID will still able to get and update their syncs. Default is true.
+            allowNewSyncs: true,
             
+            // This message will be displayed in the service status panel of the client app when using this 
+            // xBrowserSync service. Ideally the message should be 130 characters or less. Use this message 
+            // to inform users of interruptions to the service or if no new syncs are being accepted, as per 
+            // the commented out example message below.   
+            message: '',
+            //message: 'This xBrowserSync service is not accepting new syncs. You may sync to this service only if you have already created a sync here.',,
+            
+            // If set to true, no clients will be able to connect to this service. Default is false.
+            offline: false
+        },
+        
         // Throttling settings to use for Node.js server to prevent request flooding.
         throttle: {
             // Maximum possible number of requests per second. Default is 50.

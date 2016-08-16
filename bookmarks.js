@@ -12,9 +12,14 @@ xBrowserSync.API.Bookmarks = function() {
     var Q = require('q');
     var restify = require('restify');
     var db = require('./db.js');
+    var config = require('./config.js');
     var newSyncsLog = require('./newSyncsLog.js');
     
     var createBookmarks = function(req, res, next) {
+        if (!!config.status.offline) {
+            return next(new restify.ServiceUnavailableError());
+        }
+        
         if (req.params.bookmarks === undefined) {
             return next(new restify.MissingParameterError('No bookmarks provided.'));
         }
@@ -70,6 +75,10 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var getBookmarks = function(req, res, next) {
+        if (!!config.status.offline) {
+            return next(new restify.ServiceUnavailableError());
+        }
+        
         if (req.params.id === undefined) {
             return next(new restify.MissingParameterError('No id provided.'));
         }
@@ -110,6 +119,10 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var getLastUpdated = function(req, res, next) {
+        if (!!config.status.offline) {
+            return next(new restify.ServiceUnavailableError());
+        }
+        
         if (req.params.id === undefined) {
             return next(new restify.MissingParameterError('No id provided.'));
         }
@@ -181,6 +194,10 @@ xBrowserSync.API.Bookmarks = function() {
     };
     
     var updateBookmarks = function(req, res, next) {
+        if (!!config.status.offline) {
+            return next(new restify.ServiceUnavailableError());
+        }
+        
         if (req.params.bookmarks === undefined) {
             return next(new restify.MissingParameterError('No bookmarks provided.'));
         }

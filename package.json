@@ -21,11 +21,20 @@
     "request": "2.73.x"
   },
   "devDependencies": {
-    "jshint": "2.9.x"
+    "jshint": "2.9.x",
+    "node-sass": "3.7.x",
+    "minifier": "0.8.x"
   },
   "engine": "node >= 0.10.45",
   "scripts": {
     "test": "npm run lint",
-    "lint": "jshint ."
+    "lint": "jshint .",
+
+    "build": "npm run compilecss",
+    "compilecss": "node-sass docs/css/styles.scss docs/css/styles.css -q",
+    "postcompilecss": "npm run minifycss",
+    "minifycss": "minify --output docs/css/styles.min.css docs/css/styles.css",
+    "postminifycss": "npm run bundlejs",
+    "bundlejs": "minify --output docs/js/scripts.min.js docs/js/init.js"
   }
 }
