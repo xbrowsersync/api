@@ -13,7 +13,10 @@
     "url": "https://github.com/xBrowserSync/API/issues"
   },
   "dependencies": {
+    "bootstrap": "3.3.x",
     "bunyan": "1.8.x",
+    "jquery": "3.1.x",
+    "jquery-easing": "0.0.x",
     "mongojs": "2.4.x",
     "node-uuid": "1.4.x",
     "q": "1.4.x",
@@ -23,6 +26,7 @@
   "devDependencies": {
     "jshint": "2.9.x",
     "node-sass": "3.7.x",
+    "npm-build-tools": "2.2.x",
     "minifier": "0.8.x"
   },
   "engine": "node >= 0.10.45",
@@ -33,8 +37,8 @@
     "build": "npm run compilecss",
     "compilecss": "node-sass docs/css/styles.scss docs/css/styles.css -q",
     "postcompilecss": "npm run minifycss",
-    "minifycss": "minify --output docs/css/styles.min.css docs/css/styles.css",
+    "minifycss": "minify --output docs/css/styles.min.css node_modules/bootstrap/dist/css/bootstrap.min.css docs/css/styles.css",
     "postminifycss": "npm run bundlejs",
-    "bundlejs": "minify --output docs/js/scripts.min.js docs/js/init.js"
+    "bundlejs": "minify --output docs/js/scripts.min.js node_modules/jquery/dist/jquery.min.js node_modules/jquery-easing/jquery.easing.1.3.js node_modules/bootstrap/dist/js/bootstrap.min.js docs/js/init.js"
   }
 }

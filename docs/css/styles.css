@@ -1,3 +1,24 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url("../fonts/roboto/Roboto-Regular-webfont.eot");
+  src: url("../fonts/roboto/Roboto-Regular-webfont.eot?#iefix") format("embedded-opentype"), url("../fonts/roboto/Roboto-Regular-webfont.woff") format("woff"), url("../fonts/roboto/Roboto-Regular-webfont.ttf") format("truetype"), url("../fonts/roboto/Roboto-Regular-webfont.svg#Roboto") format("svg");
+  font-weight: 400;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'Roboto';
+  src: url("../fonts/roboto/Roboto-Bold-webfont.eot");
+  src: url("../fonts/roboto/Roboto-Bold-webfont.eot?#iefix") format("embedded-opentype"), url("../fonts/roboto/Roboto-Bold-webfont.woff") format("woff"), url("../fonts/roboto/Roboto-Bold-webfont.ttf") format("truetype"), url("../fonts/roboto/Roboto-Bold-webfont.svg#Roboto") format("svg");
+  font-weight: 700;
+  font-style: normal; }
+
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url("../fonts/source-code-pro/SourceCodePro-Semibold.eot");
+  src: url("../fonts/source-code-pro/SourceCodePro-Semibold.eot?#iefix") format("embedded-opentype"), url("../fonts/source-code-pro/SourceCodePro-Semibold.woff") format("woff"), url("../fonts/source-code-pro/SourceCodePro-Semibold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal; }
+
 body {
   font-family: "Roboto", sans-serif;
   color: #EDFEFF; }
@@ -73,31 +94,7 @@ pre, code {
   font-size: 1.1em;
   border: none;
   outline: 0;
-  padding: 10px 0;
-  /*.navbar-toggle {
-        font-size: 1.4em;
-        margin: 0 15px;
-        padding: 9px 15px;
-        border-color: $colour-text1;
-        color: $colour-link-highlight;
-        background-color: $colour-text1;
-
-        &.collapsed {
-            color: $colour-text1;
-            border-color: $colour-text1;
-            background-color: transparent;
-
-            &:focus,
-            &:hover {
-                background-color: transparent;
-            }
-        }
-
-        &:focus,
-        &:hover {
-            background-color: $colour-text1;
-        }
-    }*/ }
+  padding: 10px 0; }
   .navbar-custom .navbar-brand {
     text-indent: -9999px;
     display: block;

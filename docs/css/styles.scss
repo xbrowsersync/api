@@ -1,3 +1,4 @@
+@import 'fonts.scss';
 @import 'variables.scss';
 @import 'mixins.scss';
 
@@ -139,31 +140,6 @@ pre, code {
             }
         }
     }
-
-    /*.navbar-toggle {
-        font-size: 1.4em;
-        margin: 0 15px;
-        padding: 9px 15px;
-        border-color: $colour-text1;
-        color: $colour-link-highlight;
-        background-color: $colour-text1;
-
-        &.collapsed {
-            color: $colour-text1;
-            border-color: $colour-text1;
-            background-color: transparent;
-
-            &:focus,
-            &:hover {
-                background-color: transparent;
-            }
-        }
-
-        &:focus,
-        &:hover {
-            background-color: $colour-text1;
-        }
-    }*/
 
     .navbar-toggle {
         height: 50px;
