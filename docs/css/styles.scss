@@ -146,18 +146,19 @@ pre, code {
         padding: 0;
         margin: 0 15px;
         border: 0;
+        font-size: 0.9em;
         font-weight: 400;
         padding-top: 32px;
         color: $colour-link-highlight;
         
         span {
             display: block;
-            width: 38px;
+            width: 35px;
             height: 4px;
             background-color: $colour-link-highlight;
             border-radius: 5px;
             position: absolute;
-            top: 0;
+            top: 5px;
             right: 0;
 
             &:after, &:before
@@ -172,13 +173,13 @@ pre, code {
 
             &:after
             {
-                top: 12px;
+                top: 10px;
                 left: 0;
             }
 
             &:before
             {
-                top: 24px;
+                top: 20px;
                 left: 0;
             }
         }

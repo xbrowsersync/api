@@ -121,17 +121,18 @@ pre, code {
     padding: 0;
     margin: 0 15px;
     border: 0;
+    font-size: 0.9em;
     font-weight: 400;
     padding-top: 32px;
     color: #35C6E8; }
     .navbar-custom .navbar-toggle span {
       display: block;
-      width: 38px;
+      width: 35px;
       height: 4px;
       background-color: #35C6E8;
       border-radius: 5px;
       position: absolute;
-      top: 0;
+      top: 5px;
       right: 0; }
       .navbar-custom .navbar-toggle span:after, .navbar-custom .navbar-toggle span:before {
         content: '';
@@ -141,10 +142,10 @@ pre, code {
         position: absolute;
         border-radius: 5px; }
       .navbar-custom .navbar-toggle span:after {
-        top: 12px;
+        top: 10px;
         left: 0; }
       .navbar-custom .navbar-toggle span:before {
-        top: 24px;
+        top: 20px;
         left: 0; }
     .navbar-custom .navbar-toggle.collapsed {
       color: #EDFEFF;
