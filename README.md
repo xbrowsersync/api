@@ -1,6 +1,6 @@
 ![xBrowserSync](https://raw.githubusercontent.com/xBrowserSync/xbrowsersync.github.io/master/assets/img/logo-150.png "xBrowserSync")
 
-[xBrowserSync](http://xbrowsersync.org/) is a tool for encrypting and syncing your bookmarks and other browser data to an anonymous cloud service. For full details, see http://xbrowsersync.org.
+[xBrowserSync](http://xbrowsersync.org/) is a completely free and open source tool for syncing your browser data between your browsers and devices. For full details, see http://xbrowsersync.org.
 
 This repository contains the source code for the REST service API that client applications communicate with. If you'd like to run your own xBrowserSync service on your [Node.js](https://nodejs.org/) web server, follow the installation steps below.
 
