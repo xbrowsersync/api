@@ -1,4 +1,4 @@
-![xBrowserSync](https://raw.githubusercontent.com/xBrowserSync/xbrowsersync.github.io/master/assets/images/logo-150.png "xBrowserSync")
+![xBrowserSync](https://raw.githubusercontent.com/xBrowserSync/xbrowsersync.github.io/master/assets/img/logo-150.png "xBrowserSync")
 
 [xBrowserSync](http://xbrowsersync.org/) is a tool for encrypting and syncing your bookmarks and other browser data to an anonymous cloud service. For full details, see http://xbrowsersync.org.
 
@@ -13,11 +13,12 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Installation
 
-## 1. Install xBrowserSync API package
+## 1. Install and build xBrowserSync API package
 
-CD into the source directory and install the package and dependencies using NPM:
+CD into the source directory, install the package and dependencies and build using NPM:
 
 	$ npm install
+	$ npm run build
 
 ## 2. Configure mongoDB database
 
