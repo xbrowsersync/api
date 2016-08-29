@@ -88,8 +88,8 @@ pre, code {
 
 .navbar-custom {
     background: rgba(11, 63, 74, 0.9);
-    font-weight: 700;
-    font-size: 1.1em;
+    font-size: 1.2em;
+    font-weight: 400;
     border: none;
     outline: 0;
     padding: 10px 0;
@@ -143,17 +143,15 @@ pre, code {
 
     .navbar-toggle {
         height: 50px;
-        padding: 0;
+        padding: 30px 0 0;
         margin: 0 15px;
         border: 0;
-        font-size: 0.9em;
         font-weight: 400;
-        padding-top: 32px;
         color: $colour-link-highlight;
         
         span {
             display: block;
-            width: 35px;
+            width: 36px;
             height: 4px;
             background-color: $colour-link-highlight;
             border-radius: 5px;
