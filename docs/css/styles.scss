@@ -66,7 +66,7 @@ p {
 
 a {
     color: $colour-link;
-    @include transition(all, ease-in, 0.2s);
+    transition: all, ease-in, 0.2s;
     cursor: pointer;
     
     .active,
@@ -208,7 +208,7 @@ pre, code {
 
     .navbar-collapse {
         border: 0;
-        @include box-shadow(0, 0, 0);
+        box-shadow: none;
     }
 }
 
@@ -268,7 +268,7 @@ section {
     .panel {
         color: $colour-section2-text;
         background-color: $colour-section2-bg;
-        @include border-radius(30px);
+        border-radius: 30px;
         padding: 30px 35px;
         margin-bottom: 50px;
 

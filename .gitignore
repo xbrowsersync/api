@@ -2,3 +2,6 @@ node_modules/
 *.log
 .vscode/
 config.js
+docs/css/styles.css
+docs/css/styles.min.css
+docs/js/scripts.min.js
