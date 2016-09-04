@@ -36,7 +36,7 @@ xBrowserSync.API.Bookmarks = function() {
             })
             .then(function(newSyncLimitHit) {
                 if (!!newSyncLimitHit) {
-                    return Q.reject(new restify.TooManyRequestsError('New syncs limit exceeded for today'));
+                    return Q.reject(new restify.NotAcceptableError('New syncs limit exceeded for today'));
                 }
 
                 // Create new id
