@@ -14,21 +14,21 @@ xBrowserSync.API.Bookmarks = function() {
     var db = require('./db.js');
     var config = require('./config.js');
     var newSyncsLog = require('./newSyncsLog.js');
-    
+
     var createBookmarks = function(req, res, next) {
         if (!!config.status.offline) {
             return next(new restify.ServiceUnavailableError());
         }
         
         if (req.params.bookmarks === undefined) {
-            return next(new restify.MissingParameterError('No bookmarks provided.'));
+            return next(new restify.MissingParameterError('No bookmarks provided'));
         }
         
         // Check if accepting new syncs
         db.acceptingNewSyncs()
             .then(function(acceptingNewSyncs) {
                 if (!acceptingNewSyncs) {
-                    return Q.reject(new restify.MethodNotAllowedError('Server not accepting new syncs.'));
+                    return Q.reject(new restify.MethodNotAllowedError('Server not accepting new syncs'));
                 }
                 
                 // Check daily new sync log
@@ -36,7 +36,7 @@ xBrowserSync.API.Bookmarks = function() {
             })
             .then(function(newSyncLimitHit) {
                 if (!!newSyncLimitHit) {
-                    return Q.reject(new restify.TooManyRequestsError('New syncs limit exceeded for today.'));
+                    return Q.reject(new restify.TooManyRequestsError('New syncs limit exceeded for today'));
                 }
 
                 // Create new id
@@ -80,12 +80,18 @@ xBrowserSync.API.Bookmarks = function() {
         }
         
         if (req.params.id === undefined) {
-            return next(new restify.MissingParameterError('No id provided.'));
+            return next(new restify.MissingParameterError('No ID provided'));
+        }
+        
+        // Get binary from id
+        var binId;
+        try {
+            binId = db.getBinaryFromUuid(req.params.id);
+        }
+        catch(ex) {
+            return next(new restify.InvalidArgumentError('Invalid ID'));
         }
 
-        // Get binary from id
-        var binId = db.getBinaryFromUuid(req.params.id);
-        
         db.bookmarks().findOne(
             { _id: binId }, 
             function(err, result) {
@@ -124,11 +130,17 @@ xBrowserSync.API.Bookmarks = function() {
         }
         
         if (req.params.id === undefined) {
-            return next(new restify.MissingParameterError('No id provided.'));
+            return next(new restify.MissingParameterError('No ID provided'));
         }
-
+        
         // Get binary from id
-        var binId = db.getBinaryFromUuid(req.params.id);
+        var binId;
+        try {
+            binId = db.getBinaryFromUuid(req.params.id);
+        }
+        catch(ex) {
+            return next(new restify.InvalidArgumentError('Invalid ID'));
+        }
         
         db.bookmarks().findOne( 
             { _id: binId }, 
@@ -199,7 +211,7 @@ xBrowserSync.API.Bookmarks = function() {
         }
         
         if (req.params.bookmarks === undefined) {
-            return next(new restify.MissingParameterError('No bookmarks provided.'));
+            return next(new restify.MissingParameterError('Missing bookmark data'));
         }
 
         // Get binary from id
