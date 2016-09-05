@@ -20,8 +20,7 @@ xBrowserSync.API.Global = function() {
             online: 1,
             offline: 2,
             noNewSyncs: 3
-        },
-        version: '1.0.0'
+        }
     };
 };
 
