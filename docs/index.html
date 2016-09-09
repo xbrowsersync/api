@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex" />
   <title>xBrowserSync API</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet">
   <link href="./css/styles.min.css" rel="stylesheet">
   <link href="./img/favicon.png" type="image/png" rel="icon">
 </head>
@@ -87,18 +88,17 @@
       </div>
 
       <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-          <div class="panel">
-            <div class="row header">
-              <div class="col-sm-6">
-                <h4>Create Bookmarks</h4>
-              </div>
-              <div class="col-sm-6 text-right">
-                <span class="label label-warning">Post</span>
-                <code>/bookmarks</code>
-              </div>
+        <div class="col-md-8 col-md-offset-2 panel">
+          <div class="row header">
+            <div class="col-sm-6">
+              <h4>Create Bookmarks</h4>
             </div>
-            <div class="row">
+            <div class="col-sm-6 text-right">
+              <span class="label label-warning">Post</span>
+              <code>/bookmarks</code>
+            </div>
+          </div>
+          <div class="row">
               <div class="col-lg-12">
                 <div class="description">
                   <p>Creates a new bookmark sync using the provided encrypted bookmarks.</p>
@@ -107,127 +107,120 @@
                 <pre>{
   "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds..."
 }</pre>
-                <ul>
-                  <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
-                </ul>
-                <p>Response example:</p>
-                <pre>{
+              <ul>
+                <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+              </ul>
+              <p>Response example:</p>
+              <pre>{
   "id":"52758cb942814faa9ab255208025ae59",
   "lastUpdated":"2016-07-06T12:43:16.866Z"
 }</pre>
-                <ul>
-                  <li><strong>id:</strong> 32 character alphanumeric ID created to identify synced bookmarks.</li>
-                  <li><strong>lastUpdated:</strong> Last updated timestamp for created bookmarks.</li>
-                </ul>
-              </div>
+              <ul>
+                <li><strong>id:</strong> 32 character alphanumeric ID created to identify synced bookmarks.</li>
+                <li><strong>lastUpdated:</strong> Last updated timestamp for created bookmarks.</li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
       <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-          <div class="panel">
-            <div class="row header">
-              <div class="col-sm-6">
-                <h4>Get Bookmarks</h4>
-              </div>
-              <div class="col-sm-6 text-right">
-                <span class="label label-success">Get</span>
-                <code>/bookmarks/{id}</code>
-              </div>
+        <div class="col-md-8 col-md-offset-2 panel">
+          <div class="row header">
+            <div class="col-sm-6">
+              <h4>Get Bookmarks</h4>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="description">
-                  <p>Retrieves an existing bookmark sync corresponding to the provided sync ID.</p>
-                  <ul>
-                    <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
-                  </ul>
-                </div>
-                <p>Response example:</p>
-                <pre>{
+            <div class="col-sm-6 text-right">
+              <span class="label label-success">Get</span>
+              <code>/bookmarks/{id}</code>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="description">
+                <p>Retrieves an existing bookmark sync corresponding to the provided sync ID.</p>
+                <ul>
+                  <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
+                </ul>
+              </div>
+              <p>Response example:</p>
+              <pre>{
   "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds...",
   "lastUpdated":"2016-07-06T12:43:16.866Z"
 }</pre>
-                <ul>
-                  <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
-                  <li><strong>lastUpdated:</strong> Last updated timestamp for retrieved bookmarks.</li>
-                </ul>
-              </div>
+              <ul>
+                <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+                <li><strong>lastUpdated:</strong> Last updated timestamp for retrieved bookmarks.</li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
       <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-          <div class="panel">
-            <div class="row header">
-              <div class="col-sm-6">
-                <h4>Update Bookmarks</h4>
-              </div>
-              <div class="col-sm-6 text-right">
-                <span class="label label-info">Put</span>
-                <code>/bookmarks/{id}</code>
-              </div>
+        <div class="col-md-8 col-md-offset-2 panel">
+          <div class="row header">
+            <div class="col-sm-6">
+              <h4>Update Bookmarks</h4>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="description">
-                  <p>Updates an existing bookmark sync corresponding to the provided sync ID, using the provided encrypted bookmarks.</p>
-                  <ul>
-                    <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
-                  </ul>
-                </div>
-                <p>Post body example:</p>
-                <pre>{
+            <div class="col-sm-6 text-right">
+              <span class="label label-info">Put</span>
+              <code>/bookmarks/{id}</code>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="description">
+                <p>Updates an existing bookmark sync corresponding to the provided sync ID, using the provided encrypted bookmarks.</p>
+                <ul>
+                  <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
+                </ul>
+              </div>
+              <p>Post body example:</p>
+              <pre>{
   "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds..."
 }</pre>
-                <ul>
-                  <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
-                </ul>
-                <p>Response example:</p>
-                <pre>{
+              <ul>
+                <li><strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+              </ul>
+              <p>Response example:</p>
+              <pre>{
   "lastUpdated":"2016-07-06T12:43:16.866Z"
 }</pre>
-                <ul>
-                  <li><strong>lastUpdated:</strong> Last updated timestamp for updated bookmarks.</li>
-                </ul>
-              </div>
+              <ul>
+                <li><strong>lastUpdated:</strong> Last updated timestamp for updated bookmarks.</li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
       <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-          <div class="panel">
-            <div class="row header">
-              <div class="col-sm-6">
-                <h4>Get Last Updated</h4>
-              </div>
-              <div class="col-sm-6 text-right">
-                <span class="label label-success">Get</span>
-                <code>/bookmarks/{id}/lastUpdated</code>
-              </div>
+        <div class="col-md-8 col-md-offset-2 panel">
+          <div class="row header">
+            <div class="col-sm-6">
+              <h4>Get Last Updated</h4>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="description">
-                  <p>Retrieves an existing bookmark sync's last updated time stamp corresponding to the provided sync ID.</p>
-                  <ul>
-                    <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
-                  </ul>
-                </div>
-                <p>Response example:</p>
-                <pre>{
-  "lastUpdated":"2016-07-06T12:43:16.866Z"
-}</pre>
+            <div class="col-sm-6 text-right">
+              <span class="label label-success">Get</span>
+              <code>/bookmarks/{id}/lastUpdated</code>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="description">
+                <p>Retrieves an existing bookmark sync's last updated time stamp corresponding to the provided sync ID.</p>
                 <ul>
-                  <li><strong>lastUpdated:</strong> Last updated timestamp for corresponding bookmarks.</li>
+                  <li><strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
                 </ul>
               </div>
+              <p>Response example:</p>
+              <pre>{
+  "lastUpdated":"2016-07-06T12:43:16.866Z"
+}</pre>
+              <ul>
+                <li><strong>lastUpdated:</strong> Last updated timestamp for corresponding bookmarks.</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -245,34 +238,32 @@
       </div>
 
       <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-          <div class="panel">
-            <div class="row header">
-              <div class="col-sm-6">
-                <h4>Get Service Information</h4>
-              </div>
-              <div class="col-sm-6 text-right">
-                <span class="label label-success">Get</span>
-                <code>/info</code>
-              </div>
+        <div class="col-md-8 col-md-offset-2 panel">
+          <div class="row header">
+            <div class="col-sm-6">
+              <h4>Get Service Information</h4>
             </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="description">
-                  <p>Retrieves information describing the xBrowserSync service.</p>
-                </div>
-                <p>Response example</p>
-                <pre>{
+            <div class="col-sm-6 text-right">
+              <span class="label label-success">Get</span>
+              <code>/info</code>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="description">
+                <p>Retrieves information describing the xBrowserSync service.</p>
+              </div>
+              <p>Response example</p>
+              <pre>{
   "status":1,
   "message":"",
   "version":"1.0.0"
 }</pre>
-                <ul>
-                  <li><strong>status:</strong> Current service status code. 1 = Online; 2 = Offline; 3 = Not accepting new syncs.</li>
-                  <li><strong>message:</strong> Service information message.</li>
-                  <li><strong>version:</strong> API version service is using.</li>
-                </ul>
-              </div>
+              <ul>
+                <li><strong>status:</strong> Current service status code. 1 = Online; 2 = Offline; 3 = Not accepting new syncs.</li>
+                <li><strong>message:</strong> Service information message.</li>
+                <li><strong>version:</strong> API version service is using.</li>
+              </ul>
             </div>
           </div>
         </div>
