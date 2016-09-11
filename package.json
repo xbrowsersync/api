@@ -40,7 +40,7 @@
     "postcopybootstrapcss": "npm run compilecss",
     "compilecss": "node-sass docs/css/styles.scss docs/css/styles.css -q",
     "postcompilecss": "npm run minifycss",
-    "minifycss": "minify docs/css/styles.css",
+    "minifycss": "minify docs/css/styles.css > docs/css/styles.min.css",
     "postminifycss": "npm run bundlejs",
     "bundlejs": "uglifyjs --compress --output docs/js/scripts.min.js -- node_modules/jquery/dist/jquery.min.js node_modules/jquery-easing/jquery.easing.1.3.js node_modules/bootstrap/dist/js/bootstrap.min.js docs/js/init.js"
   }
