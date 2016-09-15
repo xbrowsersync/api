@@ -1,6 +1,6 @@
-All xBrowserSync source code is made available for use without restriction under the MIT license: 
+MIT License
 
-Copyright (c) 2016 Rich Browne
+Copyright (c) 2016 xBrowserSync
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
