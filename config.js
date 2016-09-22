@@ -105,7 +105,7 @@ xBrowserSync.API.Config = function() {
         },
         
         // Current version for the API routes
-        version: '1.0.1'
+        version: '1.0.2'
     };
 };
 
