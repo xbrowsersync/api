@@ -18,7 +18,8 @@ xBrowserSync.API.Info = function() {
         var serviceInfo = {
             status: global.serviceStatuses.offline,
             message: config.status.message,
-            version: config.version
+            version: config.version,
+            maxSyncSize: config.maxSyncSize
         };
         
         if (!!config.status.offline) {
