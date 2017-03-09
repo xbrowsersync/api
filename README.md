@@ -1,3 +1,5 @@
+# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg?branch=master)](https://travis-ci.org/xBrowserSync/API)
+
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
 This repository contains the source code for the REST service API that client applications communicate with. If you'd like to run your own xBrowserSync service on your [Node.js](https://nodejs.org/) web server, follow the installation steps below.
