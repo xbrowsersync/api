@@ -17,7 +17,7 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 CD into the source directory and install dependencies:
 
-	$ npm install
+    $ npm install
 
 ## 2. Configure mongoDB database
 
@@ -91,11 +91,11 @@ Open `src/config.json` in a text editor and update the following variables with 
 
 If you've made configuration changes, be sure to run a fresh build:
 
-  $ npm run build
+    $ npm run build
 
 ## 6. Run xBrowserSync service
 
-  $ node dist/api.js
+    $ node dist/api.js
 
 # Issues
 
