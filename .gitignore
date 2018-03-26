@@ -1,6 +1,5 @@
 node_modules/
 *.log
-.vscode/
-config.js
+.vscode/settings.json
 docs/css/*.css
 docs/js/*.min.js

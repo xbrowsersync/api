@@ -1,0 +1,32 @@
+{
+  "apiName": "xBrowserSync-API",
+  "dailyNewSyncLimit": 3,
+  "db": {
+    "host": "127.0.0.1",
+    "name": "xBrowserSync",
+    "username": "",
+    "password": ""
+  },
+  "log": {
+    "enabled": true,
+    "level": "info",
+    "name": "xBrowserSync_api",
+    "path": "/var/log/xBrowserSync_api.log"
+  },
+  "maxSyncs": 5242,
+  "maxSyncSize": 204800,
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "status": {
+    "allowNewSyncs": true,
+    "message": "",
+    "offline": false
+  },
+  "throttle": {
+    "burst": 50,
+    "rate": 100
+  },
+  "version": "1.0.3"
+}

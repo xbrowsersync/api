@@ -1,4 +1,4 @@
-# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg?branch=master)](https://travis-ci.org/xBrowserSync/API)
+# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg?branch=v1.1.0)](https://travis-ci.org/xBrowserSync/API)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
@@ -15,10 +15,9 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 ## 1. Install and build xBrowserSync API package
 
-CD into the source directory, install the package and dependencies and build using NPM:
+CD into the source directory and install dependencies:
 
 	$ npm install
-	$ npm run build
 
 ## 2. Configure mongoDB database
 
@@ -79,24 +78,24 @@ CD into the source directory, install the package and dependencies and build usi
 
 ## 3. Edit xBrowserSync service configuration
 
-Open `config.js` in a text editor and update the following variables with your desired values:
+Open `src/config.json` in a text editor and update the following variables with your desired values:
 
 - `db.host` The mongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket.
-- `log.path` Path to the file to log to.
+- `log.path` Path to the file to log messages to (ensure node has permission to write to this location).
 - `maxSyncs` The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service.
 - `maxSyncSize` The maximum sync size in bytes.
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
 - `server.port` Port to use for Node.js server for accepting incoming connections.
 
-## 4. Create log file
+## 4. (Re)build api
 
-Create the file determined in the `log.path` config variable in the previous step. By default this will be `/var/log/xBrowserSync_api.log` unless you've changed it (Windows users note: this path is still valid for you, Node.js will look for `C:\var\log\xBrowserSync_api.log` so ensure you create the file there unless you want to put it in a friendlier location).
+If you've made configuration changes, be sure to run a fresh build:
 
-Also, ensure the Node.js service has permission to write to this file.
+  $ npm run build
 
-## 5. Run xBrowserSync service
+## 6. Run xBrowserSync service
 
-    $ node api.js
+  $ node dist/api.js
 
 # Issues
 
