@@ -25,9 +25,17 @@ class InfoRouter {
     }
     info(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const serviceInfo = yield this.service.getInfo(req);
-            res.send(serviceInfo);
-            return next();
+            try {
+                const serviceInfo = yield this.service.getInfo(req);
+                res.send(serviceInfo);
+            }
+            catch (err) {
+                res.json({
+                    code: 'MissingParameter',
+                    message: err.message
+                });
+            }
+            next();
         });
     }
 }

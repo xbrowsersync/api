@@ -17,7 +17,9 @@ class DB {
             mongoose.connect(`mongodb://${this.config.db.host}/${this.config.db.name}`, options);
             const db = mongoose.connection;
             db.on('error', (err) => {
-                this.logger.error({ err: err }, 'Uncaught exception occurred in database.');
+                if (this.config.log.enabled) {
+                    this.logger.error({ err: err }, 'Uncaught exception occurred in database.');
+                }
                 reject(err);
             });
             db.once('open', resolve);

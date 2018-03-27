@@ -8,44 +8,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const bodyParser = require("body-parser");
 const express = require("express");
 const http = require("http");
 const bunyan = require("bunyan");
 const fs = require("fs");
 const mkdirp = require("mkdirp");
+const cors = require("cors");
 const db_1 = require("./db");
 const infoRouter_1 = require("./infoRouter");
 const infoService_1 = require("./infoService");
 const bookmarksRouter_1 = require("./bookmarksRouter");
 const bookmarksService_1 = require("./bookmarksService");
+const newSyncLogsService_1 = require("./newSyncLogsService");
 // Starts a new instance of the xBrowserSync api
 class API {
     constructor() {
         this.config = require('./config.json');
         this.init();
     }
-    // Initialises the xBrowserSync api service
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                // Initialise the express server
-                this.express = express();
-                this.initMiddleware();
-                this.initRoutes();
-                // Connect to db
-                this.db = new db_1.default(this.logger);
-                yield this.db.connect();
-                // Start the api service
-                this.start();
-            }
-            catch (err) {
-                process.exit(1);
-            }
-        });
-    }
-    // Configures api middleware
-    initMiddleware() {
+    // Initialises the express application and middleware
+    configureServer() {
+        this.app = express();
         // Add logging if required
         if (this.config.log.enabled) {
             // Ensure log directory exists
@@ -74,36 +57,115 @@ class API {
                 serializers: bunyan.stdSerializers
             });
         }
-        this.express.use(bodyParser.json());
-        this.express.use(bodyParser.urlencoded({ extended: false }));
+        // If behind proxy use 'X-Forwarded-For' header for client ip address
+        if (this.config.server.behindProxy) {
+            this.app.enable('trust proxy');
+        }
+        // Process JSON-encoded bodies
+        this.app.use(express.json({
+            limit: this.config.maxSyncSize || null
+        }));
+        // Enable support for CORS
+        const corsOptions = this.config.server.cors.whitelist.length > 0 && {
+            origin: (origin, callback) => {
+                if (this.config.server.cors.whitelist.indexOf(origin) !== -1) {
+                    callback(null, true);
+                }
+                else {
+                    const err = new Error('Origin forbidden');
+                    err.name = 'OriginNotPermittedError';
+                    callback(err);
+                }
+            }
+        };
+        this.app.use(cors(corsOptions));
+        this.app.options('*', cors(corsOptions));
+        // TODO: Add middleware to generate all api error messages
+        // Return friendly error messages
+        this.app.use((err, req, res, next) => {
+            if (err) {
+                switch (err.name) {
+                    case 'OriginNotPermittedError':
+                        return res.json({
+                            code: 'OriginNotPermittedError',
+                            message: 'Origin not permitted to access this service'
+                        });
+                    case 'PayloadTooLargeError':
+                        return res.json({
+                            code: 'PayloadTooLargeError',
+                            message: 'Request payload exceeded maximum sync size'
+                        });
+                    default:
+                        next();
+                }
+            }
+        });
+        // TODO: Add thottling
+        /*server.use(restify.throttle({
+          rate: config.throttle.rate,
+          burst: config.throttle.burst,
+          ip: true
+        }));*/
+    }
+    // Initialises and connects to mongodb
+    connectToDb() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.db = new db_1.default(this.logger);
+            yield this.db.connect();
+        });
+    }
+    // Initialises the xBrowserSync api service
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.configureServer();
+                yield this.connectToDb();
+                this.prepareDataServices();
+                this.prepareRoutes();
+                this.startService();
+            }
+            catch (err) {
+                process.exit(1);
+            }
+        });
+    }
+    // Initialise data services
+    prepareDataServices() {
+        this.newSyncLogsService = new newSyncLogsService_1.default(this.logger);
+        this.bookmarksService = new bookmarksService_1.default(this.newSyncLogsService, this.logger);
+        this.infoService = new infoService_1.default(this.bookmarksService, this.logger);
     }
     // Configures api routing
-    initRoutes() {
+    prepareRoutes() {
         const router = express.Router();
-        this.express.use('/', router);
+        this.app.use('/', router);
         // Configure bookmarks routing
-        const bookmarksService = new bookmarksService_1.default(this.logger);
-        const bookmarksRouter = new bookmarksRouter_1.default(bookmarksService);
-        this.express.use('/bookmarks', bookmarksRouter.router);
+        const bookmarksRouter = new bookmarksRouter_1.default(this.bookmarksService);
+        this.app.use('/bookmarks', bookmarksRouter.router);
         // Configure info routing
-        const infoService = new infoService_1.default(bookmarksService, this.logger);
-        const infoRouter = new infoRouter_1.default(infoService);
-        this.express.use('/info', infoRouter.router);
+        const infoRouter = new infoRouter_1.default(this.infoService);
+        this.app.use('/info', infoRouter.router);
     }
     // Starts the api service
-    start() {
+    startService() {
         return new Promise((resolve, reject) => {
-            const server = http.createServer(this.express);
+            const server = http.createServer(this.app);
             server.listen(this.config.server.port);
             server.on('close', conn => {
-                this.logger.info(`${this.config.apiName} terminating.`);
+                if (this.config.log.enabled) {
+                    this.logger.info(`${this.config.apiName} terminating.`);
+                }
             });
             server.on('error', (err) => {
-                this.logger.error({ err: err }, `Uncaught exception occurred in ${this.config.apiName}.`);
+                if (this.config.log.enabled) {
+                    this.logger.error({ err: err }, `Uncaught exception occurred in ${this.config.apiName}.`);
+                }
                 server.close();
             });
             server.on('listening', conn => {
-                this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+                if (this.config.log.enabled) {
+                    this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+                }
                 resolve();
             });
         });

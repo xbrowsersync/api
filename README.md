@@ -26,11 +26,11 @@ CD into the source directory and install dependencies:
   (Replace `[password]` with a cleartext password of your choice)
 
   ```
-  use xBrowserSync
+  use xbrowsersync
   db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
   db.createCollection("bookmarks")
-  db.createCollection("newSyncsLog")
-  db.newSyncsLog.createIndex({ "ipAddress": 1, "syncCreated": 1 })
+  db.createCollection("newsynclogs")
+  db.newsynclogs.createIndex({ "ipAddress": 1, "syncCreated": 1 })
   ```
 
   2. Add the following environment variables to hold xBrowserSync DB account username and password:
@@ -67,23 +67,28 @@ CD into the source directory and install dependencies:
     - Windows:
   
       ```
-      mongod.exe xBrowserSync -u %XBROWSERSYNC_DB_USER% -p %XBROWSERSYNC_DB_PWD% --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
+      mongod.exe xbrowsersync -u %XBROWSERSYNC_DB_USER% -p %XBROWSERSYNC_DB_PWD% --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
       ```
   
     - Ubuntu/Linux:
   
       ```
-      mongo xBrowserSync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
+      mongo xbrowsersync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
       ```
 
 ## 3. Edit xBrowserSync service configuration
 
 Open `src/config.json` in a text editor and update the following variables with your desired values:
 
+- `dailyNewSyncsLimit` The maximum number of new syncs that a single IP address can create per day. If this setting is enabled, logs are created in newsynclogs collection to track IP addresses (not kept for longer than a day). Set as `0` to disable.
 - `db.host` The mongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket.
+- `db.username` Username of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`.
+- `db.password` Password of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`.
 - `log.path` Path to the file to log messages to (ensure node has permission to write to this location).
-- `maxSyncs` The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service.
-- `maxSyncSize` The maximum sync size in bytes.
+- `maxSyncs` The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable.
+- `maxSyncSize` The maximum sync size in bytes. Set as `0` to disable (i.e. no max sync size).
+- `server.behindProxy` Set to `true` if service is behind a proxy, client IP address will be set from `X-Forwarded-For` header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users.
+- `server.cors.whitelist` Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted. 
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
 - `server.port` Port to use for Node.js server for accepting incoming connections.
 

@@ -9,6 +9,10 @@ const bookmarksSchema = new mongoose.Schema({
     bookmarks: String,
     lastAccessed: Date,
     lastUpdated: Date
-}, { id: false });
-exports.default = mongoose.model('bookmarks', bookmarksSchema);
+}, {
+    _id: false,
+    id: false,
+    versionKey: false
+});
+exports.default = mongoose.model('Bookmark', bookmarksSchema, 'bookmarks');
 //# sourceMappingURL=bookmarksModel.js.map

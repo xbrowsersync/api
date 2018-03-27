@@ -1,48 +1,34 @@
-import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as http from 'http';
 import * as bunyan from 'bunyan';
 import * as fs from 'fs';
 import * as mkdirp from 'mkdirp';
+import * as cors from 'cors';
 import DB from './db';
 import InfoRouter from './infoRouter';
 import InfoService from './infoService';
 import BookmarksRouter from './bookmarksRouter';
 import BookmarksService from './bookmarksService';
+import NewSyncLogsService from './newSyncLogsService';
 
 // Starts a new instance of the xBrowserSync api
 class API {
+  private bookmarksService: BookmarksService;
   private config = require('./config.json');
   private db: DB;
   private logger: bunyan;
-  private express: express.Application;
+  private app: express.Application;
+  private infoService: InfoService;
+  private newSyncLogsService: NewSyncLogsService;
 
   constructor() {
     this.init();
   }
 
-  // Initialises the xBrowserSync api service
-  private async init(): Promise<void> {
-    try {
-      // Initialise the express server
-      this.express = express();
-      this.initMiddleware();
-      this.initRoutes();
+  // Initialises the express application and middleware
+  private configureServer(): void {
+    this.app = express();
 
-      // Connect to db
-      this.db = new DB(this.logger);
-      await this.db.connect();
-
-      // Start the api service
-      this.start();
-    }
-    catch (err) {
-      process.exit(1);
-    }
-  }
-
-  // Configures api middleware
-  private initMiddleware(): void {
     // Add logging if required
     if (this.config.log.enabled) {
       // Ensure log directory exists
@@ -74,43 +60,128 @@ class API {
       });
     }
 
-    this.express.use(bodyParser.json());
-    this.express.use(bodyParser.urlencoded({ extended: false }));
+    // If behind proxy use 'X-Forwarded-For' header for client ip address
+    if (this.config.server.behindProxy) {
+      this.app.enable('trust proxy');
+    }
+
+    // Process JSON-encoded bodies
+    this.app.use(express.json({
+      limit: this.config.maxSyncSize || null
+    }));
+
+    // Enable support for CORS
+    const corsOptions: cors.CorsOptions =
+      this.config.server.cors.whitelist.length > 0 && {
+        origin: (origin, callback) => {
+          if (this.config.server.cors.whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+          } else {
+            const err = new Error('Origin forbidden');
+            err.name = 'OriginNotPermittedError';
+            callback(err);
+          }
+        }
+      };
+
+    this.app.use(cors(corsOptions));
+    this.app.options('*', cors(corsOptions));
+
+    // TODO: Add middleware to generate all api error messages
+    // Return friendly error messages
+    this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+      if (err) {
+        switch (err.name) {
+          case 'OriginNotPermittedError':
+            return res.json({
+              code: 'OriginNotPermittedError',
+              message: 'Origin not permitted to access this service'
+            });
+          case 'PayloadTooLargeError':
+            return res.json({
+              code: 'PayloadTooLargeError',
+              message: 'Request payload exceeded maximum sync size'
+            });
+          default:
+            next();
+        }
+      }
+    });
+
+    // TODO: Add thottling
+    /*server.use(restify.throttle({
+      rate: config.throttle.rate,
+      burst: config.throttle.burst,
+      ip: true
+    }));*/
+  }
+
+  // Initialises and connects to mongodb
+  private async connectToDb(): Promise<void> {
+    this.db = new DB(this.logger);
+    await this.db.connect();
+  }
+
+  // Initialises the xBrowserSync api service
+  private async init(): Promise<void> {
+    try {
+      this.configureServer();
+      await this.connectToDb();
+      this.prepareDataServices();
+      this.prepareRoutes();
+      this.startService();
+    }
+    catch (err) {
+      process.exit(1);
+    }
+  }
+
+  // Initialise data services
+  private prepareDataServices(): void {
+    this.newSyncLogsService = new NewSyncLogsService(this.logger);
+    this.bookmarksService = new BookmarksService(this.newSyncLogsService, this.logger);
+    this.infoService = new InfoService(this.bookmarksService, this.logger);
   }
 
   // Configures api routing
-  private initRoutes(): void {
+  private prepareRoutes(): void {
     const router = express.Router();
-    this.express.use('/', router);
-    
+    this.app.use('/', router);
+
     // Configure bookmarks routing
-    const bookmarksService = new BookmarksService(this.logger);
-    const bookmarksRouter = new BookmarksRouter(bookmarksService);
-    this.express.use('/bookmarks', bookmarksRouter.router);
+    const bookmarksRouter = new BookmarksRouter(this.bookmarksService);
+    this.app.use('/bookmarks', bookmarksRouter.router);
 
     // Configure info routing
-    const infoService = new InfoService(bookmarksService, this.logger);
-    const infoRouter = new InfoRouter(infoService);
-    this.express.use('/info', infoRouter.router);
+    const infoRouter = new InfoRouter(this.infoService);
+    this.app.use('/info', infoRouter.router);
   }
 
   // Starts the api service
-  public start(): Promise<void> {
+  public startService(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const server = http.createServer(this.express);
+      const server = http.createServer(this.app);
       server.listen(this.config.server.port);
 
       server.on('close', conn => {
-        this.logger.info(`${this.config.apiName} terminating.`);
+        if (this.config.log.enabled) {
+          this.logger.info(`${this.config.apiName} terminating.`);
+        }
       });
 
       server.on('error', (err: NodeJS.ErrnoException) => {
-        this.logger.error({ err: err }, `Uncaught exception occurred in ${this.config.apiName}.`);
+        if (this.config.log.enabled) {
+          this.logger.error({ err: err }, `Uncaught exception occurred in ${this.config.apiName}.`);
+        }
+
         server.close();
       });
 
       server.on('listening', conn => {
-        this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+        if (this.config.log.enabled) {
+          this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+        }
+
         resolve();
       });
     });

@@ -1,5 +1,3 @@
 node_modules/
-*.log
-.vscode/settings.json
 docs/css/*.css
 docs/js/*.min.js

@@ -16,8 +16,17 @@ export default class InfoRouter {
 
   @autobind
   public async info(req: Request, res: Response, next: NextFunction) {
-    const serviceInfo = await this.service.getInfo(req);
-    res.send(serviceInfo);
-    return next();
+    try {
+      const serviceInfo = await this.service.getInfo(req);
+      res.send(serviceInfo);
+    }
+    catch (err) {
+      res.json({
+        code: 'MissingParameter',
+        message: err.message
+      });
+    }
+    
+    next();
   }
 }

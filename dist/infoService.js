@@ -32,7 +32,9 @@ class InfoService {
                     serviceInfo.status = acceptingNewSyncs ? constants.serviceStatuses.online : constants.serviceStatuses.noNewSyncs;
                 }
                 catch (err) {
-                    this.logger.error({ req: req, err: err }, 'Exception occurred in InfoService.getInfo.');
+                    if (this.config.log.enabled) {
+                        this.logger.error({ req: req, err: err }, 'Exception occurred in InfoService.getInfo.');
+                    }
                 }
             }
             return serviceInfo;

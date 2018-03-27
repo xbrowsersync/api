@@ -1,9 +1,9 @@
 {
   "apiName": "xBrowserSync-API",
-  "dailyNewSyncLimit": 3,
+  "dailyNewSyncsLimit": 3,
   "db": {
     "host": "127.0.0.1",
-    "name": "xBrowserSync",
+    "name": "xbrowsersync",
     "username": "",
     "password": ""
   },
@@ -16,6 +16,10 @@
   "maxSyncs": 5242,
   "maxSyncSize": 204800,
   "server": {
+    "behindProxy": false,
+    "cors": {
+      "whitelist": []
+    },
     "host": "127.0.0.1",
     "port": 8080
   },
@@ -28,5 +32,5 @@
     "burst": 50,
     "rate": 100
   },
-  "version": "1.0.3"
+  "version": "1.1.0"
 }

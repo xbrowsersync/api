@@ -16,34 +16,74 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const core_decorators_1 = require("core-decorators");
+// 
 class BookmarksRouter {
     constructor(bookmarksService) {
         this.service = bookmarksService;
         // Configure routes
+        // TODO: Add function for checking if server offline for each route
         this.router = express_1.Router();
-        this.router.get('/new', this.createBookmarksSync);
-        this.router.get('/:id', this.getBookmarksSync);
+        this.router.post('/', this.createBookmarks);
+        this.router.get('/:id', this.getBookmarks);
+        this.router.put('/:id', this.updateBookmarks);
+        this.router.get('/:id/lastUpdated', this.getLastUpdated);
     }
-    createBookmarksSync(req, res, next) {
+    // 
+    createBookmarks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const newBookmarksSync = yield this.service.createBookmarksSync(req);
-            res.json(newBookmarksSync);
-            return next();
+            try {
+                const newBookmarksSync = yield this.service.createBookmarks(req);
+                res.json(newBookmarksSync);
+            }
+            catch (err) {
+                res.json({
+                    code: 'MissingParameter',
+                    message: err.message
+                });
+            }
+            next();
         });
     }
-    getBookmarksSync(req, res, next) {
+    // 
+    getBookmarks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            const bookmarksSync = yield this.service.getBookmarksSync(req);
-            res.json(bookmarksSync);
-            return next();
+            try {
+                const bookmarksSync = yield this.service.getBookmarks(req);
+                res.json(bookmarksSync);
+            }
+            catch (err) {
+                res.json({
+                    code: 'MissingParameter',
+                    message: err.message
+                });
+            }
+            next();
+        });
+    }
+    // 
+    getLastUpdated(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // TODO: Implement
+        });
+    }
+    // 
+    updateBookmarks(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // TODO: Implement
         });
     }
 }
 __decorate([
     core_decorators_1.autobind
-], BookmarksRouter.prototype, "createBookmarksSync", null);
+], BookmarksRouter.prototype, "createBookmarks", null);
 __decorate([
     core_decorators_1.autobind
-], BookmarksRouter.prototype, "getBookmarksSync", null);
+], BookmarksRouter.prototype, "getBookmarks", null);
+__decorate([
+    core_decorators_1.autobind
+], BookmarksRouter.prototype, "getLastUpdated", null);
+__decorate([
+    core_decorators_1.autobind
+], BookmarksRouter.prototype, "updateBookmarks", null);
 exports.default = BookmarksRouter;
 //# sourceMappingURL=bookmarksRouter.js.map

@@ -23,7 +23,9 @@ export default class DB {
       const db = mongoose.connection;
 
       db.on('error', (err: mongoose.Error) => {
-        this.logger.error({ err: err }, 'Uncaught exception occurred in database.');
+        if (this.config.log.enabled) {
+          this.logger.error({ err: err }, 'Uncaught exception occurred in database.');
+        }
         reject(err);
       });
 

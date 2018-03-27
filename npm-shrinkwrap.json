@@ -24,15 +24,8 @@
     },
     "body-parser": {
       "version": "1.18.2",
-      "from": "body-parser@latest",
-      "resolved": "https://registry.npmjs.org/body-parser/-/body-parser-1.18.2.tgz",
-      "dependencies": {
-        "qs": {
-          "version": "6.5.1",
-          "from": "qs@6.5.1",
-          "resolved": "https://registry.npmjs.org/qs/-/qs-6.5.1.tgz"
-        }
-      }
+      "from": "body-parser@1.18.2",
+      "resolved": "https://registry.npmjs.org/body-parser/-/body-parser-1.18.2.tgz"
     },
     "bootstrap": {
       "version": "3.3.7",
@@ -98,6 +91,11 @@
       "version": "1.0.2",
       "from": "core-util-is@>=1.0.0 <1.1.0",
       "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz"
+    },
+    "cors": {
+      "version": "2.8.4",
+      "from": "cors@latest",
+      "resolved": "https://registry.npmjs.org/cors/-/cors-2.8.4.tgz"
     },
     "debug": {
       "version": "2.6.9",
@@ -291,9 +289,8 @@
     },
     "moment": {
       "version": "2.21.0",
-      "from": "moment@>=2.10.6 <3.0.0",
-      "resolved": "https://registry.npmjs.org/moment/-/moment-2.21.0.tgz",
-      "optional": true
+      "from": "https://registry.npmjs.org/moment/-/moment-2.21.0.tgz",
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.21.0.tgz"
     },
     "mongodb": {
       "version": "2.2.35",
@@ -405,6 +402,11 @@
       "from": "node-uuid@>=1.4.0 <1.5.0",
       "resolved": "https://registry.npmjs.org/node-uuid/-/node-uuid-1.4.8.tgz"
     },
+    "object-assign": {
+      "version": "4.1.1",
+      "from": "object-assign@>=4.0.1 <5.0.0",
+      "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz"
+    },
     "on-finished": {
       "version": "2.3.0",
       "from": "on-finished@>=2.3.0 <2.4.0",
@@ -444,6 +446,11 @@
       "version": "2.0.3",
       "from": "proxy-addr@>=2.0.3 <2.1.0",
       "resolved": "https://registry.npmjs.org/proxy-addr/-/proxy-addr-2.0.3.tgz"
+    },
+    "qs": {
+      "version": "6.5.1",
+      "from": "qs@>=6.5.1 <6.6.0",
+      "resolved": "https://registry.npmjs.org/qs/-/qs-6.5.1.tgz"
     },
     "range-parser": {
       "version": "1.2.0",
