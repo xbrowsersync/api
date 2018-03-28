@@ -36,7 +36,7 @@
     "@types/node-uuid": "0.0.28",
     "jshint": "2.9.x",
     "minify": "2.0.x",
-    "node-sass": "3.7.x",
+    "node-sass": "^4.8.3",
     "npm-build-tools": "2.2.x",
     "typescript": "^2.7.2",
     "uglify-js": "2.7.x"
