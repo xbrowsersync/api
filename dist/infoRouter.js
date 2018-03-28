@@ -14,15 +14,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
 const core_decorators_1 = require("core-decorators");
-class InfoRouter {
-    constructor(infoService) {
-        this.service = infoService;
-        // Configure routes
-        this.router = express_1.Router();
-        this.router.get('/', this.info);
+const api_1 = require("./api");
+const baseRouter_1 = require("./baseRouter");
+// 
+class InfoRouter extends baseRouter_1.default {
+    // 
+    initRoutes() {
+        this.createRoute(api_1.ApiVerb.get, '/', '^1.0.0', this.info);
     }
+    // 
     info(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -30,12 +31,8 @@ class InfoRouter {
                 res.send(serviceInfo);
             }
             catch (err) {
-                res.json({
-                    code: 'MissingParameter',
-                    message: err.message
-                });
+                next(err);
             }
-            next();
         });
     }
 }

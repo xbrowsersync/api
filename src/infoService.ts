@@ -1,7 +1,8 @@
 import { Request } from 'express';
 import * as bunyan from 'bunyan';
-import * as constants from './constants';
+import { ApiStatus } from './api';
 import BookmarksService from './bookmarksService';
+const Config = require('./config.json');
 
 export interface iGetInfoResponse {
   maxSyncSize: number,
@@ -12,7 +13,6 @@ export interface iGetInfoResponse {
 
 export default class InfoService {
   private bookmarksService: BookmarksService;
-  private config = require('./config.json');
   private logger: bunyan;
 
   constructor(bookmarksService: BookmarksService, logger: bunyan) {
@@ -24,20 +24,20 @@ export default class InfoService {
   public async getInfo(req: Request): Promise<iGetInfoResponse> {
     // Create response object
     const serviceInfo: iGetInfoResponse = {
-      maxSyncSize: this.config.maxSyncSize,
-      message: this.config.status.message,
-      status: constants.serviceStatuses.offline,
-      version: this.config.version
+      maxSyncSize: Config.maxSyncSize,
+      message: Config.status.message,
+      status: ApiStatus.offline,
+      version: Config.version
     };
 
-    if (!this.config.status.offline) {
+    if (Config.status.online) {
       try {
         // Check if accepting new syncs
         const acceptingNewSyncs = await this.bookmarksService.isAcceptingNewSyncs();
-        serviceInfo.status = acceptingNewSyncs ? constants.serviceStatuses.online : constants.serviceStatuses.noNewSyncs;
+        serviceInfo.status = acceptingNewSyncs ? ApiStatus.online : ApiStatus.noNewSyncs;
       }
       catch (err) {
-        if (this.config.log.enabled) {
+        if (Config.log.enabled) {
           this.logger.error({ req: req, err: err }, 'Exception occurred in InfoService.getInfo.');
         }
       }

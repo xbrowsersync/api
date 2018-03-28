@@ -1,12 +1,14 @@
 import { Request } from 'express';
-import * as bunyan from 'bunyan';
 import * as uuid from 'node-uuid';
+import { ApiError } from './api';
 import BookmarksModel, { iBookmarks, iBookmarksModel } from './bookmarksModel';
+import BaseService from './baseService';
 import NewSyncLogsService from './newSyncLogsService';
+const Config = require('./config.json');
 
 export interface iCreateBookmarksResponse {
-  id: string,
-  lastUpdated: Date
+  id?: string,
+  lastUpdated?: Date
 }
 
 export interface iGetBookmarksResponse {
@@ -14,24 +16,16 @@ export interface iGetBookmarksResponse {
   lastUpdated?: Date
 }
 
+export interface iGetLastUpdatedResponse {
+  lastUpdated?: Date
+}
+
+export interface iUpdateBookmarksResponse {
+  lastUpdated?: Date
+}
+
 // 
-export default class BookmarksService {
-  private config = require('./config.json');
-  private logger: bunyan;
-  private newSyncLogsService: NewSyncLogsService;
-
-  constructor(newSyncLogsService: NewSyncLogsService, logger: bunyan) {
-    this.newSyncLogsService = newSyncLogsService;
-    this.logger = logger;
-  }
-
-  // 
-  private checkServiceAvailability(): void {
-    if (this.config.status.offline) {
-      throw new Error('Service not available.');
-    }
-  }
-
+export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // 
   public async createBookmarks(req: Request): Promise<iCreateBookmarksResponse> {
     // Check for service availability
@@ -39,28 +33,35 @@ export default class BookmarksService {
 
     // Check bookmarks data has been provided
     if (!req.body.bookmarks) {
-      throw new Error('Bookmarks data not found');
+      const err = new Error();
+      err.name = ApiError.BookmarksDataNotFoundError;
+      throw err;
     }
 
     // Check service is accepting new syncs
     const isAcceptingNewSyncs = await this.isAcceptingNewSyncs();
     if (!isAcceptingNewSyncs) {
-      throw new Error('Not accepting new syncs');
+      const err = new Error();
+      err.name = ApiError.NewSyncsForbiddenError;
+      throw err;
     }
 
-    if (this.config.dailyNewSyncsLimit > 0) {
+    if (Config.dailyNewSyncsLimit > 0) {
       // Check if daily new syncs limit has been hit
-      const newSyncsLimitHit = await this.newSyncLogsService.newSyncsLimitHit(req);
+      const newSyncsLimitHit = await this.service.newSyncsLimitHit(req);
       if (newSyncsLimitHit) {
-        throw new Error('Daily new syncs limit exceeded');
+        const err = new Error();
+        err.name = ApiError.NewSyncsLimitExceededError;
+        throw err;
       }
     }
 
     // Get a new sync id
     const id = this.newSyncId();
     if (!id) {
-      const err = new Error('Bookmarks sync ID cannot be null');
-      if (this.config.log.enabled) {
+      const err = new Error();
+      err.name = ApiError.SyncIdNotFoundError;
+      if (Config.log.enabled) {
         this.logger.error({ req: req, err: err }, 'Exception occurred in BookmarksService.createBookmarks.');
       }
       throw err;
@@ -85,13 +86,13 @@ export default class BookmarksService {
         });
       });
 
-      if (this.config.dailyNewSyncsLimit > 0) {
+      if (Config.dailyNewSyncsLimit > 0) {
         // Add entry to new syncs log
-        const newLog = await this.newSyncLogsService.createLog(req);
+        const newLog = await this.service.createLog(req);
       }
 
       // Add entry to api log file
-      if (this.config.log.enabled) {
+      if (Config.log.enabled) {
         this.logger.info({ req: req }, 'New bookmarks sync created.');
       }
 
@@ -102,7 +103,7 @@ export default class BookmarksService {
       } as iCreateBookmarksResponse;
     }
     catch (err) {
-      if (this.config.log.enabled) {
+      if (Config.log.enabled) {
         this.logger.error({ req: req, err: err }, 'Exception occurred in BookmarksService.createBookmarks.');
       }
       throw err;
@@ -115,10 +116,7 @@ export default class BookmarksService {
     this.checkServiceAvailability();
 
     // Check sync id has been provided
-    const id = req.params.id;
-    if (!id) {
-      throw new Error('Sync ID not found');
-    }
+    const id = this.getSyncId(req);
 
     try {
       const bookmarks = await new Promise<iBookmarksModel>((resolve, reject) => {
@@ -142,7 +140,7 @@ export default class BookmarksService {
       return response;
     }
     catch (err) {
-      if (this.config.log.enabled) {
+      if (Config.log.enabled) {
         this.logger.error({ req: req, err: err }, 'Exception occurred in BookmarksService.getBookmarks.');
       }
       throw err;
@@ -154,7 +152,7 @@ export default class BookmarksService {
     return new Promise((resolve, reject) => {
       BookmarksModel.count(null, (err, count) => {
         if (err) {
-          if (this.config.log.enabled) {
+          if (Config.log.enabled) {
             this.logger.error({ err: err }, 'Exception occurred in BookmarksService.getBookmarksCount.');
           }
           reject(err);
@@ -167,20 +165,68 @@ export default class BookmarksService {
   }
 
   //
+  public async getLastUpdated(req: Request): Promise<iGetLastUpdatedResponse> {
+    // Check for service availability
+    this.checkServiceAvailability();
+
+    // Check sync id has been provided
+    const id = this.getSyncId(req);
+
+    try {
+      const bookmarks = await new Promise<iBookmarksModel>((resolve, reject) => {
+        BookmarksModel.findOne({ _id: id }, (err, document) => {
+          if (err) {
+            reject(err);
+          }
+          else {
+            resolve(document);
+          }
+        });
+      });
+
+      const response: iGetLastUpdatedResponse = {};
+
+      if (bookmarks) {
+        response.lastUpdated = bookmarks.lastUpdated;
+      }
+
+      return response;
+    }
+    catch (err) {
+      if (Config.log.enabled) {
+        this.logger.error({ req: req, err: err }, 'Exception occurred in BookmarksService.getLastUpdated.');
+      }
+      throw err;
+    }
+  }
+
+  // 
+  private getSyncId(req: Request): string {
+    const id = req.params.id;
+    if (!id) {
+      const err = new Error();
+      err.name = ApiError.SyncIdNotFoundError;
+      throw err;
+    }
+
+    return id;
+  }
+
+  //
   public async isAcceptingNewSyncs(): Promise<boolean> {
     // Check if allowNewSyncs config value enabled
-    if (!this.config.status.allowNewSyncs) {
+    if (!Config.status.allowNewSyncs) {
       return false;
     }
 
     // Check if maxSyncs config value disabled
-    if (this.config.maxSyncs === 0) {
+    if (Config.maxSyncs === 0) {
       return true;
     }
 
     // Check if total syncs have reached limit set in config  
     const bookmarksCount = await this.getBookmarksCount();
-    return bookmarksCount < this.config.maxSyncs;
+    return bookmarksCount < Config.maxSyncs;
   }
 
   // Generates a new 32 char id string
@@ -192,11 +238,59 @@ export default class BookmarksService {
       newId = new Buffer(bytes, 'base64').toString('hex');
     }
     catch (err) {
-      if (this.config.log.enabled) {
+      if (Config.log.enabled) {
         this.logger.error({ err: err }, 'Exception occurred in BookmarksService.newSyncId.');
       }
     }
 
     return newId;
+  }
+
+  //
+  public async updateBookmarks(req: Request): Promise<iUpdateBookmarksResponse> {
+    // Check for service availability
+    this.checkServiceAvailability();
+
+    // Check bookmarks data has been provided
+    if (!req.body.bookmarks) {
+      const err = new Error();
+      err.name = ApiError.BookmarksDataNotFoundError;
+      throw err;
+    }
+
+    // Check sync id has been provided
+    const id = this.getSyncId(req);
+
+    try {
+      const updatedBookmarks: iBookmarks = {
+        bookmarks: req.body.bookmarks,
+        lastAccessed: new Date(),
+        lastUpdated: new Date()
+      };
+
+      const bookmarks = await new Promise<iBookmarksModel>((resolve, reject) => {
+        BookmarksModel.findOneAndUpdate({ _id: id }, updatedBookmarks, (err, document) => {
+          if (err) {
+            reject(err);
+          }
+          else {
+            resolve(document);
+          }
+        });
+      });
+
+      const response: iGetLastUpdatedResponse = {};
+      if (bookmarks) {
+        response.lastUpdated = updatedBookmarks.lastUpdated;
+      }
+
+      return response;
+    }
+    catch (err) {
+      if (Config.log.enabled) {
+        this.logger.error({ req: req, err: err }, 'Exception occurred in BookmarksService.createBookmarks.');
+      }
+      throw err;
+    }
   }
 }

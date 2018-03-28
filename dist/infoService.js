@@ -8,10 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const constants = require("./constants");
+const api_1 = require("./api");
+const Config = require('./config.json');
 class InfoService {
     constructor(bookmarksService, logger) {
-        this.config = require('./config.json');
         this.bookmarksService = bookmarksService;
         this.logger = logger;
     }
@@ -20,19 +20,19 @@ class InfoService {
         return __awaiter(this, void 0, void 0, function* () {
             // Create response object
             const serviceInfo = {
-                maxSyncSize: this.config.maxSyncSize,
-                message: this.config.status.message,
-                status: constants.serviceStatuses.offline,
-                version: this.config.version
+                maxSyncSize: Config.maxSyncSize,
+                message: Config.status.message,
+                status: api_1.ApiStatus.offline,
+                version: Config.version
             };
-            if (!this.config.status.offline) {
+            if (Config.status.online) {
                 try {
                     // Check if accepting new syncs
                     const acceptingNewSyncs = yield this.bookmarksService.isAcceptingNewSyncs();
-                    serviceInfo.status = acceptingNewSyncs ? constants.serviceStatuses.online : constants.serviceStatuses.noNewSyncs;
+                    serviceInfo.status = acceptingNewSyncs ? api_1.ApiStatus.online : api_1.ApiStatus.noNewSyncs;
                 }
                 catch (err) {
-                    if (this.config.log.enabled) {
+                    if (Config.log.enabled) {
                         this.logger.error({ req: req, err: err }, 'Exception occurred in InfoService.getInfo.');
                     }
                 }

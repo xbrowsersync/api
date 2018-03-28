@@ -1,17 +1,12 @@
 import { Request } from 'express';
-import * as bunyan from 'bunyan';
 import * as moment from 'moment';
+import { ApiError } from './api';
 import NewSyncLogsModel, { iNewSyncLog, iNewSyncLogsModel } from './newSyncLogsModel';
+import BaseService from './baseService';
+const Const = require('./config.json');
 
 // Handles data interaction for the newsynclogs collection in mongodb
-export default class NewSyncLogsService {
-  private config = require('./config.json');
-  private logger: bunyan;
-
-  constructor(logger: bunyan) {
-    this.logger = logger;
-  }
-
+export default class NewSyncLogsService extends BaseService<void> {
   // Clears all new sync logs older than today
   private async clearLog(req: Request): Promise<void> {
     const result = await new Promise((resolve, reject) => {
@@ -22,7 +17,7 @@ export default class NewSyncLogsService {
       },
         err => {
           if (err) {
-            if (this.config.log.enabled) {
+            if (Const.log.enabled) {
               this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.clearLog.');
             }
             reject(err);
@@ -38,8 +33,9 @@ export default class NewSyncLogsService {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      if (this.config.log.enabled) {
-        const err = new Error('Client IP address is null');
+      if (Const.log.enabled) {
+        const err = new Error();
+        err.name = ApiError.ClientIpAddressEmptyError;
         this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.createLog.');
       }
       return;
@@ -55,7 +51,7 @@ export default class NewSyncLogsService {
     const newLog = await new Promise<iNewSyncLogsModel>((resolve, reject) => {
       createLog.save((err, document) => {
         if (err) {
-          if (this.config.log.enabled) {
+          if (Const.log.enabled) {
             this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.createLog.');
           }
           reject(err);
@@ -82,8 +78,10 @@ export default class NewSyncLogsService {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      const err = new Error('Client IP address is null');
-      if (this.config.log.enabled) {
+      const err = new Error();
+      err.name = ApiError.ClientIpAddressEmptyError;
+
+      if (Const.log.enabled) {
         this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
       }
       throw err;
@@ -96,7 +94,7 @@ export default class NewSyncLogsService {
       },
         (err, count) => {
           if (err) {
-            if (this.config.log.enabled) {
+            if (Const.log.enabled) {
               this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
             }
             reject(err);
@@ -107,6 +105,6 @@ export default class NewSyncLogsService {
     });
 
     // Check returned count against dailyNewSyncsLimit config value
-    return newSyncsCreated >= this.config.dailyNewSyncsLimit;
+    return newSyncsCreated >= Const.dailyNewSyncsLimit;
   }
 }

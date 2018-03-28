@@ -87,8 +87,8 @@ Open `src/config.json` in a text editor and update the following variables with 
 - `log.path` Path to the file to log messages to (ensure node has permission to write to this location).
 - `maxSyncs` The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable.
 - `maxSyncSize` The maximum sync size in bytes. Set as `0` to disable (i.e. no max sync size).
+- `server.allowedOrigins` Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted. 
 - `server.behindProxy` Set to `true` if service is behind a proxy, client IP address will be set from `X-Forwarded-For` header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users.
-- `server.cors.whitelist` Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted. 
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
 - `server.port` Port to use for Node.js server for accepting incoming connections.
 
@@ -101,6 +101,10 @@ If you've made configuration changes, be sure to run a fresh build:
 ## 6. Run xBrowserSync service
 
     $ node dist/api.js
+
+# Debugging
+
+If you're using [VSCode](https://code.visualstudio.com/), simply hit `F5` to start debugging.
 
 # Issues
 

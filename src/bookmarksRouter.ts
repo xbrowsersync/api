@@ -1,22 +1,17 @@
 import { Request, Response, Router, NextFunction } from 'express';
 import { autobind } from 'core-decorators';
+import { ApiVerb } from './api';
 import BookmarksService from './bookmarksService';
+import BaseRouter from './baseRouter';
 
 // 
-export default class BookmarksRouter {
-  public router: Router;
-  private service: BookmarksService;
-
-  constructor(bookmarksService: BookmarksService) {
-    this.service = bookmarksService;
-
-    // Configure routes
-    // TODO: Add function for checking if server offline for each route
-    this.router = Router();
-    this.router.post('/', this.createBookmarks);
-    this.router.get('/:id', this.getBookmarks);
-    this.router.put('/:id', this.updateBookmarks);
-    this.router.get('/:id/lastUpdated', this.getLastUpdated);
+export default class BookmarksRouter extends BaseRouter<BookmarksService> {
+  // 
+  protected initRoutes() {
+    this.createRoute(ApiVerb.post, '/', '^1.0.0', this.createBookmarks);
+    this.createRoute(ApiVerb.get, '/:id', '^1.0.0', this.getBookmarks);
+    this.createRoute(ApiVerb.put, '/:id', '^1.0.0', this.updateBookmarks);
+    this.createRoute(ApiVerb.get, '/:id/lastUpdated', '^1.0.0', this.getLastUpdated);
   }
 
   // 
@@ -27,13 +22,8 @@ export default class BookmarksRouter {
       res.json(newBookmarksSync);
     }
     catch (err) {
-      res.json({
-        code: 'MissingParameter',
-        message: err.message
-      });
+      next(err);
     }
-
-    next();
   }
 
   // 
@@ -44,24 +34,31 @@ export default class BookmarksRouter {
       res.json(bookmarksSync);
     }
     catch (err) {
-      res.json({
-        code: 'MissingParameter',
-        message: err.message
-      });
+      next(err);
     }
-
-    next();
   }
 
   // 
   @autobind
   private async getLastUpdated(req: Request, res: Response, next: NextFunction) {
-    // TODO: Implement
+    try {
+      const bookmarksSync = await this.service.getLastUpdated(req);
+      res.json(bookmarksSync);
+    }
+    catch (err) {
+      next(err);
+    }
   }
 
   // 
   @autobind
   private async updateBookmarks(req: Request, res: Response, next: NextFunction) {
-    // TODO: Implement
+    try {
+      const bookmarksSync = await this.service.updateBookmarks(req);
+      res.json(bookmarksSync);
+    }
+    catch (err) {
+      next(err);
+    }
   }
 }

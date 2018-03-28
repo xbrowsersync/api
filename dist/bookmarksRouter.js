@@ -14,19 +14,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
 const core_decorators_1 = require("core-decorators");
+const api_1 = require("./api");
+const baseRouter_1 = require("./baseRouter");
 // 
-class BookmarksRouter {
-    constructor(bookmarksService) {
-        this.service = bookmarksService;
-        // Configure routes
-        // TODO: Add function for checking if server offline for each route
-        this.router = express_1.Router();
-        this.router.post('/', this.createBookmarks);
-        this.router.get('/:id', this.getBookmarks);
-        this.router.put('/:id', this.updateBookmarks);
-        this.router.get('/:id/lastUpdated', this.getLastUpdated);
+class BookmarksRouter extends baseRouter_1.default {
+    // 
+    initRoutes() {
+        this.createRoute(api_1.ApiVerb.post, '/', '^1.0.0', this.createBookmarks);
+        this.createRoute(api_1.ApiVerb.get, '/:id', '^1.0.0', this.getBookmarks);
+        this.createRoute(api_1.ApiVerb.put, '/:id', '^1.0.0', this.updateBookmarks);
+        this.createRoute(api_1.ApiVerb.get, '/:id/lastUpdated', '^1.0.0', this.getLastUpdated);
     }
     // 
     createBookmarks(req, res, next) {
@@ -36,12 +34,8 @@ class BookmarksRouter {
                 res.json(newBookmarksSync);
             }
             catch (err) {
-                res.json({
-                    code: 'MissingParameter',
-                    message: err.message
-                });
+                next(err);
             }
-            next();
         });
     }
     // 
@@ -52,24 +46,32 @@ class BookmarksRouter {
                 res.json(bookmarksSync);
             }
             catch (err) {
-                res.json({
-                    code: 'MissingParameter',
-                    message: err.message
-                });
+                next(err);
             }
-            next();
         });
     }
     // 
     getLastUpdated(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement
+            try {
+                const bookmarksSync = yield this.service.getLastUpdated(req);
+                res.json(bookmarksSync);
+            }
+            catch (err) {
+                next(err);
+            }
         });
     }
     // 
     updateBookmarks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement
+            try {
+                const bookmarksSync = yield this.service.updateBookmarks(req);
+                res.json(bookmarksSync);
+            }
+            catch (err) {
+                next(err);
+            }
         });
     }
 }
