@@ -1,23 +1,25 @@
 import * as mongoose from 'mongoose';
-import * as uuid from 'node-uuid';
+import * as uuid from 'uuid';
 
-export interface iNewSyncLog {
-  ipAddress: String,
+export interface INewSyncLog {
+  ipAddress: string,
   syncCreated: Date
 }
 
-export interface iNewSyncLogsModel extends iNewSyncLog, mongoose.Document {
+export interface INewSyncLogsModel extends INewSyncLog, mongoose.Document {
 }
 
-const newSyncLogsSchema = new mongoose.Schema(
-  {
-    _id: { type: String, default: uuid.v4 },
-    ipAddress: String,
-    syncCreated: Date
-  },
-  {
-    versionKey: false
-  }
-);
+export default (() => {
+  const newSyncLogsSchema = new mongoose.Schema(
+    {
+      _id: { type: String, default: uuid.v4 },
+      ipAddress: String,
+      syncCreated: Date
+    },
+    {
+      versionKey: false
+    }
+  );
 
-export default mongoose.model<iNewSyncLogsModel>('NewSyncLog', newSyncLogsSchema, 'newsynclogs');
+  return mongoose.model<INewSyncLogsModel>('NewSyncLog', newSyncLogsSchema, 'newsynclogs');
+})();

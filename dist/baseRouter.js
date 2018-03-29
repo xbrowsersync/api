@@ -6,13 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
 const core_decorators_1 = require("core-decorators");
+const express_1 = require("express");
 const api_1 = require("./api");
-const routesVersioning = require('express-routes-versioning')();
 // 
 class BaseRouter {
     constructor(service) {
+        this.routesVersioning = require('express-routes-versioning')();
         this.service = service;
         // Configure routes
         this.router = express_1.Router();
@@ -22,7 +22,7 @@ class BaseRouter {
     createRoute(verb, path, version, routeMethod) {
         const options = {};
         options[version] = routeMethod;
-        this.router[verb](path, routesVersioning(options, this.unsupportedVersion));
+        this.router[verb](path, this.routesVersioning(options, this.unsupportedVersion));
     }
     // 
     initRoutes() {

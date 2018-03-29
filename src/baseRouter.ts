@@ -1,12 +1,12 @@
-import { Request, Response, Router, NextFunction } from 'express';
 import { autobind } from 'core-decorators';
-import { ApiVerb, ApiError } from './api';
-const routesVersioning = require('express-routes-versioning')();
+import { NextFunction, Request, Response, Router } from 'express';
+import { ApiError, ApiVerb } from './api';
 
 // 
 export default class BaseRouter<T> {
   public router: Router;
   protected service: T;
+  private routesVersioning = require('express-routes-versioning')();  
 
   constructor(service: T) {
     this.service = service;
@@ -21,7 +21,7 @@ export default class BaseRouter<T> {
   protected createRoute(verb: ApiVerb, path: string, version: string, routeMethod: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
     const options = {};
     options[version] = routeMethod;
-    this.router[verb](path, routesVersioning(options, this.unsupportedVersion));
+    this.router[verb](path, this.routesVersioning(options, this.unsupportedVersion));
   }
 
   // 

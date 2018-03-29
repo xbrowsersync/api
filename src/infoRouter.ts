@@ -1,16 +1,11 @@
-import { Request, Response, Router, NextFunction } from 'express';
 import { autobind } from 'core-decorators';
+import { NextFunction, Request, Response, Router } from 'express';
 import { ApiVerb } from './api';
 import BaseRouter from './baseRouter';
 import InfoService from './infoService';
 
 // 
 export default class InfoRouter extends BaseRouter<InfoService> {
-  // 
-  protected initRoutes() {
-    this.createRoute(ApiVerb.get, '/', '^1.0.0', this.info);
-  }
-
   // 
   @autobind
   public async info(req: Request, res: Response, next: NextFunction) {
@@ -21,5 +16,10 @@ export default class InfoRouter extends BaseRouter<InfoService> {
     catch (err) {
       next(err);
     }
+  }
+
+  // 
+  protected initRoutes() {
+    this.createRoute(ApiVerb.get, '/', '^1.0.0', this.info);
   }
 }

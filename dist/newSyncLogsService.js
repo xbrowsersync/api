@@ -10,68 +10,42 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const moment = require("moment");
 const api_1 = require("./api");
-const newSyncLogsModel_1 = require("./newSyncLogsModel");
 const baseService_1 = require("./baseService");
-const Const = require('./config.json');
+const newSyncLogsModel_1 = require("./newSyncLogsModel");
 // Handles data interaction for the newsynclogs collection in mongodb
 class NewSyncLogsService extends baseService_1.default {
-    // Clears all new sync logs older than today
-    clearLog(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield new Promise((resolve, reject) => {
-                newSyncLogsModel_1.default.remove({
-                    syncCreated: {
-                        $lt: moment().startOf('day').toDate()
-                    }
-                }, err => {
-                    if (err) {
-                        if (Const.log.enabled) {
-                            this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.clearLog.');
-                        }
-                        reject(err);
-                    }
-                });
-                resolve();
-            });
-        });
-    }
     // Adds a new log entry to the newsynclogs collection based on a given request
     createLog(req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Get the client's ip address
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {
-                if (Const.log.enabled) {
+                if (this.config.log.enabled) {
                     const err = new Error();
                     err.name = api_1.ApiError.ClientIpAddressEmptyError;
-                    this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.createLog.');
+                    this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.createLog.');
                 }
                 return;
             }
             // Initialise the document
-            const createLog = new newSyncLogsModel_1.default({
+            const newLog = {
                 ipAddress: clientIp,
                 syncCreated: new Date()
-            });
+            };
+            const newSyncLogsModel = new newSyncLogsModel_1.default(newLog);
             // Add document to db
-            const newLog = yield new Promise((resolve, reject) => {
-                createLog.save((err, document) => {
+            return new Promise((resolve, reject) => {
+                newSyncLogsModel.save((err, document) => {
                     if (err) {
-                        if (Const.log.enabled) {
-                            this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.createLog.');
+                        if (this.config.log.enabled) {
+                            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.createLog.');
                         }
                         reject(err);
                     }
                     resolve(document);
                 });
             });
-            return newLog;
         });
-    }
-    // Extracts and cleans the client's IP address from a given request
-    getClientIpAddress(req) {
-        const matches = req.ip.match(/(\d+\.\d+\.\d+\.\d+)/) || [''];
-        return matches[0];
     }
     // 
     newSyncsLimitHit(req) {
@@ -83,8 +57,8 @@ class NewSyncLogsService extends baseService_1.default {
             if (!clientIp) {
                 const err = new Error();
                 err.name = api_1.ApiError.ClientIpAddressEmptyError;
-                if (Const.log.enabled) {
-                    this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
+                if (this.config.log.enabled) {
+                    this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
                 }
                 throw err;
             }
@@ -94,8 +68,8 @@ class NewSyncLogsService extends baseService_1.default {
                     ipAddress: clientIp
                 }, (err, count) => {
                     if (err) {
-                        if (Const.log.enabled) {
-                            this.logger.error({ req: req, err: err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
+                        if (this.config.log.enabled) {
+                            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
                         }
                         reject(err);
                     }
@@ -103,8 +77,33 @@ class NewSyncLogsService extends baseService_1.default {
                 });
             });
             // Check returned count against dailyNewSyncsLimit config value
-            return newSyncsCreated >= Const.dailyNewSyncsLimit;
+            return newSyncsCreated >= this.config.dailyNewSyncsLimit;
         });
+    }
+    // Clears all new sync logs older than today
+    clearLog(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield new Promise((resolve, reject) => {
+                newSyncLogsModel_1.default.remove({
+                    syncCreated: {
+                        $lt: moment().startOf('day').toDate()
+                    }
+                }, err => {
+                    if (err) {
+                        if (this.config.log.enabled) {
+                            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.clearLog.');
+                        }
+                        reject(err);
+                    }
+                });
+                resolve();
+            });
+        });
+    }
+    // Extracts and cleans the client's IP address from a given request
+    getClientIpAddress(req) {
+        const matches = req.ip.match(/(\d+\.\d+\.\d+\.\d+)/) || [''];
+        return matches[0];
     }
 }
 exports.default = NewSyncLogsService;

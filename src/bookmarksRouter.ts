@@ -1,8 +1,8 @@
-import { Request, Response, Router, NextFunction } from 'express';
 import { autobind } from 'core-decorators';
+import { NextFunction, Request, Response, Router } from 'express';
 import { ApiVerb } from './api';
-import BookmarksService from './bookmarksService';
 import BaseRouter from './baseRouter';
+import BookmarksService from './bookmarksService';
 
 // 
 export default class BookmarksRouter extends BaseRouter<BookmarksService> {

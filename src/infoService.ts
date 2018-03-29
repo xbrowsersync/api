@@ -1,44 +1,36 @@
-import { Request } from 'express';
 import * as bunyan from 'bunyan';
+import { Request } from 'express';
 import { ApiStatus } from './api';
+import BaseService from './baseService';
 import BookmarksService from './bookmarksService';
-const Config = require('./config.json');
 
-export interface iGetInfoResponse {
+export interface IGetInfoResponse {
   maxSyncSize: number,
   message: string,
   status: number,
   version: string
 }
 
-export default class InfoService {
-  private bookmarksService: BookmarksService;
-  private logger: bunyan;
-
-  constructor(bookmarksService: BookmarksService, logger: bunyan) {
-    this.bookmarksService = bookmarksService;
-    this.logger = logger;
-  }
-
+export default class InfoService extends BaseService<BookmarksService> {
   // Returns information describing the xBrowserSync service
-  public async getInfo(req: Request): Promise<iGetInfoResponse> {
+  public async getInfo(req: Request): Promise<IGetInfoResponse> {
     // Create response object
-    const serviceInfo: iGetInfoResponse = {
-      maxSyncSize: Config.maxSyncSize,
-      message: Config.status.message,
+    const serviceInfo: IGetInfoResponse = {
+      maxSyncSize: this.config.maxSyncSize,
+      message: this.config.status.message,
       status: ApiStatus.offline,
-      version: Config.version
+      version: this.config.version
     };
 
-    if (Config.status.online) {
+    if (this.config.status.online) {
       try {
         // Check if accepting new syncs
-        const acceptingNewSyncs = await this.bookmarksService.isAcceptingNewSyncs();
+        const acceptingNewSyncs = await this.service.isAcceptingNewSyncs();
         serviceInfo.status = acceptingNewSyncs ? ApiStatus.online : ApiStatus.noNewSyncs;
       }
       catch (err) {
-        if (Config.log.enabled) {
-          this.logger.error({ req: req, err: err }, 'Exception occurred in InfoService.getInfo.');
+        if (this.config.log.enabled) {
+          this.logger.error({ req, err }, 'Exception occurred in InfoService.getInfo.');
         }
       }
     }

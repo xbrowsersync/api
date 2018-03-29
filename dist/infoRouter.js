@@ -20,10 +20,6 @@ const baseRouter_1 = require("./baseRouter");
 // 
 class InfoRouter extends baseRouter_1.default {
     // 
-    initRoutes() {
-        this.createRoute(api_1.ApiVerb.get, '/', '^1.0.0', this.info);
-    }
-    // 
     info(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -34,6 +30,10 @@ class InfoRouter extends baseRouter_1.default {
                 next(err);
             }
         });
+    }
+    // 
+    initRoutes() {
+        this.createRoute(api_1.ApiVerb.get, '/', '^1.0.0', this.info);
     }
 }
 __decorate([

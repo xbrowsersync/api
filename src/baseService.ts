@@ -1,9 +1,9 @@
 import * as bunyan from 'bunyan';
 import { ApiError } from './api';
-const Config = require('./config.json');
 
 // 
 export default class BaseService<T> {
+  protected config = require('./config.json');  
   protected logger: bunyan;
   protected service: T;
 
@@ -14,7 +14,7 @@ export default class BaseService<T> {
 
   // 
   protected checkServiceAvailability(): void {
-    if (!Config.status.online) {
+    if (!this.config.status.online) {
       const err = new Error();
       err.name = ApiError.ServiceNotAvailableError;
       throw err;

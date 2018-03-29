@@ -7,14 +7,12 @@ import * as http from 'http';
 import * as https from 'https';
 import * as mkdirp from 'mkdirp';
 import * as path from 'path';
+import BookmarksRouter from './bookmarksRouter';
+import BookmarksService from './bookmarksService';
 import DB from './db';
 import InfoRouter from './infoRouter';
 import InfoService from './infoService';
-import BookmarksRouter from './bookmarksRouter';
-import BookmarksService from './bookmarksService';
 import NewSyncLogsService from './newSyncLogsService';
-const RateLimit = require('express-rate-limit');
-const Config = require('./config.json');
 
 export enum ApiError {
   BookmarksDataLimitExceededError = 'BookmarksDataLimitExceededError',
@@ -47,6 +45,8 @@ export enum ApiVerb {
 
 // Starts a new instance of the xBrowserSync api
 class API {
+  private rateLimit = require('express-rate-limit');
+  private config = require('./config.json');
   private bookmarksService: BookmarksService;
   private db: DB;
   private logger: bunyan;
@@ -58,38 +58,70 @@ class API {
     this.init();
   }
 
+  // Starts the api service
+  public startService(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // TODO: Add TLS configuration
+
+      const server = http.createServer(this.app);
+      server.listen(this.config.server.port);
+
+      server.on('close', conn => {
+        if (this.config.log.enabled) {
+          this.logger.info(`${this.config.apiName} terminating.`);
+        }
+      });
+
+      server.on('error', (err: NodeJS.ErrnoException) => {
+        if (this.config.log.enabled) {
+          this.logger.error({ err }, `Uncaught exception occurred in ${this.config.apiName}.`);
+        }
+
+        server.close();
+      });
+
+      server.on('listening', conn => {
+        if (this.config.log.enabled) {
+          this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+        }
+
+        resolve();
+      });
+    });
+  }
+
   // Initialises the express application and middleware
   private configureServer(): void {
     this.app = express();
 
     // Add logging if required
-    if (Config.log.enabled) {
+    if (this.config.log.enabled) {
       // Ensure log directory exists
-      const logDirectory = Config.log.path.substring(0, Config.log.path.lastIndexOf('/'));
+      const logDirectory = this.config.log.path.substring(0, this.config.log.path.lastIndexOf('/'));
       if (!fs.existsSync(logDirectory)) {
         mkdirp.sync(logDirectory);
       }
 
       // Delete the log file if it exists
-      if (fs.existsSync(Config.log.path)) {
-        fs.unlinkSync(Config.log.path);
+      if (fs.existsSync(this.config.log.path)) {
+        fs.unlinkSync(this.config.log.path);
       }
 
       // Initialise bunyan logger
       this.logger = bunyan.createLogger({
-        name: Config.log.name,
-        level: Config.log.level,
+        level: this.config.log.level,
+        name: this.config.log.name,
+        serializers: bunyan.stdSerializers,
         streams: [
           {
-            stream: process.stdout,
-            level: 'debug'
+            level: 'debug',
+            stream: process.stdout
           },
           {
-            path: Config.log.path,
-            level: Config.log.level
+            level: this.config.log.level,
+            path: this.config.log.path
           }
-        ],
-        serializers: bunyan.stdSerializers
+        ]
       });
     }
 
@@ -100,26 +132,26 @@ class API {
     }));
 
     // Add default version to request if not supplied
-    this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-      req['version'] = req.headers['accept-version'] || Config.version;
+    this.app.use((req: any, res: express.Response, next: express.NextFunction) => {
+      req.version = req.headers['accept-version'] || this.config.version;
       next();
     });
 
     // If behind proxy use 'X-Forwarded-For' header for client ip address
-    if (Config.server.behindProxy) {
+    if (this.config.server.behindProxy) {
       this.app.enable('trust proxy');
     }
 
     // Process JSON-encoded bodies
     this.app.use(express.json({
-      limit: Config.maxSyncSize || null
+      limit: this.config.maxSyncSize || null
     }));
 
     // Enable support for CORS
     const corsOptions: cors.CorsOptions =
-      Config.server.allowedOrigins.length > 0 && {
+      this.config.server.allowedOrigins.length > 0 && {
         origin: (origin, callback) => {
-          if (Config.server.allowedOrigins.indexOf(origin) !== -1) {
+          if (this.config.server.allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
           } else {
             const err = new Error();
@@ -132,10 +164,10 @@ class API {
     this.app.options('*', cors(corsOptions));
 
     // Add thottling
-    this.app.use(new RateLimit({
-      windowMs: Config.throttle.timeWindow,
-      max: Config.throttle.maxRequests,
-      delayMs: 0
+    this.app.use(new this.rateLimit({
+      delayMs: 0,
+      max: this.config.throttle.maxRequests,
+      windowMs: this.config.throttle.timeWindow
     }));
   }
 
@@ -236,42 +268,10 @@ class API {
 
     // Handle all other routes with 404 error
     this.app.use((req, res, next) => {
-      var err = new Error();
+      const err: any = new Error();
       err.name = ApiError.NotImplementedError;
-      err['status'] = 404;
+      err.status = 404;
       next(err);
-    });
-  }
-
-  // Starts the api service
-  public startService(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // TODO: Add TLS configuration
-
-      const server = http.createServer(this.app);
-      server.listen(Config.server.port);
-
-      server.on('close', conn => {
-        if (Config.log.enabled) {
-          this.logger.info(`${Config.apiName} terminating.`);
-        }
-      });
-
-      server.on('error', (err: NodeJS.ErrnoException) => {
-        if (Config.log.enabled) {
-          this.logger.error({ err: err }, `Uncaught exception occurred in ${Config.apiName}.`);
-        }
-
-        server.close();
-      });
-
-      server.on('listening', conn => {
-        if (Config.log.enabled) {
-          this.logger.info(`${Config.apiName} started on ${Config.server.host}:${Config.server.port}`);
-        }
-
-        resolve();
-      });
     });
   }
 }

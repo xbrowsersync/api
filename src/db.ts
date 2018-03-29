@@ -1,10 +1,10 @@
 import * as bunyan from 'bunyan';
 import * as mongoose from 'mongoose';
-import * as uuid from 'node-uuid';
-const Config = require('./config.json');
+import * as uuid from 'uuid';
 
 // Handles database interaction
 export default class DB {
+  private config = require('./config.json');
   private logger: bunyan;
 
   constructor(logger: bunyan) {
@@ -14,19 +14,19 @@ export default class DB {
   // Connects to the database
   public connect(): Promise<void> {
     const options: mongoose.ConnectionOptions = {
-      connectTimeoutMS: Config.db.connTimeout,
+      connectTimeoutMS: this.config.db.connTimeout,
       keepAlive: 1,
-      user: Config.db.username || process.env.XBROWSERSYNC_DB_USER,
-      pass: Config.db.password || process.env.XBROWSERSYNC_DB_PWD
+      pass: this.config.db.password || process.env.XBROWSERSYNC_DB_PWD,
+      user: this.config.db.username || process.env.XBROWSERSYNC_DB_USER
     };
 
     return new Promise((resolve, reject) => {
-      mongoose.connect(`mongodb://${Config.db.host}/${Config.db.name}`, options);
+      mongoose.connect(`mongodb://${this.config.db.host}/${this.config.db.name}`, options);
       const db = mongoose.connection;
 
       db.on('error', (err: mongoose.Error) => {
-        if (Config.log.enabled) {
-          this.logger.error({ err: err }, 'Uncaught exception occurred in database.');
+        if (this.config.log.enabled) {
+          this.logger.error({ err }, 'Uncaught exception occurred in database.');
         }
         reject(err);
       });

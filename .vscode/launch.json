@@ -9,7 +9,10 @@
             "request": "launch",
             "name": "Start and Debug",
             "program": "${workspaceFolder}\\dist\\api.js",
-            "preLaunchTask": "npm: build",
+            "preLaunchTask": "build",
+            "args": [
+                "-s"
+            ],
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ],
