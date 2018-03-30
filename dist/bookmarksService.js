@@ -177,11 +177,12 @@ class BookmarksService extends baseService_1.default {
             const id = this.getSyncId(req);
             try {
                 const updatedBookmarks = {
-                    _id: undefined,
+                    _id: id,
                     bookmarks: req.body.bookmarks,
                     lastAccessed: new Date(),
                     lastUpdated: new Date()
                 };
+                delete updatedBookmarks._id;
                 const bookmarks = yield new Promise((resolve, reject) => {
                     bookmarksModel_1.default.findOneAndUpdate({ _id: id }, updatedBookmarks, (err, document) => {
                         if (err) {

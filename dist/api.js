@@ -154,9 +154,9 @@ class API {
         if (this.config.server.behindProxy) {
             this.app.enable('trust proxy');
         }
-        // Process JSON-encoded bodies
+        // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
         this.app.use(express.json({
-            limit: this.config.maxSyncSize || null
+            limit: this.config.maxSyncSize || 512000
         }));
         // Enable support for CORS
         const corsOptions = this.config.allowedOrigins.length > 0 && {

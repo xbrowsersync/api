@@ -16,7 +16,7 @@
     "path": "/var/log/xBrowserSync_api.log"
   },
   "maxSyncs": 5242,
-  "maxSyncSize": 204800,
+  "maxSyncSize": 512000,
   "server": {
     "behindProxy": false,
     "host": "127.0.0.1",

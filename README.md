@@ -87,7 +87,7 @@ Open `src/config.json` in a text editor and update the following variables with 
 - `db.password` Password of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`.
 - `log.path` Path to the file to log messages to (ensure node has permission to write to this location).
 - `maxSyncs` The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Esers with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable.
-- `maxSyncSize` The maximum sync size in bytes. Set as `0` to disable (i.e. no max sync size).
+- `maxSyncSize` The maximum sync size in bytes. Note this is not equivalent to the size/amount of bookmarks as data is compressed and encrypted client-side before being sent to the service. Defaults to 500kb.
 - `server.behindProxy` Set to `true` if service is behind a proxy, client IP address will be set from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users.
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
 - `server.hpkp.enabled` Enables [HTTP Public Key Pinning](https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning) to decrease the risk of [MITM](https://developer.mozilla.org/en-US/docs/Glossary/MITM) attacks with forged certificates. Note: HTTPS must be enabled (see below) when HPKP is enabled.

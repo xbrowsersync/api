@@ -206,11 +206,12 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
 
     try {
       const updatedBookmarks: IBookmarks = {
-        _id: undefined,
+        _id: id,
         bookmarks: req.body.bookmarks,
         lastAccessed: new Date(),
         lastUpdated: new Date()
       };
+      delete updatedBookmarks._id;
 
       const bookmarks = await new Promise<IBookmarksModel>((resolve, reject) => {
         BookmarksModel.findOneAndUpdate({ _id: id }, updatedBookmarks, (err, document) => {
