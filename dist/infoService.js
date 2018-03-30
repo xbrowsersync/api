@@ -28,9 +28,7 @@ class InfoService extends baseService_1.default {
                     serviceInfo.status = acceptingNewSyncs ? api_1.ApiStatus.online : api_1.ApiStatus.noNewSyncs;
                 }
                 catch (err) {
-                    if (this.config.log.enabled) {
-                        this.logger.error({ req, err }, 'Exception occurred in InfoService.getInfo.');
-                    }
+                    this.log(api_1.LogLevel.Error, 'Exception occurred in InfoService.getInfo', req, err);
                 }
             }
             return serviceInfo;

@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("./api");
 // 
 class BaseService {
-    constructor(service, logger) {
+    constructor(service, log) {
         this.config = require('./config.json');
         this.service = service;
-        this.logger = logger;
+        this.log = log;
     }
     // 
     checkServiceAvailability() {

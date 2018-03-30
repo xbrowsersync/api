@@ -13,7 +13,7 @@
         "isDefault": true
       },
       "presentation": {
-        "echo": true,
+        "echo": false,
         "reveal": "always",
         "focus": false,
         "panel": "shared"

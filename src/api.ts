@@ -1,4 +1,5 @@
 import * as bunyan from 'bunyan';
+import { autobind } from 'core-decorators';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as fs from 'fs';
@@ -43,6 +44,11 @@ export enum ApiVerb {
   put = 'put'
 }
 
+export enum LogLevel {
+  Error,
+  Info
+}
+
 // Starts a new instance of the xBrowserSync api
 class API {
   private rateLimit = require('express-rate-limit');
@@ -61,30 +67,32 @@ class API {
   // Starts the api service
   public startService(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // TODO: Add TLS configuration
+      let server;
 
-      const server = http.createServer(this.app);
+      // Create https server if enabled in config, otherwise create http server
+      if (this.config.server.https.enabled) {
+        const options: https.ServerOptions = {
+          cert: fs.readFileSync(this.config.server.https.certPath),
+          key: fs.readFileSync(this.config.server.https.keyPath)
+        };
+        server = https.createServer(options, this.app);
+      }
+      else {
+        server = http.createServer(this.app);
+      }
       server.listen(this.config.server.port);
 
       server.on('close', conn => {
-        if (this.config.log.enabled) {
-          this.logger.info(`${this.config.apiName} terminating.`);
-        }
+        this.log(LogLevel.Error, `${this.config.apiName} terminating.`);
       });
 
       server.on('error', (err: NodeJS.ErrnoException) => {
-        if (this.config.log.enabled) {
-          this.logger.error({ err }, `Uncaught exception occurred in ${this.config.apiName}.`);
-        }
-
+        this.log(LogLevel.Error, `Uncaught exception occurred in ${this.config.apiName}`, null, err);
         server.close();
       });
 
       server.on('listening', conn => {
-        if (this.config.log.enabled) {
-          this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
-        }
-
+        this.log(LogLevel.Info, `${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
         resolve();
       });
     });
@@ -114,10 +122,6 @@ class API {
         serializers: bunyan.stdSerializers,
         streams: [
           {
-            level: 'debug',
-            stream: process.stdout
-          },
-          {
             level: this.config.log.level,
             path: this.config.log.path
           }
@@ -125,11 +129,27 @@ class API {
       });
     }
 
-    // Configure general security using helmet
-    // TODO: Add hpkp https://helmetjs.github.io/docs/hpkp/
-    this.app.use(helmet({
+    // Set default config for helmet security hardening
+    const helmetConfig: helmet.IHelmetConfiguration = {
       noCache: true
-    }));
+    };
+
+    // Configure hpkp for helmet if enabled
+    if (this.config.server.hpkp.enabled) {
+      if (!this.config.server.https.enabled) {
+        throw new Error('HTTPS must be enabled when using HPKP');
+      }
+
+      if (this.config.server.hpkp.sha256s.length < 2) {
+        throw new Error('At least two public keys are required when using HPKP');
+      }
+
+      helmetConfig.hpkp = {
+        maxAge: this.config.server.hpkp.maxAge,
+        sha256s: this.config.server.hpkp.sha256s
+      };
+    }
+    this.app.use(helmet(helmetConfig));
 
     // Add default version to request if not supplied
     this.app.use((req: any, res: express.Response, next: express.NextFunction) => {
@@ -149,9 +169,9 @@ class API {
 
     // Enable support for CORS
     const corsOptions: cors.CorsOptions =
-      this.config.server.allowedOrigins.length > 0 && {
+      this.config.allowedOrigins.length > 0 && {
         origin: (origin, callback) => {
-          if (this.config.server.allowedOrigins.indexOf(origin) !== -1) {
+          if (this.config.allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
           } else {
             const err = new Error();
@@ -173,7 +193,7 @@ class API {
 
   // Initialises and connects to mongodb
   private async connectToDb(): Promise<void> {
-    this.db = new DB(this.logger);
+    this.db = new DB(this.log);
     await this.db.connect();
   }
 
@@ -236,18 +256,38 @@ class API {
       this.prepareDataServices();
       this.prepareRoutes();
       this.app.use(this.handleErrors);
-      this.startService();
+      await this.startService();
     }
     catch (err) {
+      this.log(LogLevel.Error, `${this.config.apiName} failed to start`, null, err);
       process.exit(1);
+    }
+  }
+
+  // 
+  @autobind
+  private log(level: LogLevel, message: string, req?: express.Request, err?: Error): void {
+    switch (level) {
+      case LogLevel.Error:
+        if (this.config.log.enabled) {
+          this.logger.error({ req, err }, message);
+        }
+        console.error(err ? `${message}: ${err.message}` : message);
+        break;
+      case LogLevel.Info:
+        if (this.config.log.enabled) {
+          this.logger.info({ req }, message);
+        }
+        console.log(message);
+        break;
     }
   }
 
   // Initialise data services
   private prepareDataServices(): void {
-    this.newSyncLogsService = new NewSyncLogsService(null, this.logger);
-    this.bookmarksService = new BookmarksService(this.newSyncLogsService, this.logger);
-    this.infoService = new InfoService(this.bookmarksService, this.logger);
+    this.newSyncLogsService = new NewSyncLogsService(null, this.log);
+    this.bookmarksService = new BookmarksService(this.newSyncLogsService, this.log);
+    this.infoService = new InfoService(this.bookmarksService, this.log);
   }
 
   // Configures api routing

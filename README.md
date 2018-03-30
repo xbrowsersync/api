@@ -80,16 +80,22 @@ CD into the source directory and install dependencies:
 
 Open `src/config.json` in a text editor and update the following variables with your desired values:
 
+- `allowedOrigins` Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted. 
 - `dailyNewSyncsLimit` The maximum number of new syncs that a single IP address can create per day. If this setting is enabled, logs are created in newsynclogs collection to track IP addresses (not kept for longer than a day). Set as `0` to disable.
 - `db.host` The mongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket.
 - `db.username` Username of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`.
 - `db.password` Password of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`.
 - `log.path` Path to the file to log messages to (ensure node has permission to write to this location).
-- `maxSyncs` The maximum number of syncs to be held on the service, once this limit is reached no more new syncs are permitted though users with an existing sync ID are still allowed to get and update their sync data. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable.
+- `maxSyncs` The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Esers with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable.
 - `maxSyncSize` The maximum sync size in bytes. Set as `0` to disable (i.e. no max sync size).
-- `server.allowedOrigins` Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted. 
-- `server.behindProxy` Set to `true` if service is behind a proxy, client IP address will be set from `X-Forwarded-For` header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users.
+- `server.behindProxy` Set to `true` if service is behind a proxy, client IP address will be set from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users.
 - `server.host` Host name or IP address to use for Node.js server for accepting incoming connections.
+- `server.hpkp.enabled` Enables [HTTP Public Key Pinning](https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning) to decrease the risk of [MITM](https://developer.mozilla.org/en-US/docs/Glossary/MITM) attacks with forged certificates. Note: HTTPS must be enabled (see below) when HPKP is enabled.
+- `server.hpkp.maxAge` The amount of time (in seconds) that the browser should remember that this site is only to be accessed using one of the defined keys.
+- `server.hpkp.sha256s` Array of Base64 encoded Subject Public Key Information (SPKI) fingerprints. A minimum of two public key hashes are required when HPKP is enabled.
+- `server.https.certPath` Path to a valid SSL certificate. Required when HTTPS is enabled.
+- `server.https.enabled` If enabled, the service is started using HTTPS.
+- `server.https.keyPath` Path to the SSL certificate's private key. Required when HTTPS is enabled.
 - `server.port` Port to use for Node.js server for accepting incoming connections.
 
 ## 4. (Re)build api

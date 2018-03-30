@@ -1,6 +1,5 @@
-import * as bunyan from 'bunyan';
 import { Request } from 'express';
-import { ApiStatus } from './api';
+import { ApiStatus, LogLevel } from './api';
 import BaseService from './baseService';
 import BookmarksService from './bookmarksService';
 
@@ -29,9 +28,7 @@ export default class InfoService extends BaseService<BookmarksService> {
         serviceInfo.status = acceptingNewSyncs ? ApiStatus.online : ApiStatus.noNewSyncs;
       }
       catch (err) {
-        if (this.config.log.enabled) {
-          this.logger.error({ req, err }, 'Exception occurred in InfoService.getInfo.');
-        }
+        this.log(LogLevel.Error, 'Exception occurred in InfoService.getInfo', req, err);
       }
     }
 

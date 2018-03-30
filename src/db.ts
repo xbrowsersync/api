@@ -1,14 +1,15 @@
-import * as bunyan from 'bunyan';
+import { Request } from 'express';
 import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
+import { LogLevel } from './api';
 
 // Handles database interaction
 export default class DB {
   private config = require('./config.json');
-  private logger: bunyan;
+  private log: (level: LogLevel, message: string, req?: Request, err?: Error) => void;
 
-  constructor(logger: bunyan) {
-    this.logger = logger;
+  constructor(log: (level: LogLevel, message: string, req?: Request, err?: Error) => void) {
+    this.log = log;
   }
 
   // Connects to the database
@@ -25,9 +26,7 @@ export default class DB {
       const db = mongoose.connection;
 
       db.on('error', (err: mongoose.Error) => {
-        if (this.config.log.enabled) {
-          this.logger.error({ err }, 'Uncaught exception occurred in database.');
-        }
+        this.log(LogLevel.Error, 'Uncaught exception occurred in database', null, err);
         reject(err);
       });
 

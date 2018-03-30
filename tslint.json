@@ -1,4 +1,7 @@
 {
+  "rules": {
+    "no-console": false
+  },
   "extends": [
     "tslint:latest",
     "tslint-config-prettier"

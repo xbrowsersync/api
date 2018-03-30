@@ -1,4 +1,10 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -9,11 +15,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const bunyan = require("bunyan");
+const core_decorators_1 = require("core-decorators");
 const cors = require("cors");
 const express = require("express");
 const fs = require("fs");
 const helmet = require("helmet");
 const http = require("http");
+const https = require("https");
 const mkdirp = require("mkdirp");
 const path = require("path");
 const bookmarksRouter_1 = require("./bookmarksRouter");
@@ -51,6 +59,11 @@ var ApiVerb;
     ApiVerb["post"] = "post";
     ApiVerb["put"] = "put";
 })(ApiVerb = exports.ApiVerb || (exports.ApiVerb = {}));
+var LogLevel;
+(function (LogLevel) {
+    LogLevel[LogLevel["Error"] = 0] = "Error";
+    LogLevel[LogLevel["Info"] = 1] = "Info";
+})(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
 // Starts a new instance of the xBrowserSync api
 class API {
     constructor() {
@@ -61,24 +74,28 @@ class API {
     // Starts the api service
     startService() {
         return new Promise((resolve, reject) => {
-            // TODO: Add TLS configuration
-            const server = http.createServer(this.app);
+            let server;
+            // Create https server if enabled in config, otherwise create http server
+            if (this.config.server.https.enabled) {
+                const options = {
+                    cert: fs.readFileSync(this.config.server.https.certPath),
+                    key: fs.readFileSync(this.config.server.https.keyPath)
+                };
+                server = https.createServer(options, this.app);
+            }
+            else {
+                server = http.createServer(this.app);
+            }
             server.listen(this.config.server.port);
             server.on('close', conn => {
-                if (this.config.log.enabled) {
-                    this.logger.info(`${this.config.apiName} terminating.`);
-                }
+                this.log(LogLevel.Error, `${this.config.apiName} terminating.`);
             });
             server.on('error', (err) => {
-                if (this.config.log.enabled) {
-                    this.logger.error({ err }, `Uncaught exception occurred in ${this.config.apiName}.`);
-                }
+                this.log(LogLevel.Error, `Uncaught exception occurred in ${this.config.apiName}`, null, err);
                 server.close();
             });
             server.on('listening', conn => {
-                if (this.config.log.enabled) {
-                    this.logger.info(`${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
-                }
+                this.log(LogLevel.Info, `${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
                 resolve();
             });
         });
@@ -104,21 +121,30 @@ class API {
                 serializers: bunyan.stdSerializers,
                 streams: [
                     {
-                        level: 'debug',
-                        stream: process.stdout
-                    },
-                    {
                         level: this.config.log.level,
                         path: this.config.log.path
                     }
                 ]
             });
         }
-        // Configure general security using helmet
-        // TODO: Add hpkp https://helmetjs.github.io/docs/hpkp/
-        this.app.use(helmet({
+        // Set default config for helmet security hardening
+        const helmetConfig = {
             noCache: true
-        }));
+        };
+        // Configure hpkp for helmet if enabled
+        if (this.config.server.hpkp.enabled) {
+            if (!this.config.server.https.enabled) {
+                throw new Error('HTTPS must be enabled when using HPKP');
+            }
+            if (this.config.server.hpkp.sha256s.length < 2) {
+                throw new Error('At least two public keys are required when using HPKP');
+            }
+            helmetConfig.hpkp = {
+                maxAge: this.config.server.hpkp.maxAge,
+                sha256s: this.config.server.hpkp.sha256s
+            };
+        }
+        this.app.use(helmet(helmetConfig));
         // Add default version to request if not supplied
         this.app.use((req, res, next) => {
             req.version = req.headers['accept-version'] || this.config.version;
@@ -133,9 +159,9 @@ class API {
             limit: this.config.maxSyncSize || null
         }));
         // Enable support for CORS
-        const corsOptions = this.config.server.allowedOrigins.length > 0 && {
+        const corsOptions = this.config.allowedOrigins.length > 0 && {
             origin: (origin, callback) => {
-                if (this.config.server.allowedOrigins.indexOf(origin) !== -1) {
+                if (this.config.allowedOrigins.indexOf(origin) !== -1) {
                     callback(null, true);
                 }
                 else {
@@ -157,7 +183,7 @@ class API {
     // Initialises and connects to mongodb
     connectToDb() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.db = new db_1.default(this.logger);
+            this.db = new db_1.default(this.log);
             yield this.db.connect();
         });
     }
@@ -218,18 +244,36 @@ class API {
                 this.prepareDataServices();
                 this.prepareRoutes();
                 this.app.use(this.handleErrors);
-                this.startService();
+                yield this.startService();
             }
             catch (err) {
+                this.log(LogLevel.Error, `${this.config.apiName} failed to start`, null, err);
                 process.exit(1);
             }
         });
     }
+    // 
+    log(level, message, req, err) {
+        switch (level) {
+            case LogLevel.Error:
+                if (this.config.log.enabled) {
+                    this.logger.error({ req, err }, message);
+                }
+                console.error(err ? `${message}: ${err.message}` : message);
+                break;
+            case LogLevel.Info:
+                if (this.config.log.enabled) {
+                    this.logger.info({ req }, message);
+                }
+                console.log(message);
+                break;
+        }
+    }
     // Initialise data services
     prepareDataServices() {
-        this.newSyncLogsService = new newSyncLogsService_1.default(null, this.logger);
-        this.bookmarksService = new bookmarksService_1.default(this.newSyncLogsService, this.logger);
-        this.infoService = new infoService_1.default(this.bookmarksService, this.logger);
+        this.newSyncLogsService = new newSyncLogsService_1.default(null, this.log);
+        this.bookmarksService = new bookmarksService_1.default(this.newSyncLogsService, this.log);
+        this.infoService = new infoService_1.default(this.bookmarksService, this.log);
     }
     // Configures api routing
     prepareRoutes() {
@@ -252,5 +296,8 @@ class API {
         });
     }
 }
+__decorate([
+    core_decorators_1.autobind
+], API.prototype, "log", null);
 exports.default = new API();
 //# sourceMappingURL=api.js.map

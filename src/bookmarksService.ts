@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import * as uuid from 'uuid';
-import { ApiError } from './api';
+import { ApiError, LogLevel } from './api';
 import BaseService from './baseService';
 import BookmarksModel, { IBookmarks, IBookmarksModel } from './bookmarksModel';
 import NewSyncLogsService from './newSyncLogsService';
@@ -60,9 +60,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     if (!id) {
       const err = new Error();
       err.name = ApiError.SyncIdNotFoundError;
-      if (this.config.log.enabled) {
-        this.logger.error({ req, err }, 'Exception occurred in BookmarksService.createBookmarks.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
 
@@ -86,15 +84,11 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         });
       });
 
+      // Add to logs
       if (this.config.dailyNewSyncsLimit > 0) {
-        // Add entry to new syncs log
         const newLog = await this.service.createLog(req);
       }
-
-      // Add entry to api log file
-      if (this.config.log.enabled) {
-        this.logger.info({ req }, 'New bookmarks sync created.');
-      }
+      this.log(LogLevel.Info, 'New bookmarks sync created', req);
 
       // Return the new sync id and last updated datetime
       const returnObj: ICreateBookmarksResponse = {
@@ -104,9 +98,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return returnObj;
     }
     catch (err) {
-      if (this.config.log.enabled) {
-        this.logger.error({ req, err }, 'Exception occurred in BookmarksService.createBookmarks.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
   }
@@ -141,9 +133,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      if (this.config.log.enabled) {
-        this.logger.error({ req, err }, 'Exception occurred in BookmarksService.getBookmarks.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
       throw err;
     }
   }
@@ -177,9 +167,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      if (this.config.log.enabled) {
-        this.logger.error({ req, err }, 'Exception occurred in BookmarksService.getLastUpdated.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
       throw err;
     }
   }
@@ -243,9 +231,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      if (this.config.log.enabled) {
-        this.logger.error({ req, err }, 'Exception occurred in BookmarksService.createBookmarks.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
   }
@@ -255,9 +241,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     return new Promise((resolve, reject) => {
       BookmarksModel.count(null, (err, count) => {
         if (err) {
-          if (this.config.log.enabled) {
-            this.logger.error({ err }, 'Exception occurred in BookmarksService.getBookmarksCount.');
-          }
+          this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
           reject(err);
           return;
         }
@@ -288,9 +272,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       newId = new Buffer(bytes, 'base64').toString('hex');
     }
     catch (err) {
-      if (this.config.log.enabled) {
-        this.logger.error({ err }, 'Exception occurred in BookmarksService.newSyncId.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
     }
 
     return newId;

@@ -1,4 +1,5 @@
 {
+  "allowedOrigins": [],
   "apiName": "xBrowserSync-API",
   "dailyNewSyncsLimit": 3,
   "db": {
@@ -17,9 +18,18 @@
   "maxSyncs": 5242,
   "maxSyncSize": 204800,
   "server": {
-    "allowedOrigins": [],
     "behindProxy": false,
     "host": "127.0.0.1",
+    "hpkp": {
+      "enabled": false,
+      "maxAge": 5184000,
+      "sha256s": []
+    },
+    "https": {
+      "certPath": "",
+      "enabled": false,
+      "keyPath": ""
+    },
     "port": 8080
   },
   "status": {

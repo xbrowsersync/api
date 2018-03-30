@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import * as moment from 'moment';
-import { ApiError } from './api';
+import { ApiError, LogLevel } from './api';
 import BaseService from './baseService';
 import NewSyncLogsModel, { INewSyncLog, INewSyncLogsModel } from './newSyncLogsModel';
 
@@ -11,12 +11,10 @@ export default class NewSyncLogsService extends BaseService<void> {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      if (this.config.log.enabled) {
-        const err = new Error();
-        err.name = ApiError.ClientIpAddressEmptyError;
-        this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.createLog.');
-      }
-      return;
+      const err = new Error();
+      err.name = ApiError.ClientIpAddressEmptyError;
+      this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
+      throw err;
     }
 
     // Initialise the document
@@ -30,9 +28,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     return new Promise<INewSyncLogsModel>((resolve, reject) => {
       newSyncLogsModel.save((err, document) => {
         if (err) {
-          if (this.config.log.enabled) {
-            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.createLog.');
-          }
+          this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
           reject(err);
         }
 
@@ -51,10 +47,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     if (!clientIp) {
       const err = new Error();
       err.name = ApiError.ClientIpAddressEmptyError;
-
-      if (this.config.log.enabled) {
-        this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
-      }
+      this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
       throw err;
     }
 
@@ -65,9 +58,7 @@ export default class NewSyncLogsService extends BaseService<void> {
       },
         (err, count) => {
           if (err) {
-            if (this.config.log.enabled) {
-              this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
-            }
+            this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
             reject(err);
           }
 
@@ -89,9 +80,7 @@ export default class NewSyncLogsService extends BaseService<void> {
       },
         err => {
           if (err) {
-            if (this.config.log.enabled) {
-              this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.clearLog.');
-            }
+            this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
             reject(err);
           }
         });

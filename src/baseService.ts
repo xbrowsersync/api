@@ -1,15 +1,15 @@
-import * as bunyan from 'bunyan';
-import { ApiError } from './api';
+import { Request } from 'express';
+import { ApiError, LogLevel } from './api';
 
 // 
 export default class BaseService<T> {
-  protected config = require('./config.json');  
-  protected logger: bunyan;
+  protected config = require('./config.json');
+  protected log: (level: LogLevel, message: string, req?: Request, err?: Error) => void;
   protected service: T;
 
-  constructor(service: T, logger: bunyan) {
+  constructor(service: T, log: (level: LogLevel, message: string, req?: Request, err?: Error) => void) {
     this.service = service;
-    this.logger = logger;
+    this.log = log;
   }
 
   // 

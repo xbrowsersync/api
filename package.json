@@ -53,12 +53,12 @@
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "npm run compilesrc && npm run tslint && npm run builddocs",
+    "build": "npm run compilesrc -s && npm run tslint -s && npm run builddocs -s && npm run buildcomplete -s",
     "compilesrc": "echo Compiling source files... && tsc --pretty && n-copy --source src --destination dist config.json",
     "tslint": "echo Running tslint... & tslint --project . -t stylish",
     "builddocs": "echo Building docs... & npm run builddocsjs & npm run builddocsstyles",
     "builddocsjs": "n-copy --source docs --destination dist/docs **/* && uglifyjs --compress --output dist/docs/js/scripts.min.js -- node_modules/jquery/dist/jquery.min.js node_modules/jquery-easing/jquery.easing.1.3.js node_modules/bootstrap/dist/js/bootstrap.min.js dist/docs/js/init.js",
     "builddocsstyles": "n-copy --source node_modules/bootstrap/dist/css --destination dist/docs/css bootstrap.min.css && node-sass dist/docs/css/styles.scss dist/docs/css/styles.css -q && minify dist/docs/css/styles.css > dist/docs/css/styles.min.css",
-    "postbuild": "echo Done!"
+    "buildcomplete": "echo Done!"
   }
 }

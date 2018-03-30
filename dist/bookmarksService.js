@@ -46,9 +46,7 @@ class BookmarksService extends baseService_1.default {
             if (!id) {
                 const err = new Error();
                 err.name = api_1.ApiError.SyncIdNotFoundError;
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, 'Exception occurred in BookmarksService.createBookmarks.');
-                }
+                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
                 throw err;
             }
             try {
@@ -69,14 +67,11 @@ class BookmarksService extends baseService_1.default {
                         }
                     });
                 });
+                // Add to logs
                 if (this.config.dailyNewSyncsLimit > 0) {
-                    // Add entry to new syncs log
                     const newLog = yield this.service.createLog(req);
                 }
-                // Add entry to api log file
-                if (this.config.log.enabled) {
-                    this.logger.info({ req }, 'New bookmarks sync created.');
-                }
+                this.log(api_1.LogLevel.Info, 'New bookmarks sync created', req);
                 // Return the new sync id and last updated datetime
                 const returnObj = {
                     id,
@@ -85,9 +80,7 @@ class BookmarksService extends baseService_1.default {
                 return returnObj;
             }
             catch (err) {
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, 'Exception occurred in BookmarksService.createBookmarks.');
-                }
+                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
                 throw err;
             }
         });
@@ -118,9 +111,7 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, 'Exception occurred in BookmarksService.getBookmarks.');
-                }
+                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
                 throw err;
             }
         });
@@ -150,9 +141,7 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, 'Exception occurred in BookmarksService.getLastUpdated.');
-                }
+                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
                 throw err;
             }
         });
@@ -210,9 +199,7 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, 'Exception occurred in BookmarksService.createBookmarks.');
-                }
+                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
                 throw err;
             }
         });
@@ -222,9 +209,7 @@ class BookmarksService extends baseService_1.default {
         return new Promise((resolve, reject) => {
             bookmarksModel_1.default.count(null, (err, count) => {
                 if (err) {
-                    if (this.config.log.enabled) {
-                        this.logger.error({ err }, 'Exception occurred in BookmarksService.getBookmarksCount.');
-                    }
+                    this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
                     reject(err);
                     return;
                 }
@@ -250,9 +235,7 @@ class BookmarksService extends baseService_1.default {
             newId = new Buffer(bytes, 'base64').toString('hex');
         }
         catch (err) {
-            if (this.config.log.enabled) {
-                this.logger.error({ err }, 'Exception occurred in BookmarksService.newSyncId.');
-            }
+            this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
         }
         return newId;
     }

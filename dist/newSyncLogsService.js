@@ -20,12 +20,10 @@ class NewSyncLogsService extends baseService_1.default {
             // Get the client's ip address
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {
-                if (this.config.log.enabled) {
-                    const err = new Error();
-                    err.name = api_1.ApiError.ClientIpAddressEmptyError;
-                    this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.createLog.');
-                }
-                return;
+                const err = new Error();
+                err.name = api_1.ApiError.ClientIpAddressEmptyError;
+                this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
+                throw err;
             }
             // Initialise the document
             const newLog = {
@@ -37,9 +35,7 @@ class NewSyncLogsService extends baseService_1.default {
             return new Promise((resolve, reject) => {
                 newSyncLogsModel.save((err, document) => {
                     if (err) {
-                        if (this.config.log.enabled) {
-                            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.createLog.');
-                        }
+                        this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
                         reject(err);
                     }
                     resolve(document);
@@ -57,9 +53,7 @@ class NewSyncLogsService extends baseService_1.default {
             if (!clientIp) {
                 const err = new Error();
                 err.name = api_1.ApiError.ClientIpAddressEmptyError;
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
-                }
+                this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                 throw err;
             }
             // Get number of new syncs created today by this ip
@@ -68,9 +62,7 @@ class NewSyncLogsService extends baseService_1.default {
                     ipAddress: clientIp
                 }, (err, count) => {
                     if (err) {
-                        if (this.config.log.enabled) {
-                            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit.');
-                        }
+                        this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                         reject(err);
                     }
                     resolve(count);
@@ -90,9 +82,7 @@ class NewSyncLogsService extends baseService_1.default {
                     }
                 }, err => {
                     if (err) {
-                        if (this.config.log.enabled) {
-                            this.logger.error({ req, err }, 'Exception occurred in NewSyncLogsService.clearLog.');
-                        }
+                        this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
                         reject(err);
                     }
                 });
