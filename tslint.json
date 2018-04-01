@@ -1,5 +1,6 @@
 {
   "rules": {
+    "ban-comma-operator": false,
     "no-console": false
   },
   "extends": [

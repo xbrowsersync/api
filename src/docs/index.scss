@@ -11,7 +11,7 @@ h1 {
     font-size: 4em;
     font-weight: 700;
     line-height: 2.5em;
-    background: url(../img/logo.svg) no-repeat;
+    background: url(./logo.svg) no-repeat;
     background-size: 150px;
     width: 670px;
     height: 155px;
@@ -99,7 +99,7 @@ pre, code {
     .navbar-brand {
         text-indent: -9999px;
         display: block;
-        background-image: url(../img/icon.svg);
+        background-image: url(./icon.svg);
         background-size: 50px;
         width: 50px;
         height: 50px;
@@ -244,20 +244,22 @@ section {
         .serviceinfo {
             margin-bottom: 30px;
 
+            #currentstatus {
+                &.success {
+                    color: $colour-success;
+                }
+    
+                &.warning {
+                    color: $colour-warning;
+                }
+    
+                &.danger {
+                    color: $colour-danger;
+                }
+            }
+
             #version {
                 color: $colour-info;
-            }
-
-            .success {
-                color: $colour-success;
-            }
-
-            .warning {
-                color: $colour-warning;
-            }
-
-            .danger {
-                color: $colour-danger;
             }
         }
     }
@@ -342,7 +344,7 @@ section {
         }
 
         @media (max-width: $width-tablet) {
-            margin: 0 0 50px;
+            margin: 0 25px 50px;
             padding: 20px 25px;
         }
     }

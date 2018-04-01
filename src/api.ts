@@ -307,12 +307,12 @@ class API {
     this.app.use('/', express.static(path.join(__dirname, 'docs')));
 
     // Handle all other routes with 404 error
-    this.app.use((req, res, next) => {
+    /*this.app.use((req, res, next) => {
       const err: any = new Error();
       err.name = ApiError.NotImplementedError;
       err.status = 404;
       next(err);
-    });
+    });*/
   }
 }
 

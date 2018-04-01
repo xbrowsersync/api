@@ -13,23 +13,22 @@
     "url": "https://github.com/xBrowserSync/API/issues"
   },
   "dependencies": {
-    "bootstrap": "3.3.x",
     "bunyan": "^1.8.12",
     "core-decorators": "^0.20.0",
     "cors": "^2.8.4",
+    "es6-promise": "^4.2.4",
     "express": "^4.16.3",
     "express-rate-limit": "^2.11.0",
     "express-routes-versioning": "^1.0.1",
     "helmet": "^3.12.0",
-    "jquery": "3.1.x",
-    "jquery-easing": "0.0.x",
     "mkdirp": "^0.5.1",
     "moment": "https://registry.npmjs.org/moment/-/moment-2.21.0.tgz",
     "mongojs": "^2.5.0",
     "mongoose": "^5.0.11",
     "mongoose-uuid2": "^2.1.0",
-    "npm": "^5.8.0",
-    "uuid": "^3.2.1"
+    "smooth-scroll": "^12.1.5",
+    "uuid": "^3.2.1",
+    "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.4",
@@ -40,25 +39,32 @@
     "@types/mongoose": "^5.0.7",
     "@types/node": "^9.4.7",
     "@types/uuid": "^3.4.3",
-    "minify": "2.0.x",
+    "copy-webpack-plugin": "^4.5.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.1.0",
+    "mini-css-extract-plugin": "^0.4.0",
     "node-sass": "^4.8.3",
-    "npm-build-tools": "2.2.x",
+    "npm-build-tools": "^2.2.5",
+    "postcss-loader": "^2.1.3",
     "prettier": "1.11.1",
+    "sass-loader": "^6.0.7",
+    "ts-loader": "^4.1.0",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0",
     "typescript": "^2.7.2",
-    "uglify-js": "2.7.x"
+    "webpack": "^4.4.1",
+    "webpack-cli": "^2.0.13"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "npm run compilesrc -s && npm run tslint -s && npm run builddocs -s && npm run buildcomplete -s",
+    "build": "npm run compilesrc && npm run tslint && npm run builddocs && npm run buildcomplete",
     "compilesrc": "echo Compiling source files... && tsc --pretty && n-copy --source src --destination dist config.json",
     "tslint": "echo Running tslint... & tslint --project . -t stylish",
-    "builddocs": "echo Building docs... & npm run builddocsjs & npm run builddocsstyles",
-    "builddocsjs": "n-copy --source docs --destination dist/docs **/* && uglifyjs --compress --output dist/docs/js/scripts.min.js -- node_modules/jquery/dist/jquery.min.js node_modules/jquery-easing/jquery.easing.1.3.js node_modules/bootstrap/dist/js/bootstrap.min.js dist/docs/js/init.js",
-    "builddocsstyles": "n-copy --source node_modules/bootstrap/dist/css --destination dist/docs/css bootstrap.min.css && node-sass dist/docs/css/styles.scss dist/docs/css/styles.css -q && minify dist/docs/css/styles.css > dist/docs/css/styles.min.css",
+    "builddocs": "echo Building docs... & webpack --config webpack.config.js",
     "buildcomplete": "echo Done!"
   }
 }
