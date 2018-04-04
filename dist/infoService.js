@@ -10,11 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const api_1 = require("./api");
 const baseService_1 = require("./baseService");
+// Implementation of data service for service info operations
 class InfoService extends baseService_1.default {
     // Returns information describing the xBrowserSync service
     getInfo(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Create response object
+            // Create response object from config settings
             const serviceInfo = {
                 maxSyncSize: this.config.maxSyncSize,
                 message: this.config.status.message,
@@ -23,7 +24,7 @@ class InfoService extends baseService_1.default {
             };
             if (this.config.status.online) {
                 try {
-                    // Check if accepting new syncs
+                    // Call service method to check if accepting new syncs
                     const acceptingNewSyncs = yield this.service.isAcceptingNewSyncs();
                     serviceInfo.status = acceptingNewSyncs ? api_1.ApiStatus.online : api_1.ApiStatus.noNewSyncs;
                 }

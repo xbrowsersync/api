@@ -1,6 +1,5 @@
 {
   "allowedOrigins": [],
-  "apiName": "xBrowserSync-API",
   "dailyNewSyncsLimit": 3,
   "db": {
     "connTimeout": 30000,
@@ -38,8 +37,8 @@
     "online": true
   },
   "throttle": {
-    "maxRequests": 100,
-    "timeWindow": 900000
+    "maxRequests": 500,
+    "timeWindow": 300000
   },
   "version": "1.1.0"
 }

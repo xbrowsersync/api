@@ -4,22 +4,23 @@ import { ApiVerb } from './api';
 import BaseRouter from './baseRouter';
 import InfoService from './infoService';
 
-// 
+// Implementation of routes for service info operations
 export default class InfoRouter extends BaseRouter<InfoService> {
-  // 
+  // Initialises the routes for this router implementation
+  protected initRoutes() {
+    this.createRoute(ApiVerb.get, '/', '^1.0.0', this.info);
+  }
+
+  // Gets service info such as status, version, etc
   @autobind
-  public async info(req: Request, res: Response, next: NextFunction) {
+  private async info(req: Request, res: Response, next: NextFunction) {
     try {
+      // Call service method to get service info and return response as json
       const serviceInfo = await this.service.getInfo(req);
       res.send(serviceInfo);
     }
     catch (err) {
       next(err);
     }
-  }
-
-  // 
-  protected initRoutes() {
-    this.createRoute(ApiVerb.get, '/', '^1.0.0', this.info);
   }
 }

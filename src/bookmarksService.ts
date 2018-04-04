@@ -1,79 +1,75 @@
 import { Request } from 'express';
 import * as uuid from 'uuid';
-import { ApiError, LogLevel } from './api';
+import { LogLevel } from './api';
 import BaseService from './baseService';
 import BookmarksModel, { IBookmarks, IBookmarksModel } from './bookmarksModel';
+import { NewSyncsForbiddenException, NewSyncsLimitExceededException, SyncIdNotFoundException } from './exception';
 import NewSyncLogsService from './newSyncLogsService';
 
+// Interface for create bookmarks operation response object
 export interface ICreateBookmarksResponse {
   id?: string,
   lastUpdated?: Date
 }
 
+// Interface for get bookmarks operation response object
 export interface IGetBookmarksResponse {
   bookmarks?: string,
   lastUpdated?: Date
 }
 
+// Interface for get bookmarks last updated date operation response object
 export interface IGetLastUpdatedResponse {
   lastUpdated?: Date
 }
 
+// Interface for update bookmarks operation response object
 export interface IUpdateBookmarksResponse {
   lastUpdated?: Date
 }
 
-// 
+// Implementation of data service for bookmarks operations
 export default class BookmarksService extends BaseService<NewSyncLogsService> {
-  // 
-  public async createBookmarks(req: Request): Promise<ICreateBookmarksResponse> {
-    // Check for service availability
+  // Creates a new bookmarks sync with the supplied bookmarks data
+  // Returns a new sync ID and last updated date
+  public async createBookmarks(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
+    // Before proceeding, check service is available
     this.checkServiceAvailability();
-
-    // Check bookmarks data has been provided
-    if (!req.body.bookmarks) {
-      const err = new Error();
-      err.name = ApiError.BookmarksDataNotFoundError;
-      throw err;
-    }
 
     // Check service is accepting new syncs
     const isAcceptingNewSyncs = await this.isAcceptingNewSyncs();
     if (!isAcceptingNewSyncs) {
-      const err = new Error();
-      err.name = ApiError.NewSyncsForbiddenError;
-      throw err;
+      throw new NewSyncsForbiddenException();
     }
 
+    // Check if daily new syncs limit has been hit if config value enabled
     if (this.config.dailyNewSyncsLimit > 0) {
-      // Check if daily new syncs limit has been hit
       const newSyncsLimitHit = await this.service.newSyncsLimitHit(req);
       if (newSyncsLimitHit) {
-        const err = new Error();
-        err.name = ApiError.NewSyncsLimitExceededError;
-        throw err;
+        throw new NewSyncsLimitExceededException();
       }
     }
 
     // Get a new sync id
     const id = this.newSyncId();
     if (!id) {
-      const err = new Error();
-      err.name = ApiError.SyncIdNotFoundError;
+      const err = new SyncIdNotFoundException();
       this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
 
     try {
+      // Create new bookmarks payload
       const newBookmarks: IBookmarks = {
         _id: id,
-        bookmarks: req.body.bookmarks,
+        bookmarks: bookmarksData,
         lastAccessed: new Date(),
         lastUpdated: new Date()
       };
       const bookmarksModel = new BookmarksModel(newBookmarks);
 
-      const response = await new Promise<IBookmarksModel>((resolve, reject) => {
+      // Commit the bookmarks payload to the db
+      const result = await new Promise<IBookmarksModel>((resolve, reject) => {
         bookmarksModel.save((err, document) => {
           if (err) {
             reject(err);
@@ -86,14 +82,14 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
 
       // Add to logs
       if (this.config.dailyNewSyncsLimit > 0) {
-        const newLog = await this.service.createLog(req);
+        await this.service.createLog(req);
       }
       this.log(LogLevel.Info, 'New bookmarks sync created', req);
 
-      // Return the new sync id and last updated datetime
+      // Return the response data
       const returnObj: ICreateBookmarksResponse = {
         id,
-        lastUpdated: response.lastUpdated
+        lastUpdated: result.lastUpdated
       };
       return returnObj;
     }
@@ -103,33 +99,34 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
   }
 
-  //
-  public async getBookmarks(req: Request): Promise<IGetBookmarksResponse> {
-    // Check for service availability
+  // Retrieves an existing bookmarks sync using the supplied sync ID
+  // Returns the corresponding bookmarks data and last updated date
+  public async getBookmarks(id: string, req: Request): Promise<IGetBookmarksResponse> {
+    // Before proceeding, check service is available
     this.checkServiceAvailability();
 
-    // Check sync id has been provided
-    const id = this.getSyncId(req);
-
     try {
-      const bookmarks = await new Promise<IBookmarksModel>((resolve, reject) => {
-        BookmarksModel.findOne({ _id: id }, (err, document) => {
-          if (err) {
-            reject(err);
-          }
-          else {
-            resolve(document);
-          }
-        });
+      // Query the db for the existing bookmarks data and update the last accessed date
+      const result = await new Promise<IBookmarksModel>((resolve, reject) => {
+        BookmarksModel.findOneAndUpdate(
+          { _id: id },
+          { lastAccessed: new Date() },
+          (err, document) => {
+            if (err) {
+              reject(err);
+            }
+            else {
+              resolve(document);
+            }
+          });
       });
 
+      // Return the existing bookmarks data if found 
       const response: IGetBookmarksResponse = {};
-
-      if (bookmarks) {
-        response.bookmarks = bookmarks.bookmarks;
-        response.lastUpdated = bookmarks.lastUpdated;
+      if (result) {
+        response.bookmarks = result.bookmarks;
+        response.lastUpdated = result.lastUpdated;
       }
-
       return response;
     }
     catch (err) {
@@ -138,17 +135,18 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
   }
 
-  //
-  public async getLastUpdated(req: Request): Promise<IGetLastUpdatedResponse> {
-    // Check for service availability
+  // Returns the last updated date for the supplied sync ID
+  public async getLastUpdated(id: string, req: Request): Promise<IGetLastUpdatedResponse> {
+    // Before proceeding, check service is available
     this.checkServiceAvailability();
 
-    // Check sync id has been provided
-    const id = this.getSyncId(req);
-
     try {
-      const bookmarks = await new Promise<IBookmarksModel>((resolve, reject) => {
-        BookmarksModel.findOne({ _id: id }, (err, document) => {
+      // Query the db for the existing bookmarks data and update the last accessed date
+      const result = await new Promise<IBookmarksModel>((resolve, reject) => {
+        BookmarksModel.findOneAndUpdate(
+          { _id: id },
+          { lastAccessed: new Date() },
+          (err, document) => {
           if (err) {
             reject(err);
           }
@@ -158,12 +156,11 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         });
       });
 
+      // Return the last updated date if bookmarks data found 
       const response: IGetLastUpdatedResponse = {};
-
-      if (bookmarks) {
-        response.lastUpdated = bookmarks.lastUpdated;
+      if (result) {
+        response.lastUpdated = result.lastUpdated;
       }
-
       return response;
     }
     catch (err) {
@@ -172,7 +169,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
   }
 
-  //
+  // Returns true/false depending whether the service is currently accepting new syncs
   public async isAcceptingNewSyncs(): Promise<boolean> {
     // Check if allowNewSyncs config value enabled
     if (!this.config.status.allowNewSyncs) {
@@ -189,31 +186,22 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     return bookmarksCount < this.config.maxSyncs;
   }
 
-  //
-  public async updateBookmarks(req: Request): Promise<IUpdateBookmarksResponse> {
-    // Check for service availability
+  // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data
+  // Returns the last updated date
+  public async updateBookmarks(id: string, bookmarksData: string, req: Request): Promise<IUpdateBookmarksResponse> {
+    // Before proceeding, check service is available
     this.checkServiceAvailability();
 
-    // Check bookmarks data has been provided
-    if (!req.body.bookmarks) {
-      const err = new Error();
-      err.name = ApiError.BookmarksDataNotFoundError;
-      throw err;
-    }
-
-    // Check sync id has been provided
-    const id = this.getSyncId(req);
-
     try {
-      const updatedBookmarks: IBookmarks = {
-        _id: id,
-        bookmarks: req.body.bookmarks,
+      // Create update bookmarks payload
+      const updatedBookmarks = {
+        bookmarks: bookmarksData,
         lastAccessed: new Date(),
         lastUpdated: new Date()
       };
-      delete updatedBookmarks._id;
 
-      const bookmarks = await new Promise<IBookmarksModel>((resolve, reject) => {
+      // Commit the bookmarks payload to the db
+      const result = await new Promise<IBookmarksModel>((resolve, reject) => {
         BookmarksModel.findOneAndUpdate({ _id: id }, updatedBookmarks, (err, document) => {
           if (err) {
             reject(err);
@@ -224,8 +212,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         });
       });
 
+      // Return the last updated date if bookmarks data found and updated
       const response: IGetLastUpdatedResponse = {};
-      if (bookmarks) {
+      if (result) {
         response.lastUpdated = updatedBookmarks.lastUpdated;
       }
 
@@ -237,7 +226,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
   }
 
-  //
+  // Returns the total number of existing bookmarks syncs
   private getBookmarksCount(): Promise<number> {
     return new Promise((resolve, reject) => {
       BookmarksModel.count(null, (err, count) => {
@@ -252,23 +241,12 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     });
   }
 
-  // 
-  private getSyncId(req: Request): string {
-    const id = req.params.id;
-    if (!id) {
-      const err = new Error();
-      err.name = ApiError.SyncIdNotFoundError;
-      throw err;
-    }
-
-    return id;
-  }
-
   // Generates a new 32 char id string
   private newSyncId(): string {
     let newId: string;
 
     try {
+      // Create a new v4 uuid and return as an unbroken string to use for a unique id
       const bytes: any = uuid.v4(null, new Buffer(16));
       newId = new Buffer(bytes, 'base64').toString('hex');
     }

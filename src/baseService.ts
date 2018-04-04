@@ -1,7 +1,9 @@
 import { Request } from 'express';
-import { ApiError, LogLevel } from './api';
+import { LogLevel } from './api';
+import { ServiceNotAvailableException } from './exception';
 
-// 
+// Base class for data service implementations
+// Implements the functionality executed when calling a route
 export default class BaseService<T> {
   protected config = require('./config.json');
   protected log: (level: LogLevel, message: string, req?: Request, err?: Error) => void;
@@ -12,12 +14,10 @@ export default class BaseService<T> {
     this.log = log;
   }
 
-  // 
+  // Throws an error if the service status is set to offline in config
   protected checkServiceAvailability(): void {
     if (!this.config.status.online) {
-      const err = new Error();
-      err.name = ApiError.ServiceNotAvailableError;
-      throw err;
+      throw new ServiceNotAvailableException();
     }
   }
 }

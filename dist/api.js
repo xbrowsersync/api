@@ -27,23 +27,10 @@ const path = require("path");
 const bookmarksRouter_1 = require("./bookmarksRouter");
 const bookmarksService_1 = require("./bookmarksService");
 const db_1 = require("./db");
+const exception_1 = require("./exception");
 const infoRouter_1 = require("./infoRouter");
 const infoService_1 = require("./infoService");
 const newSyncLogsService_1 = require("./newSyncLogsService");
-var ApiError;
-(function (ApiError) {
-    ApiError["BookmarksDataLimitExceededError"] = "BookmarksDataLimitExceededError";
-    ApiError["BookmarksDataNotFoundError"] = "BookmarksDataNotFoundError";
-    ApiError["ClientIpAddressEmptyError"] = "ClientIpAddressEmptyError";
-    ApiError["NewSyncsForbiddenError"] = "NewSyncsForbiddenError";
-    ApiError["NewSyncsLimitExceededError"] = "NewSyncsLimitExceededError";
-    ApiError["NotImplementedError"] = "NotImplementedError";
-    ApiError["OriginNotPermittedError"] = "OriginNotPermittedError";
-    ApiError["ServiceNotAvailableError"] = "ServiceNotAvailableError";
-    ApiError["SyncIdNotFoundError"] = "SyncIdNotFoundError";
-    ApiError["UnspecifiedError"] = "UnspecifiedError";
-    ApiError["UnsupportedVersionError"] = "UnsupportedVersionError";
-})(ApiError = exports.ApiError || (exports.ApiError = {}));
 var ApiStatus;
 (function (ApiStatus) {
     ApiStatus[ApiStatus["online"] = 1] = "online";
@@ -64,14 +51,14 @@ var LogLevel;
     LogLevel[LogLevel["Error"] = 0] = "Error";
     LogLevel[LogLevel["Info"] = 1] = "Info";
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
-// Starts a new instance of the xBrowserSync api
+// Main class for the xBrowserSync api service
 class API {
     constructor() {
         this.rateLimit = require('express-rate-limit');
         this.config = require('./config.json');
         this.init();
     }
-    // Starts the api service
+    // Starts a new instance of the api service
     startService() {
         return new Promise((resolve, reject) => {
             let server;
@@ -88,14 +75,14 @@ class API {
             }
             server.listen(this.config.server.port);
             server.on('close', conn => {
-                this.log(LogLevel.Error, `${this.config.apiName} terminating.`);
+                this.log(LogLevel.Error, `Service terminating.`);
             });
             server.on('error', (err) => {
-                this.log(LogLevel.Error, `Uncaught exception occurred in ${this.config.apiName}`, null, err);
+                this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
                 server.close();
             });
             server.on('listening', conn => {
-                this.log(LogLevel.Info, `${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+                this.log(LogLevel.Info, `Service started on ${this.config.server.host}:${this.config.server.port}`);
                 resolve();
             });
         });
@@ -165,20 +152,21 @@ class API {
                     callback(null, true);
                 }
                 else {
-                    const err = new Error();
-                    err.name = ApiError.OriginNotPermittedError;
+                    const err = new exception_1.OriginNotPermittedException();
                     callback(err);
                 }
             }
         };
         this.app.use(cors(corsOptions));
         this.app.options('*', cors(corsOptions));
-        // Add thottling
-        this.app.use(new this.rateLimit({
-            delayMs: 0,
-            max: this.config.throttle.maxRequests,
-            windowMs: this.config.throttle.timeWindow
-        }));
+        // Add thottling if enabled
+        if (this.config.throttle.maxRequests > 0) {
+            this.app.use(new this.rateLimit({
+                delayMs: 0,
+                max: this.config.throttle.maxRequests,
+                windowMs: this.config.throttle.timeWindow
+            }));
+        }
     }
     // Initialises and connects to mongodb
     connectToDb() {
@@ -187,55 +175,24 @@ class API {
             yield this.db.connect();
         });
     }
-    // 
+    // Handles and logs api errors
     handleErrors(err, req, res, next) {
         if (err) {
-            let errObj = {
-                code: err.name,
-                message: ''
-            };
-            switch (err.name) {
-                case ApiError.BookmarksDataLimitExceededError:
-                    errObj.message = 'Bookmarks data limit exceeded';
-                    break;
-                case ApiError.BookmarksDataNotFoundError:
-                    errObj.message = 'Unable to find bookmarks data';
-                    break;
-                case ApiError.ClientIpAddressEmptyError:
-                    errObj.message = 'Unable to determine client\'s IP address';
-                    break;
-                case ApiError.NewSyncsForbiddenError:
-                    errObj.message = 'The service is not accepting new syncs';
-                    break;
-                case ApiError.NewSyncsLimitExceededError:
-                    errObj.message = 'Client has exceeded the daily new syncs limit';
-                    break;
-                case ApiError.NotImplementedError:
-                    errObj.message = 'The requested route has not been implemented';
-                    break;
-                case ApiError.OriginNotPermittedError:
-                    errObj.message = 'Client not permitted to access this service';
-                    break;
-                case ApiError.ServiceNotAvailableError:
-                    errObj.message = 'The service is currently offline';
-                    break;
-                case ApiError.SyncIdNotFoundError:
-                    errObj.message = 'Unable to find sync ID';
-                    break;
-                case ApiError.UnsupportedVersionError:
-                    errObj.message = 'The requested API version is not supported';
-                    break;
-                default:
-                    errObj = {
-                        code: ApiError.UnspecifiedError,
-                        message: 'An unspecified error has occurred'
-                    };
+            let responseObj;
+            // If the error is one of our exception, get the reponse object to return to the client
+            // otherwise create a new unspecified exception and use that 
+            if (err instanceof exception_1.ExceptionBase) {
+                responseObj = err.getResponseObject();
+            }
+            else {
+                err = new exception_1.UnspecifiedException();
+                responseObj = err.getResponseObject();
             }
             res.status(err.status || 500);
-            res.json(errObj);
+            res.json(responseObj);
         }
     }
-    // Initialises the xBrowserSync api service
+    // Initialises the xBrowserSync api service when a new instance is created
     init() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -247,12 +204,12 @@ class API {
                 yield this.startService();
             }
             catch (err) {
-                this.log(LogLevel.Error, `${this.config.apiName} failed to start`, null, err);
+                this.log(LogLevel.Error, `Service failed to start`, null, err);
                 process.exit(1);
             }
         });
     }
-    // 
+    // Logs messages and errors to console and to file (if enabled)
     log(level, message, req, err) {
         switch (level) {
             case LogLevel.Error:
@@ -288,12 +245,10 @@ class API {
         // Configure static route for documentation
         this.app.use('/', express.static(path.join(__dirname, 'docs')));
         // Handle all other routes with 404 error
-        /*this.app.use((req, res, next) => {
-          const err: any = new Error();
-          err.name = ApiError.NotImplementedError;
-          err.status = 404;
-          next(err);
-        });*/
+        this.app.use((req, res, next) => {
+            const err = new exception_1.NotImplementedException();
+            next(err);
+        });
     }
 }
 __decorate([

@@ -3,6 +3,7 @@ import { ApiStatus, LogLevel } from './api';
 import BaseService from './baseService';
 import BookmarksService from './bookmarksService';
 
+// Interface for get info operation response object
 export interface IGetInfoResponse {
   maxSyncSize: number,
   message: string,
@@ -10,10 +11,11 @@ export interface IGetInfoResponse {
   version: string
 }
 
+// Implementation of data service for service info operations
 export default class InfoService extends BaseService<BookmarksService> {
   // Returns information describing the xBrowserSync service
   public async getInfo(req: Request): Promise<IGetInfoResponse> {
-    // Create response object
+    // Create response object from config settings
     const serviceInfo: IGetInfoResponse = {
       maxSyncSize: this.config.maxSyncSize,
       message: this.config.status.message,
@@ -23,7 +25,7 @@ export default class InfoService extends BaseService<BookmarksService> {
 
     if (this.config.status.online) {
       try {
-        // Check if accepting new syncs
+        // Call service method to check if accepting new syncs
         const acceptingNewSyncs = await this.service.isAcceptingNewSyncs();
         serviceInfo.status = acceptingNewSyncs ? ApiStatus.online : ApiStatus.noNewSyncs;
       }

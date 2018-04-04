@@ -11,23 +11,15 @@ import * as path from 'path';
 import BookmarksRouter from './bookmarksRouter';
 import BookmarksService from './bookmarksService';
 import DB from './db';
+import {
+  ExceptionBase,
+  NotImplementedException,
+  OriginNotPermittedException,
+  UnspecifiedException
+} from './exception';
 import InfoRouter from './infoRouter';
 import InfoService from './infoService';
 import NewSyncLogsService from './newSyncLogsService';
-
-export enum ApiError {
-  BookmarksDataLimitExceededError = 'BookmarksDataLimitExceededError',
-  BookmarksDataNotFoundError = 'BookmarksDataNotFoundError',
-  ClientIpAddressEmptyError = 'ClientIpAddressEmptyError',
-  NewSyncsForbiddenError = 'NewSyncsForbiddenError',
-  NewSyncsLimitExceededError = 'NewSyncsLimitExceededError',
-  NotImplementedError = 'NotImplementedError',
-  OriginNotPermittedError = 'OriginNotPermittedError',
-  ServiceNotAvailableError = 'ServiceNotAvailableError',
-  SyncIdNotFoundError = 'SyncIdNotFoundError',
-  UnspecifiedError = 'UnspecifiedError',
-  UnsupportedVersionError = 'UnsupportedVersionError'
-}
 
 export enum ApiStatus {
   online = 1,
@@ -49,7 +41,7 @@ export enum LogLevel {
   Info
 }
 
-// Starts a new instance of the xBrowserSync api
+// Main class for the xBrowserSync api service
 class API {
   private rateLimit = require('express-rate-limit');
   private config = require('./config.json');
@@ -64,7 +56,7 @@ class API {
     this.init();
   }
 
-  // Starts the api service
+  // Starts a new instance of the api service
   public startService(): Promise<void> {
     return new Promise((resolve, reject) => {
       let server;
@@ -83,16 +75,16 @@ class API {
       server.listen(this.config.server.port);
 
       server.on('close', conn => {
-        this.log(LogLevel.Error, `${this.config.apiName} terminating.`);
+        this.log(LogLevel.Error, `Service terminating.`);
       });
 
       server.on('error', (err: NodeJS.ErrnoException) => {
-        this.log(LogLevel.Error, `Uncaught exception occurred in ${this.config.apiName}`, null, err);
+        this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
         server.close();
       });
 
       server.on('listening', conn => {
-        this.log(LogLevel.Info, `${this.config.apiName} started on ${this.config.server.host}:${this.config.server.port}`);
+        this.log(LogLevel.Info, `Service started on ${this.config.server.host}:${this.config.server.port}`);
         resolve();
       });
     });
@@ -174,8 +166,7 @@ class API {
           if (this.config.allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
           } else {
-            const err = new Error();
-            err.name = ApiError.OriginNotPermittedError;
+            const err = new OriginNotPermittedException();
             callback(err);
           }
         }
@@ -183,12 +174,14 @@ class API {
     this.app.use(cors(corsOptions));
     this.app.options('*', cors(corsOptions));
 
-    // Add thottling
-    this.app.use(new this.rateLimit({
-      delayMs: 0,
-      max: this.config.throttle.maxRequests,
-      windowMs: this.config.throttle.timeWindow
-    }));
+    // Add thottling if enabled
+    if (this.config.throttle.maxRequests > 0) {
+      this.app.use(new this.rateLimit({
+        delayMs: 0,
+        max: this.config.throttle.maxRequests,
+        windowMs: this.config.throttle.timeWindow
+      }));
+    }
   }
 
   // Initialises and connects to mongodb
@@ -197,58 +190,27 @@ class API {
     await this.db.connect();
   }
 
-  // 
+  // Handles and logs api errors
   private handleErrors(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
     if (err) {
-      let errObj = {
-        code: err.name,
-        message: ''
-      };
+      let responseObj: any;
 
-      switch (err.name) {
-        case ApiError.BookmarksDataLimitExceededError:
-          errObj.message = 'Bookmarks data limit exceeded';
-          break;
-        case ApiError.BookmarksDataNotFoundError:
-          errObj.message = 'Unable to find bookmarks data';
-          break;
-        case ApiError.ClientIpAddressEmptyError:
-          errObj.message = 'Unable to determine client\'s IP address';
-          break;
-        case ApiError.NewSyncsForbiddenError:
-          errObj.message = 'The service is not accepting new syncs';
-          break;
-        case ApiError.NewSyncsLimitExceededError:
-          errObj.message = 'Client has exceeded the daily new syncs limit';
-          break;
-        case ApiError.NotImplementedError:
-          errObj.message = 'The requested route has not been implemented';
-          break;
-        case ApiError.OriginNotPermittedError:
-          errObj.message = 'Client not permitted to access this service';
-          break;
-        case ApiError.ServiceNotAvailableError:
-          errObj.message = 'The service is currently offline';
-          break;
-        case ApiError.SyncIdNotFoundError:
-          errObj.message = 'Unable to find sync ID';
-          break;
-        case ApiError.UnsupportedVersionError:
-          errObj.message = 'The requested API version is not supported';
-          break;
-        default:
-          errObj = {
-            code: ApiError.UnspecifiedError,
-            message: 'An unspecified error has occurred'
-          };
+      // If the error is one of our exception, get the reponse object to return to the client
+      // otherwise create a new unspecified exception and use that 
+      if (err instanceof ExceptionBase) {
+        responseObj = (err as ExceptionBase).getResponseObject();
+      }
+      else {
+        err = new UnspecifiedException();
+        responseObj = (err as UnspecifiedException).getResponseObject();
       }
 
       res.status(err.status || 500);
-      res.json(errObj);
+      res.json(responseObj);
     }
   }
 
-  // Initialises the xBrowserSync api service
+  // Initialises the xBrowserSync api service when a new instance is created
   private async init(): Promise<void> {
     try {
       this.configureServer();
@@ -259,12 +221,12 @@ class API {
       await this.startService();
     }
     catch (err) {
-      this.log(LogLevel.Error, `${this.config.apiName} failed to start`, null, err);
+      this.log(LogLevel.Error, `Service failed to start`, null, err);
       process.exit(1);
     }
   }
 
-  // 
+  // Logs messages and errors to console and to file (if enabled)
   @autobind
   private log(level: LogLevel, message: string, req?: express.Request, err?: Error): void {
     switch (level) {
@@ -307,12 +269,10 @@ class API {
     this.app.use('/', express.static(path.join(__dirname, 'docs')));
 
     // Handle all other routes with 404 error
-    /*this.app.use((req, res, next) => {
-      const err: any = new Error();
-      err.name = ApiError.NotImplementedError;
-      err.status = 404;
+    this.app.use((req, res, next) => {
+      const err = new NotImplementedException();
       next(err);
-    });*/
+    });
   }
 }
 

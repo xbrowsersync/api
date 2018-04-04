@@ -12,8 +12,9 @@ export default class DB {
     this.log = log;
   }
 
-  // Connects to the database
+  // Initialises the database connection using config settings
   public connect(): Promise<void> {
+    // Set the db connection options from config settings
     const options: mongoose.ConnectionOptions = {
       connectTimeoutMS: this.config.db.connTimeout,
       keepAlive: 1,
@@ -22,6 +23,7 @@ export default class DB {
     };
 
     return new Promise((resolve, reject) => {
+      // Connect to the host and db name defined in config settings
       mongoose.connect(`mongodb://${this.config.db.host}/${this.config.db.name}`, options);
       const db = mongoose.connection;
 

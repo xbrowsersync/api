@@ -8,8 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const express_1 = require("express");
-const api_1 = require("./api");
-// 
+const exception_1 = require("./exception");
+// Base class for router implementations
+// Implements the routes that are served by the api 
 class BaseRouter {
     constructor(service) {
         this.routesVersioning = require('express-routes-versioning')();
@@ -18,23 +19,19 @@ class BaseRouter {
         this.router = express_1.Router();
         this.initRoutes();
     }
-    //
+    // Adds a new route to this router implementation
     createRoute(verb, path, version, routeMethod) {
         const options = {};
         options[version] = routeMethod;
         this.router[verb](path, this.routesVersioning(options, this.unsupportedVersion));
     }
-    // 
+    // Initialises the routes for this router implementation
     initRoutes() {
-        const err = new Error();
-        err.name = api_1.ApiError.NotImplementedError;
-        throw err;
+        throw new exception_1.NotImplementedException();
     }
-    // 
+    // Throws an error for when a requested api version is not supported
     unsupportedVersion(req, res, next) {
-        const err = new Error();
-        err.name = api_1.ApiError.UnsupportedVersionError;
-        throw err;
+        throw new exception_1.UnsupportedVersionException();
     }
 }
 __decorate([

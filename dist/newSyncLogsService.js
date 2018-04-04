@@ -11,52 +11,51 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const moment = require("moment");
 const api_1 = require("./api");
 const baseService_1 = require("./baseService");
+const exception_1 = require("./exception");
 const newSyncLogsModel_1 = require("./newSyncLogsModel");
-// Handles data interaction for the newsynclogs collection in mongodb
+// Implementation of data service for new sync log operations
 class NewSyncLogsService extends baseService_1.default {
-    // Adds a new log entry to the newsynclogs collection based on a given request
+    // Creates a new sync log entry with the supplied request data
     createLog(req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Get the client's ip address
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {
-                const err = new Error();
-                err.name = api_1.ApiError.ClientIpAddressEmptyError;
+                const err = new exception_1.ClientIpAddressEmptyException();
                 this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
                 throw err;
             }
-            // Initialise the document
+            // Create new sync log payload
             const newLog = {
                 ipAddress: clientIp,
                 syncCreated: new Date()
             };
             const newSyncLogsModel = new newSyncLogsModel_1.default(newLog);
-            // Add document to db
-            return new Promise((resolve, reject) => {
+            // Commit the payload to the db
+            yield new Promise((resolve, reject) => {
                 newSyncLogsModel.save((err, document) => {
                     if (err) {
                         this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
                         reject(err);
                     }
-                    resolve(document);
+                    resolve();
                 });
             });
         });
     }
-    // 
+    // Returns true/false depending on whether a given request's ip address has hit the limit for daily new syncs created
     newSyncsLimitHit(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Clear new syncs log of old entries
+            // Clear newsynclogs collection of old entries
             yield this.clearLog(req);
             // Get the client's ip address
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {
-                const err = new Error();
-                err.name = api_1.ApiError.ClientIpAddressEmptyError;
+                const err = new exception_1.ClientIpAddressEmptyException();
                 this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                 throw err;
             }
-            // Get number of new syncs created today by this ip
+            // Query the newsynclogs collection for the total number of logs for the given ip address
             const newSyncsCreated = yield new Promise((resolve, reject) => {
                 newSyncLogsModel_1.default.count({
                     ipAddress: clientIp
@@ -68,11 +67,11 @@ class NewSyncLogsService extends baseService_1.default {
                     resolve(count);
                 });
             });
-            // Check returned count against dailyNewSyncsLimit config value
+            // Check returned count against config setting
             return newSyncsCreated >= this.config.dailyNewSyncsLimit;
         });
     }
-    // Clears all new sync logs older than today
+    // Deletes all new sync logs created before today
     clearLog(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const result = yield new Promise((resolve, reject) => {
@@ -90,7 +89,7 @@ class NewSyncLogsService extends baseService_1.default {
             });
         });
     }
-    // Extracts and cleans the client's IP address from a given request
+    // Extracts and cleans the client's ip address from a given request
     getClientIpAddress(req) {
         const matches = req.ip.match(/(\d+\.\d+\.\d+\.\d+)/) || [''];
         return matches[0];

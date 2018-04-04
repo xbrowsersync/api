@@ -17,12 +17,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const api_1 = require("./api");
 const baseRouter_1 = require("./baseRouter");
-// 
+// Implementation of routes for service info operations
 class InfoRouter extends baseRouter_1.default {
-    // 
+    // Initialises the routes for this router implementation
+    initRoutes() {
+        this.createRoute(api_1.ApiVerb.get, '/', '^1.0.0', this.info);
+    }
+    // Gets service info such as status, version, etc
     info(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Call service method to get service info and return response as json
                 const serviceInfo = yield this.service.getInfo(req);
                 res.send(serviceInfo);
             }
@@ -30,10 +35,6 @@ class InfoRouter extends baseRouter_1.default {
                 next(err);
             }
         });
-    }
-    // 
-    initRoutes() {
-        this.createRoute(api_1.ApiVerb.get, '/', '^1.0.0', this.info);
     }
 }
 __decorate([

@@ -1,57 +1,56 @@
 import { Request } from 'express';
 import * as moment from 'moment';
-import { ApiError, LogLevel } from './api';
+import { LogLevel } from './api';
 import BaseService from './baseService';
+import { ClientIpAddressEmptyException } from './exception';
 import NewSyncLogsModel, { INewSyncLog, INewSyncLogsModel } from './newSyncLogsModel';
 
-// Handles data interaction for the newsynclogs collection in mongodb
+// Implementation of data service for new sync log operations
 export default class NewSyncLogsService extends BaseService<void> {
-  // Adds a new log entry to the newsynclogs collection based on a given request
-  public async createLog(req: Request): Promise<INewSyncLogsModel> {
+  // Creates a new sync log entry with the supplied request data
+  public async createLog(req: Request): Promise<void> {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      const err = new Error();
-      err.name = ApiError.ClientIpAddressEmptyError;
+      const err = new ClientIpAddressEmptyException();
       this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
       throw err;
     }
 
-    // Initialise the document
+    // Create new sync log payload
     const newLog: INewSyncLog = {
       ipAddress: clientIp,
       syncCreated: new Date()
     };
     const newSyncLogsModel = new NewSyncLogsModel(newLog);
 
-    // Add document to db
-    return new Promise<INewSyncLogsModel>((resolve, reject) => {
+    // Commit the payload to the db
+    await new Promise<INewSyncLogsModel>((resolve, reject) => {
       newSyncLogsModel.save((err, document) => {
         if (err) {
           this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
           reject(err);
         }
 
-        resolve(document);
+        resolve();
       });
     });
   }
 
-  // 
+  // Returns true/false depending on whether a given request's ip address has hit the limit for daily new syncs created
   public async newSyncsLimitHit(req: Request): Promise<boolean> {
-    // Clear new syncs log of old entries
+    // Clear newsynclogs collection of old entries
     await this.clearLog(req);
 
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      const err = new Error();
-      err.name = ApiError.ClientIpAddressEmptyError;
+      const err = new ClientIpAddressEmptyException();
       this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
       throw err;
     }
 
-    // Get number of new syncs created today by this ip
+    // Query the newsynclogs collection for the total number of logs for the given ip address
     const newSyncsCreated = await new Promise((resolve, reject) => {
       NewSyncLogsModel.count({
         ipAddress: clientIp
@@ -66,11 +65,11 @@ export default class NewSyncLogsService extends BaseService<void> {
         });
     });
 
-    // Check returned count against dailyNewSyncsLimit config value
+    // Check returned count against config setting
     return newSyncsCreated >= this.config.dailyNewSyncsLimit;
   }
 
-  // Clears all new sync logs older than today
+  // Deletes all new sync logs created before today
   private async clearLog(req: Request): Promise<void> {
     const result = await new Promise((resolve, reject) => {
       NewSyncLogsModel.remove({
@@ -89,7 +88,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     });
   }
 
-  // Extracts and cleans the client's IP address from a given request
+  // Extracts and cleans the client's ip address from a given request
   private getClientIpAddress(req: Request): string {
     const matches = req.ip.match(/(\d+\.\d+\.\d+\.\d+)/) || [''];
     return matches[0];

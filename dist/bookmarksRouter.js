@@ -17,20 +17,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const api_1 = require("./api");
 const baseRouter_1 = require("./baseRouter");
-// 
+const exception_1 = require("./exception");
+// Implementation of routes for bookmarks operations
 class BookmarksRouter extends baseRouter_1.default {
-    // 
+    // Initialises the routes for this router implementation
     initRoutes() {
         this.createRoute(api_1.ApiVerb.post, '/', '^1.0.0', this.createBookmarks);
         this.createRoute(api_1.ApiVerb.get, '/:id', '^1.0.0', this.getBookmarks);
         this.createRoute(api_1.ApiVerb.put, '/:id', '^1.0.0', this.updateBookmarks);
         this.createRoute(api_1.ApiVerb.get, '/:id/lastUpdated', '^1.0.0', this.getLastUpdated);
     }
-    // 
+    // Creates a new bookmarks sync and returns new sync ID
     createBookmarks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const newBookmarksSync = yield this.service.createBookmarks(req);
+                // Get posted bookmarks data
+                const bookmarksData = this.getBookmarksData(req);
+                // Call service method to create new bookmarks sync and return response as json
+                const newBookmarksSync = yield this.service.createBookmarks(bookmarksData, req);
                 res.json(newBookmarksSync);
             }
             catch (err) {
@@ -38,11 +42,14 @@ class BookmarksRouter extends baseRouter_1.default {
             }
         });
     }
-    // 
+    // Retrieves an existing bookmarks sync with a provided sync ID
     getBookmarks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const bookmarksSync = yield this.service.getBookmarks(req);
+                // Check sync id has been provided
+                const id = this.getSyncId(req);
+                // Call service method to retrieve bookmarks data and return response as json
+                const bookmarksSync = yield this.service.getBookmarks(id, req);
                 res.json(bookmarksSync);
             }
             catch (err) {
@@ -50,11 +57,21 @@ class BookmarksRouter extends baseRouter_1.default {
             }
         });
     }
-    // 
+    // Retrieves posted bookmarks data from request body
+    getBookmarksData(req) {
+        if (!req.body.bookmarks) {
+            throw new exception_1.BookmarksDataNotFoundException;
+        }
+        return req.body.bookmarks;
+    }
+    // Retrieves last updated date for a given bookmarks sync ID
     getLastUpdated(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const bookmarksSync = yield this.service.getLastUpdated(req);
+                // Check sync id has been provided
+                const id = this.getSyncId(req);
+                // Call service method to get bookmarks last updated date and return response as json
+                const bookmarksSync = yield this.service.getLastUpdated(id, req);
                 res.json(bookmarksSync);
             }
             catch (err) {
@@ -62,11 +79,24 @@ class BookmarksRouter extends baseRouter_1.default {
             }
         });
     }
-    // 
+    // Retrieves the bookmarks sync ID from the request query string parameters
+    getSyncId(req) {
+        const id = req.params.id;
+        if (!id) {
+            throw new exception_1.SyncIdNotFoundException();
+        }
+        return id;
+    }
+    // Updates bookmarks data for a given bookmarks sync ID
     updateBookmarks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const bookmarksSync = yield this.service.updateBookmarks(req);
+                // Check sync id has been provided
+                const id = this.getSyncId(req);
+                // Get posted bookmarks data
+                const bookmarksData = this.getBookmarksData(req);
+                // Call service method to update bookmarks data and return response as json
+                const bookmarksSync = yield this.service.updateBookmarks(id, bookmarksData, req);
                 res.json(bookmarksSync);
             }
             catch (err) {

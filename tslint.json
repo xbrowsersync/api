@@ -1,6 +1,7 @@
 {
   "rules": {
     "ban-comma-operator": false,
+    "max-classes-per-file": false,
     "no-console": false
   },
   "extends": [

@@ -8,8 +8,9 @@ class DB {
         this.config = require('./config.json');
         this.log = log;
     }
-    // Connects to the database
+    // Initialises the database connection using config settings
     connect() {
+        // Set the db connection options from config settings
         const options = {
             connectTimeoutMS: this.config.db.connTimeout,
             keepAlive: 1,
@@ -17,6 +18,7 @@ class DB {
             user: this.config.db.username || process.env.XBROWSERSYNC_DB_USER
         };
         return new Promise((resolve, reject) => {
+            // Connect to the host and db name defined in config settings
             mongoose.connect(`mongodb://${this.config.db.host}/${this.config.db.name}`, options);
             const db = mongoose.connection;
             db.on('error', (err) => {
