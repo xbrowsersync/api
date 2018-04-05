@@ -29,8 +29,6 @@ CD into the source directory, install the package and dependencies and build usi
   ```
   use xBrowserSync 
   db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] }) 
-  db.createCollection("bookmarks")
-  db.createCollection("newSyncsLog")
   db.newSyncsLog.createIndex({ "ipAddress": 1, "syncCreated": 1 })
   ```
 
