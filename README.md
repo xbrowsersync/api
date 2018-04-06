@@ -29,8 +29,6 @@ CD into the source directory, install the package and dependencies and build usi
   ```
   use xBrowserSync 
   db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] }) 
-  db.createCollection("bookmarks")
-  db.createCollection("newSyncsLog")
   db.newSyncsLog.createIndex({ "ipAddress": 1, "syncCreated": 1 })
   ```
 
@@ -63,18 +61,11 @@ CD into the source directory, install the package and dependencies and build usi
 
   #### If exposing your service to the public it is recommended you also perform the following steps:
   
-  3. Add a Scheduled Task (Windows) or CRON job (Ubuntu/Linux) to clear stale sync data that has not been accessed in a while. The task should run daily with the following command:
-   
-    - Windows:
-  
+  3. Add a TTL index on bookmarks.lastAccessed, in the mongo shell run:
       ```
-      mongod.exe xBrowserSync -u %XBROWSERSYNC_DB_USER% -p %XBROWSERSYNC_DB_PWD% --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
-      ```
-  
-    - Ubuntu/Linux:
-  
-      ```
-      mongo xBrowserSync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
+      use xBrowserSync
+      // This will expire records after 14 days
+      db.bookmarks.createIndex({"lastAccessed":1},{"expireAfterSeconds": 14*86400, background:true})
       ```
 
 ## 3. Edit xBrowserSync service configuration
