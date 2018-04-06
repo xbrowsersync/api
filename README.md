@@ -23,57 +23,48 @@ CD into the source directory and install dependencies:
 
   1. Run the following commands in the mongo shell:
   
-  (Replace `[password]` with a cleartext password of your choice)
+      (Replace `[password]` with a cleartext password of your choice)
 
-  ```
-  use xbrowsersync
-  db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
-  db.createCollection("bookmarks")
-  db.createCollection("newsynclogs")
-  db.newsynclogs.createIndex({ "ipAddress": 1, "syncCreated": 1 })
-  ```
+      ```
+      use xbrowsersync
+      db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
+      db.newsynclogs.createIndex({ "ipAddress": 1, "syncCreated": 1 })
+      ```
 
   2. Add the following environment variables to hold xBrowserSync DB account username and password:
 
-    - `XBROWSERSYNC_DB_USER`
-    - `XBROWSERSYNC_DB_PWD`
+      - `XBROWSERSYNC_DB_USER`
+      - `XBROWSERSYNC_DB_PWD`
 
-  On Windows, open a Command Prompt and type (replacing `[password]` with the password entered in the mongo shell):
+      On Windows, open a Command Prompt and type (replacing `[password]` with the password entered in the mongo shell):
   
-  ```
-  setx XBROWSERSYNC_DB_USER "xbrowsersyncdb"
-  setx XBROWSERSYNC_DB_PWD "[password]"
-  ```
+      ```
+      setx XBROWSERSYNC_DB_USER "xbrowsersyncdb"
+      setx XBROWSERSYNC_DB_PWD "[password]"
+      ```
   
-  On Ubuntu/Debian Linux, open a terminal emulator and type:
-  
-  ```
-  $ pico ~/.profile
-  ```
-  
-  Add the lines (replacing `[password]` with the password entered in the mongo shell):
-  
-  ```
-  export XBROWSERSYNC_DB_USER=xbrowsersyncdb
-  export XBROWSERSYNC_DB_PWD=[password]
-  ```
-  
-  Save and exit, then log out and back in again.
+      On Ubuntu/Debian Linux, open a terminal emulator and type:
+      
+      ```
+      $ pico ~/.profile
+      ```
+      
+      Add the lines (replacing `[password]` with the password entered in the mongo shell):
+      
+      ```
+      export XBROWSERSYNC_DB_USER=xbrowsersyncdb
+      export XBROWSERSYNC_DB_PWD=[password]
+      ```
+      
+      Save and exit, then log out and back in again.
 
   #### If exposing your service to the public it is recommended you also perform the following steps:
   
-  3. Add a Scheduled Task (Windows) or CRON job (Ubuntu/Linux) to clear stale sync data that has not been accessed in a while. The task should run daily with the following command:
+  3. Add a TTL index on `bookmarks.lastAccessed` to delete syncs that have not been accessed for 3 weeks:
    
-    - Windows:
-  
       ```
-      mongod.exe xbrowsersync -u %XBROWSERSYNC_DB_USER% -p %XBROWSERSYNC_DB_PWD% --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
-      ```
-  
-    - Ubuntu/Linux:
-  
-      ```
-      mongo xbrowsersync -u $XBROWSERSYNC_DB_USER -p $XBROWSERSYNC_DB_PWD --eval 'db.bookmarks.remove({ lastAccessed: { $lt: new Date((new Date).setDate((new Date()).getDate() - 14)) } })'
+      use xBrowserSync
+      db.bookmarks.createIndex( { "lastAccessed": 1 }, { expireAfterSeconds: 21*86400 } )
       ```
 
 ## 3. Edit xBrowserSync service configuration

@@ -37,7 +37,7 @@
     "online": true
   },
   "throttle": {
-    "maxRequests": 500,
+    "maxRequests": 1000,
     "timeWindow": 300000
   },
   "version": "1.1.0"
