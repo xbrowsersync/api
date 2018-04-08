@@ -1,9 +1,9 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response, Router } from 'express';
-import { ApiVerb } from './api';
 import BaseRouter from './baseRouter';
 import BookmarksService from './bookmarksService';
 import { BookmarksDataNotFoundException, SyncIdNotFoundException } from './exception';
+import { ApiVerb } from './server';
 
 // Implementation of routes for bookmarks operations
 export default class BookmarksRouter extends BaseRouter<BookmarksService> {

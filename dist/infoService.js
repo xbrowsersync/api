@@ -8,8 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const api_1 = require("./api");
 const baseService_1 = require("./baseService");
+const server_1 = require("./server");
+const Config = require('./config.json');
 // Implementation of data service for service info operations
 class InfoService extends baseService_1.default {
     // Returns information describing the xBrowserSync service
@@ -17,19 +18,19 @@ class InfoService extends baseService_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             // Create response object from config settings
             const serviceInfo = {
-                maxSyncSize: this.config.maxSyncSize,
-                message: this.config.status.message,
-                status: api_1.ApiStatus.offline,
-                version: this.config.version
+                maxSyncSize: Config.maxSyncSize,
+                message: Config.status.message,
+                status: server_1.ApiStatus.offline,
+                version: Config.version
             };
-            if (this.config.status.online) {
+            if (Config.status.online) {
                 try {
                     // Call service method to check if accepting new syncs
                     const acceptingNewSyncs = yield this.service.isAcceptingNewSyncs();
-                    serviceInfo.status = acceptingNewSyncs ? api_1.ApiStatus.online : api_1.ApiStatus.noNewSyncs;
+                    serviceInfo.status = acceptingNewSyncs ? server_1.ApiStatus.online : server_1.ApiStatus.noNewSyncs;
                 }
                 catch (err) {
-                    this.log(api_1.LogLevel.Error, 'Exception occurred in InfoService.getInfo', req, err);
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in InfoService.getInfo', req, err);
                 }
             }
             return serviceInfo;

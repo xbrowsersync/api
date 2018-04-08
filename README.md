@@ -8,7 +8,7 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Prerequisites
 
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) (8.0.0 or later)
 - [mongoDB](https://www.mongodb.com/)
 
 # Installation
@@ -113,9 +113,13 @@ If you've made configuration changes, be sure to run a fresh build:
 
     $ node dist/api.js
 
-# Debugging
+# VSCode
 
-If you're using [VSCode](https://code.visualstudio.com/), simply hit `F5` to start debugging.
+If you're using [VSCode](https://code.visualstudio.com/), there are three launch configurations:
+
+  1. Debug API: Will compile and debug the main API service.
+  2. Debug docs: Will launch API home page in chrome and attach to debugger for debugging docs issues. 
+  3. Run tests: Will debug all tests in `test` folder. 
 
 # Issues
 

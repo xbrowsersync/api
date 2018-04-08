@@ -1,9 +1,10 @@
 import { Request } from 'express';
 import * as moment from 'moment';
-import { LogLevel } from './api';
 import BaseService from './baseService';
 import { ClientIpAddressEmptyException } from './exception';
 import NewSyncLogsModel, { INewSyncLog, INewSyncLogsModel } from './newSyncLogsModel';
+import { LogLevel } from './server';
+const Config = require('./config.json');
 
 // Implementation of data service for new sync log operations
 export default class NewSyncLogsService extends BaseService<void> {
@@ -66,7 +67,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     });
 
     // Check returned count against config setting
-    return newSyncsCreated >= this.config.dailyNewSyncsLimit;
+    return newSyncsCreated >= Config.dailyNewSyncsLimit;
   }
 
   // Deletes all new sync logs created before today

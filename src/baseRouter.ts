@@ -1,7 +1,7 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response, Router } from 'express';
-import { ApiVerb } from './api';
 import { NotImplementedException, UnsupportedVersionException } from './exception';
+import { ApiVerb } from './server';
 
 // Base class for router implementations
 // Implements the routes that are served by the api 

@@ -15,17 +15,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
-const api_1 = require("./api");
 const baseRouter_1 = require("./baseRouter");
 const exception_1 = require("./exception");
+const server_1 = require("./server");
 // Implementation of routes for bookmarks operations
 class BookmarksRouter extends baseRouter_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
-        this.createRoute(api_1.ApiVerb.post, '/', '^1.0.0', this.createBookmarks);
-        this.createRoute(api_1.ApiVerb.get, '/:id', '^1.0.0', this.getBookmarks);
-        this.createRoute(api_1.ApiVerb.put, '/:id', '^1.0.0', this.updateBookmarks);
-        this.createRoute(api_1.ApiVerb.get, '/:id/lastUpdated', '^1.0.0', this.getLastUpdated);
+        this.createRoute(server_1.ApiVerb.post, '/', '^1.0.0', this.createBookmarks);
+        this.createRoute(server_1.ApiVerb.get, '/:id', '^1.0.0', this.getBookmarks);
+        this.createRoute(server_1.ApiVerb.put, '/:id', '^1.0.0', this.updateBookmarks);
+        this.createRoute(server_1.ApiVerb.get, '/:id/lastUpdated', '^1.0.0', this.getLastUpdated);
     }
     // Creates a new bookmarks sync and returns new sync ID
     createBookmarks(req, res, next) {

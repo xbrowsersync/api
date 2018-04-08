@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const moment = require("moment");
-const api_1 = require("./api");
 const baseService_1 = require("./baseService");
 const exception_1 = require("./exception");
 const newSyncLogsModel_1 = require("./newSyncLogsModel");
+const server_1 = require("./server");
+const Config = require('./config.json');
 // Implementation of data service for new sync log operations
 class NewSyncLogsService extends baseService_1.default {
     // Creates a new sync log entry with the supplied request data
@@ -22,7 +23,7 @@ class NewSyncLogsService extends baseService_1.default {
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {
                 const err = new exception_1.ClientIpAddressEmptyException();
-                this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
                 throw err;
             }
             // Create new sync log payload
@@ -35,7 +36,7 @@ class NewSyncLogsService extends baseService_1.default {
             yield new Promise((resolve, reject) => {
                 newSyncLogsModel.save((err, document) => {
                     if (err) {
-                        this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
+                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
                         reject(err);
                     }
                     resolve();
@@ -52,7 +53,7 @@ class NewSyncLogsService extends baseService_1.default {
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {
                 const err = new exception_1.ClientIpAddressEmptyException();
-                this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                 throw err;
             }
             // Query the newsynclogs collection for the total number of logs for the given ip address
@@ -61,14 +62,14 @@ class NewSyncLogsService extends baseService_1.default {
                     ipAddress: clientIp
                 }, (err, count) => {
                     if (err) {
-                        this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
+                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                         reject(err);
                     }
                     resolve(count);
                 });
             });
             // Check returned count against config setting
-            return newSyncsCreated >= this.config.dailyNewSyncsLimit;
+            return newSyncsCreated >= Config.dailyNewSyncsLimit;
         });
     }
     // Deletes all new sync logs created before today
@@ -81,7 +82,7 @@ class NewSyncLogsService extends baseService_1.default {
                     }
                 }, err => {
                     if (err) {
-                        this.log(api_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
+                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
                         reject(err);
                     }
                 });

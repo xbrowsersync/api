@@ -57,6 +57,7 @@
     "sass-loader": "^6.0.7",
     "sinon": "^4.5.0",
     "ts-loader": "^4.1.0",
+    "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0",
     "typescript": "^2.7.2",
@@ -64,13 +65,14 @@
     "webpack-cli": "^2.0.14"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "scripts": {
     "build": "npm run compilesrc && npm run tslint && npm run builddocs && npm run buildcomplete",
     "compilesrc": "echo Compiling source files... && tsc --pretty && n-copy --source src --destination dist config.json",
     "tslint": "echo Running tslint... & tslint --project . -t stylish",
     "builddocs": "echo Building docs... & webpack --config webpack.config.js",
-    "buildcomplete": "echo Done!"
+    "buildcomplete": "echo Done!",
+    "test": "echo Running tests... & mocha --require ts-node/register test/**/*.test.ts"
   }
 }

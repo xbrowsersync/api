@@ -1,8 +1,8 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response, Router } from 'express';
-import { ApiVerb } from './api';
 import BaseRouter from './baseRouter';
 import InfoService from './infoService';
+import { ApiVerb } from './server';
 
 // Implementation of routes for service info operations
 export default class InfoRouter extends BaseRouter<InfoService> {

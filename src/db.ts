@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
-import { LogLevel } from './api';
+import { LogLevel } from './server';
 
 // Handles database interaction
 export default class DB {

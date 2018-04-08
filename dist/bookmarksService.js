@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid = require("uuid");
-const api_1 = require("./api");
 const baseService_1 = require("./baseService");
 const bookmarksModel_1 = require("./bookmarksModel");
 const exception_1 = require("./exception");
+const server_1 = require("./server");
+const Config = require('./config.json');
 // Implementation of data service for bookmarks operations
 class BookmarksService extends baseService_1.default {
     // Creates a new bookmarks sync with the supplied bookmarks data
@@ -27,7 +28,7 @@ class BookmarksService extends baseService_1.default {
                 throw new exception_1.NewSyncsForbiddenException();
             }
             // Check if daily new syncs limit has been hit if config value enabled
-            if (this.config.dailyNewSyncsLimit > 0) {
+            if (Config.dailyNewSyncsLimit > 0) {
                 const newSyncsLimitHit = yield this.service.newSyncsLimitHit(req);
                 if (newSyncsLimitHit) {
                     throw new exception_1.NewSyncsLimitExceededException();
@@ -37,7 +38,7 @@ class BookmarksService extends baseService_1.default {
             const id = this.newSyncId();
             if (!id) {
                 const err = new exception_1.SyncIdNotFoundException();
-                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
                 throw err;
             }
             try {
@@ -61,10 +62,10 @@ class BookmarksService extends baseService_1.default {
                     });
                 });
                 // Add to logs
-                if (this.config.dailyNewSyncsLimit > 0) {
+                if (Config.dailyNewSyncsLimit > 0) {
                     yield this.service.createLog(req);
                 }
-                this.log(api_1.LogLevel.Info, 'New bookmarks sync created', req);
+                this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
                 // Return the response data
                 const returnObj = {
                     id,
@@ -73,7 +74,7 @@ class BookmarksService extends baseService_1.default {
                 return returnObj;
             }
             catch (err) {
-                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
                 throw err;
             }
         });
@@ -105,7 +106,7 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
                 throw err;
             }
         });
@@ -135,7 +136,7 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
                 throw err;
             }
         });
@@ -144,16 +145,16 @@ class BookmarksService extends baseService_1.default {
     isAcceptingNewSyncs() {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if allowNewSyncs config value enabled
-            if (!this.config.status.allowNewSyncs) {
+            if (!Config.status.allowNewSyncs) {
                 return false;
             }
             // Check if maxSyncs config value disabled
-            if (this.config.maxSyncs === 0) {
+            if (Config.maxSyncs === 0) {
                 return true;
             }
             // Check if total syncs have reached limit set in config  
             const bookmarksCount = yield this.getBookmarksCount();
-            return bookmarksCount < this.config.maxSyncs;
+            return bookmarksCount < Config.maxSyncs;
         });
     }
     // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data
@@ -188,7 +189,7 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
                 throw err;
             }
         });
@@ -198,7 +199,7 @@ class BookmarksService extends baseService_1.default {
         return new Promise((resolve, reject) => {
             bookmarksModel_1.default.count(null, (err, count) => {
                 if (err) {
-                    this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
                     reject(err);
                     return;
                 }
@@ -215,7 +216,7 @@ class BookmarksService extends baseService_1.default {
             newId = new Buffer(bytes, 'base64').toString('hex');
         }
         catch (err) {
-            this.log(api_1.LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
+            this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
         }
         return newId;
     }

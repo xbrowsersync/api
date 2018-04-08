@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
-const api_1 = require("./api");
+const server_1 = require("./server");
 // Handles database interaction
 class DB {
     constructor(log) {
@@ -22,7 +22,7 @@ class DB {
             mongoose.connect(`mongodb://${this.config.db.host}/${this.config.db.name}`, options);
             const db = mongoose.connection;
             db.on('error', (err) => {
-                this.log(api_1.LogLevel.Error, 'Uncaught exception occurred in database', null, err);
+                this.log(server_1.LogLevel.Error, 'Uncaught exception occurred in database', null, err);
                 reject(err);
             });
             db.once('open', resolve);
