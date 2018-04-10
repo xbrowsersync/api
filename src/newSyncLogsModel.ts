@@ -1,7 +1,9 @@
+import * as moment from 'moment';
 import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 
 export interface INewSyncLog {
+  expiresAt?: Date,
   ipAddress: string,
   syncCreated?: Date
 }
@@ -16,8 +18,15 @@ export default (() => {
   const newSyncLogsSchema = new mongoose.Schema(
     {
       _id: { type: String, default: uuid.v4 },
+      expiresAt: {
+        default: () => moment().add(1, 'days').startOf('day').toDate(),
+        type: Date
+      },
       ipAddress: String,
-      syncCreated: Date
+      syncCreated: {
+        default: () => new Date(),
+        type: Date
+      }
     },
     {
       versionKey: false

@@ -4,8 +4,8 @@ import * as uuid from 'uuid';
 export interface IBookmarks {
   _id: any,
   bookmarks: string,
-  lastAccessed: Date,
-  lastUpdated: Date
+  lastAccessed?: Date,
+  lastUpdated?: Date
 }
 
 export interface IBookmarksModel extends IBookmarks, mongoose.Document {
@@ -16,16 +16,25 @@ export default (() => {
   require('mongoose-uuid2')(mongoose);
   const types: any = mongoose.Types;
   const UUID = types.UUID;
-  
+
   // Create bookmarks schema to store bookmarks sync data
   // Store IDs as binary uuid v4 and disable default id properties
   // No concurrent updates so disable version keys
   const bookmarksSchema = new mongoose.Schema(
     {
-      _id: { type: UUID, default: uuid.v4 },
+      _id: {
+        default: uuid.v4,
+        type: UUID
+      },
       bookmarks: String,
-      lastAccessed: Date,
-      lastUpdated: Date
+      lastAccessed: {
+        default: () => new Date(),
+        type: Date
+      },
+      lastUpdated: {
+        default: () => new Date(),
+        type: Date
+      }
     },
     {
       _id: false,

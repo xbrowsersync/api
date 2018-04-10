@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const moment = require("moment");
 const baseService_1 = require("./baseService");
 const exception_1 = require("./exception");
 const newSyncLogsModel_1 = require("./newSyncLogsModel");
@@ -16,18 +15,6 @@ const server_1 = require("./server");
 const Config = require('./config.json');
 // Implementation of data service for new sync log operations
 class NewSyncLogsService extends baseService_1.default {
-    // Deletes all new sync logs created before today
-    clearLog(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                yield newSyncLogsModel_1.default.remove({ syncCreated: { $lt: moment().startOf('day').toDate() } }).exec();
-            }
-            catch (err) {
-                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
-                throw err;
-            }
-        });
-    }
     // Creates a new sync log entry with the supplied request data
     createLog(req) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,26 +26,24 @@ class NewSyncLogsService extends baseService_1.default {
                 throw err;
             }
             // Create new sync log payload
-            const newLog = {
-                ipAddress: clientIp,
-                syncCreated: new Date()
+            const newLogPayload = {
+                ipAddress: clientIp
             };
-            const newSyncLogsModel = new newSyncLogsModel_1.default(newLog);
+            const newSyncLogsModel = new newSyncLogsModel_1.default(newLogPayload);
             // Commit the payload to the db
-            yield newSyncLogsModel.save((err, document) => {
-                if (err) {
-                    this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
-                    throw err;
-                }
-            });
-            return newLog;
+            try {
+                yield newSyncLogsModel.save();
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
+                throw err;
+            }
+            return newLogPayload;
         });
     }
     // Returns true/false depending on whether a given request's ip address has hit the limit for daily new syncs created
     newSyncsLimitHit(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Clear newsynclogs collection of old entries
-            yield this.clearLog(req);
             // Get the client's ip address
             const clientIp = this.getClientIpAddress(req);
             if (!clientIp) {

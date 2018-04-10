@@ -11,10 +11,19 @@ exports.default = (() => {
     // Store IDs as binary uuid v4 and disable default id properties
     // No concurrent updates so disable version keys
     const bookmarksSchema = new mongoose.Schema({
-        _id: { type: UUID, default: uuid.v4 },
+        _id: {
+            default: uuid.v4,
+            type: UUID
+        },
         bookmarks: String,
-        lastAccessed: Date,
-        lastUpdated: Date
+        lastAccessed: {
+            default: () => new Date(),
+            type: Date
+        },
+        lastUpdated: {
+            default: () => new Date(),
+            type: Date
+        }
     }, {
         _id: false,
         id: false,

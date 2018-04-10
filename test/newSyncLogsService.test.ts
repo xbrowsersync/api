@@ -24,9 +24,9 @@ describe('NewSyncLogsService', () => {
     };
 
     const saveStub = sinon.stub(NewSyncLogsModel.prototype, 'save');
-    const savedTestLog = await newSyncLogsService.createLog(req as Request);    
+    const savedTestLog = await newSyncLogsService.createLog(req as Request);
 
-    sinon.assert.calledOnce(saveStub);    
+    sinon.assert.calledOnce(saveStub);
     expect(savedTestLog.ipAddress).to.equal(testClientIPAddress);
 
     saveStub.restore();
@@ -51,7 +51,6 @@ describe('NewSyncLogsService', () => {
     const dailyNewSyncsLimitTestVal = 1;
     Config.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
 
-    const clearLogStub = sinon.stub(newSyncLogsService, 'clearLog').returns(Promise.resolve());
     const countStub = sinon.stub(NewSyncLogsModel, 'count').returns({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
     });
@@ -59,7 +58,6 @@ describe('NewSyncLogsService', () => {
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(limitHit).to.equal(true);
 
-    clearLogStub.restore();
     countStub.restore();
   });
 
@@ -71,7 +69,6 @@ describe('NewSyncLogsService', () => {
     const dailyNewSyncsLimitTestVal = 3;
     Config.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
 
-    const clearLogStub = sinon.stub(newSyncLogsService, 'clearLog').returns(Promise.resolve());    
     const countStub = sinon.stub(NewSyncLogsModel, 'count').returns({
       exec: () => Promise.resolve(1)
     });
@@ -79,14 +76,11 @@ describe('NewSyncLogsService', () => {
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(limitHit).to.equal(false);
 
-    clearLogStub.restore();
     countStub.restore();
   });
 
   it('newSyncsLimitHit: should throw a ClientIpAddressEmptyException if the request IP address could not be ascertained', async () => {
     const req: Partial<Request> = {};
-
-    const clearLogStub = sinon.stub(newSyncLogsService, 'clearLog').returns(Promise.resolve());    
 
     try {
       await newSyncLogsService.newSyncsLimitHit(req as Request);
@@ -94,7 +88,5 @@ describe('NewSyncLogsService', () => {
     catch (err) {
       expect(err).to.be.an.instanceOf(ClientIpAddressEmptyException);
     }
-
-    clearLogStub.restore();
   });
 });

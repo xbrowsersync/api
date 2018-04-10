@@ -63,9 +63,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       // Create new bookmarks payload
       const newBookmarks: IBookmarks = {
         _id: id,
-        bookmarks: bookmarksData,
-        lastAccessed: new Date(),
-        lastUpdated: new Date()
+        bookmarks: bookmarksData
       };
       const bookmarksModel = new BookmarksModel(newBookmarks);
 
@@ -170,16 +168,17 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
 
     try {
       // Update the bookmarks data corresponding to the sync id in the db
+      const now = new Date();
       const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
         { _id: id },
         {
           bookmarks: bookmarksData,
-          lastAccessed: new Date(),
-          lastUpdated: new Date()
+          lastAccessed: now,
+          lastUpdated: now
         },
         { new: true }
       );
-      
+
       // Return the last updated date if bookmarks data found and updated
       const response: IGetLastUpdatedResponse = {};
       if (updatedBookmarks) {

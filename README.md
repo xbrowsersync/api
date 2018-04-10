@@ -52,7 +52,8 @@ CD into the source directory and install dependencies:
       ```
       use xbrowsersync
       db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
-      db.newsynclogs.createIndex({ "ipAddress": 1, "syncCreated": 1 })
+      db.newsynclogs.createIndex( { "expiresAt": 1 }, { expireAfterSeconds: 0 } )
+      db.newsynclogs.createIndex({ "ipAddress": 1 })
       ```
 
   2. Add the following environment variables to hold xBrowserSync DB account username and password:

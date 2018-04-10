@@ -45,9 +45,7 @@ class BookmarksService extends baseService_1.default {
                 // Create new bookmarks payload
                 const newBookmarks = {
                     _id: id,
-                    bookmarks: bookmarksData,
-                    lastAccessed: new Date(),
-                    lastUpdated: new Date()
+                    bookmarks: bookmarksData
                 };
                 const bookmarksModel = new bookmarksModel_1.default(newBookmarks);
                 // Commit the bookmarks payload to the db
@@ -138,10 +136,11 @@ class BookmarksService extends baseService_1.default {
             this.checkServiceAvailability();
             try {
                 // Update the bookmarks data corresponding to the sync id in the db
+                const now = new Date();
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, {
                     bookmarks: bookmarksData,
-                    lastAccessed: new Date(),
-                    lastUpdated: new Date()
+                    lastAccessed: now,
+                    lastUpdated: now
                 }, { new: true });
                 // Return the last updated date if bookmarks data found and updated
                 const response = {};
