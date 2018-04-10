@@ -11,6 +11,30 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 - [Node.js](https://nodejs.org/) (8.0.0 or later)
 - [mongoDB](https://www.mongodb.com/)
 
+# Upgrading from an earlier version
+
+If you are curently running v1.0.3 or earlier, you will need to export existing syncs and delete the xBrowserSync database (due to case changes in db object names).
+
+To export existing syncs, run the following command:
+
+  ```
+  mongoexport --db xBrowserSync -c bookmarks --out /path/to/export/file
+  ```
+
+Then to delete the database, run the following commands in the mongo shell:
+
+  ```
+  use xBrowserSync
+  db.dropAllUsers()
+  db.dropDatabase()
+  ```
+
+Once you've upgraded and completed the installation steps below, you can import the syncs by running the following command:
+
+  ```
+  mongoimport --db xbrowsersync -c bookmarks --file /path/to/export/file
+  ```
+
 # Installation
 
 ## 1. Install and build xBrowserSync API package
@@ -63,7 +87,7 @@ CD into the source directory and install dependencies:
   3. Add a TTL index on `bookmarks.lastAccessed` to delete syncs that have not been accessed for 3 weeks:
    
       ```
-      use xBrowserSync
+      use xbrowsersync
       db.bookmarks.createIndex( { "lastAccessed": 1 }, { expireAfterSeconds: 21*86400 } )
       ```
 

@@ -33,8 +33,7 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              importLoaders: 2,
-              sourceMap: true
+              importLoaders: 2
             }
           },
           {
@@ -42,15 +41,11 @@ module.exports = {
             options: {
               plugins: () => [
                 require('autoprefixer')
-              ],
-              sourceMap: true
+              ]
             }
           },
           {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
-            }
+            loader: 'sass-loader'
           }
         ]
       },

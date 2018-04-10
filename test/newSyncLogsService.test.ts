@@ -17,9 +17,6 @@ describe('NewSyncLogsService', () => {
     newSyncLogsService = new NewSyncLogsService(null, log);
   });
 
-  afterEach(() => {
-  });
-
   it('createLog: should create a new sync log using the request IP address', async () => {
     const testClientIPAddress = '123.456.789.0';
     const req: Partial<Request> = {
@@ -27,10 +24,9 @@ describe('NewSyncLogsService', () => {
     };
 
     const saveStub = sinon.stub(NewSyncLogsModel.prototype, 'save');
+    const savedTestLog = await newSyncLogsService.createLog(req as Request);    
 
-    const savedTestLog = await newSyncLogsService.createLog(req as Request);
-
-    sinon.assert.calledOnce(saveStub);
+    sinon.assert.calledOnce(saveStub);    
     expect(savedTestLog.ipAddress).to.equal(testClientIPAddress);
 
     saveStub.restore();
@@ -56,7 +52,9 @@ describe('NewSyncLogsService', () => {
     Config.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
 
     const clearLogStub = sinon.stub(newSyncLogsService, 'clearLog').returns(Promise.resolve());
-    const countStub = sinon.stub(NewSyncLogsModel, 'count').returns(Promise.resolve(dailyNewSyncsLimitTestVal));
+    const countStub = sinon.stub(NewSyncLogsModel, 'count').returns({
+      exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
+    });
 
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(limitHit).to.equal(true);
@@ -66,10 +64,29 @@ describe('NewSyncLogsService', () => {
   });
 
   it('newSyncsLimitHit: should return false if the request IP address has not hit the limit for daily new syncs created', async () => {
+    const testClientIPAddress = '123.456.789.0';
+    const req: Partial<Request> = {
+      ip: testClientIPAddress
+    };
+    const dailyNewSyncsLimitTestVal = 3;
+    Config.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
+
+    const clearLogStub = sinon.stub(newSyncLogsService, 'clearLog').returns(Promise.resolve());    
+    const countStub = sinon.stub(NewSyncLogsModel, 'count').returns({
+      exec: () => Promise.resolve(1)
+    });
+
+    const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
+    expect(limitHit).to.equal(false);
+
+    clearLogStub.restore();
+    countStub.restore();
   });
 
   it('newSyncsLimitHit: should throw a ClientIpAddressEmptyException if the request IP address could not be ascertained', async () => {
     const req: Partial<Request> = {};
+
+    const clearLogStub = sinon.stub(newSyncLogsService, 'clearLog').returns(Promise.resolve());    
 
     try {
       await newSyncLogsService.newSyncsLimitHit(req as Request);
@@ -77,5 +94,7 @@ describe('NewSyncLogsService', () => {
     catch (err) {
       expect(err).to.be.an.instanceOf(ClientIpAddressEmptyException);
     }
+
+    clearLogStub.restore();
   });
 });

@@ -51,16 +51,7 @@ class BookmarksService extends baseService_1.default {
                 };
                 const bookmarksModel = new bookmarksModel_1.default(newBookmarks);
                 // Commit the bookmarks payload to the db
-                const result = yield new Promise((resolve, reject) => {
-                    bookmarksModel.save((err, document) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(document);
-                        }
-                    });
-                });
+                const savedBookmarks = yield bookmarksModel.save();
                 // Add to logs
                 if (Config.dailyNewSyncsLimit > 0) {
                     yield this.service.createLog(req);
@@ -69,7 +60,7 @@ class BookmarksService extends baseService_1.default {
                 // Return the response data
                 const returnObj = {
                     id,
-                    lastUpdated: result.lastUpdated
+                    lastUpdated: savedBookmarks.lastUpdated
                 };
                 return returnObj;
             }
@@ -87,21 +78,12 @@ class BookmarksService extends baseService_1.default {
             this.checkServiceAvailability();
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
-                const result = yield new Promise((resolve, reject) => {
-                    bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, (err, document) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(document);
-                        }
-                    });
-                });
+                const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true }).exec();
                 // Return the existing bookmarks data if found 
                 const response = {};
-                if (result) {
-                    response.bookmarks = result.bookmarks;
-                    response.lastUpdated = result.lastUpdated;
+                if (updatedBookmarks) {
+                    response.bookmarks = updatedBookmarks.bookmarks;
+                    response.lastUpdated = updatedBookmarks.lastUpdated;
                 }
                 return response;
             }
@@ -118,20 +100,11 @@ class BookmarksService extends baseService_1.default {
             this.checkServiceAvailability();
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
-                const result = yield new Promise((resolve, reject) => {
-                    bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, (err, document) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(document);
-                        }
-                    });
-                });
+                const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true });
                 // Return the last updated date if bookmarks data found 
                 const response = {};
-                if (result) {
-                    response.lastUpdated = result.lastUpdated;
+                if (updatedBookmarks) {
+                    response.lastUpdated = updatedBookmarks.lastUpdated;
                 }
                 return response;
             }
@@ -164,26 +137,15 @@ class BookmarksService extends baseService_1.default {
             // Before proceeding, check service is available
             this.checkServiceAvailability();
             try {
-                // Create update bookmarks payload
-                const updatedBookmarks = {
+                // Update the bookmarks data corresponding to the sync id in the db
+                const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, {
                     bookmarks: bookmarksData,
                     lastAccessed: new Date(),
                     lastUpdated: new Date()
-                };
-                // Commit the bookmarks payload to the db
-                const result = yield new Promise((resolve, reject) => {
-                    bookmarksModel_1.default.findOneAndUpdate({ _id: id }, updatedBookmarks, (err, document) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(document);
-                        }
-                    });
-                });
+                }, { new: true });
                 // Return the last updated date if bookmarks data found and updated
                 const response = {};
-                if (result) {
+                if (updatedBookmarks) {
                     response.lastUpdated = updatedBookmarks.lastUpdated;
                 }
                 return response;
@@ -196,15 +158,22 @@ class BookmarksService extends baseService_1.default {
     }
     // Returns the total number of existing bookmarks syncs
     getBookmarksCount() {
-        return new Promise((resolve, reject) => {
-            bookmarksModel_1.default.count(null, (err, count) => {
-                if (err) {
-                    this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
-                    reject(err);
-                    return;
-                }
-                resolve(count);
-            });
+        return __awaiter(this, void 0, void 0, function* () {
+            let bookmarksCount = -1;
+            try {
+                bookmarksCount = yield bookmarksModel_1.default.count({}).exec();
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
+                throw err;
+            }
+            // Ensure a valid count was returned
+            if (bookmarksCount < 0) {
+                const err = new exception_1.UnspecifiedException('Bookmarks count cannot be less than zero');
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', null, err);
+                throw err;
+            }
+            return bookmarksCount;
         });
     }
     // Generates a new 32 char id string

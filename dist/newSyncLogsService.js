@@ -19,15 +19,13 @@ class NewSyncLogsService extends baseService_1.default {
     // Deletes all new sync logs created before today
     clearLog(req) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield new Promise((resolve, reject) => {
-                newSyncLogsModel_1.default.remove({ syncCreated: { $lt: moment().startOf('day').toDate() } }, err => {
-                    if (err) {
-                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
-                        reject(err);
-                    }
-                });
-                resolve();
-            });
+            try {
+                yield newSyncLogsModel_1.default.remove({ syncCreated: { $lt: moment().startOf('day').toDate() } }).exec();
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
+                throw err;
+            }
         });
     }
     // Creates a new sync log entry with the supplied request data
@@ -68,17 +66,21 @@ class NewSyncLogsService extends baseService_1.default {
                 this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                 throw err;
             }
+            let newSyncsCreated = -1;
             // Query the newsynclogs collection for the total number of logs for the given ip address
-            const newSyncsCreated = yield new Promise((resolve, reject) => {
-                newSyncLogsModel_1.default.count({ ipAddress: clientIp }, (err, count) => {
-                    if (err) {
-                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
-                        reject(err);
-                        return;
-                    }
-                    resolve(count);
-                });
-            });
+            try {
+                newSyncsCreated = yield newSyncLogsModel_1.default.count({ ipAddress: clientIp }).exec();
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
+                throw err;
+            }
+            // Ensure a valid count was returned
+            if (newSyncsCreated < 0) {
+                const err = new exception_1.UnspecifiedException('New syncs created count cannot be less than zero');
+                this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
+                throw err;
+            }
             // Check returned count against config setting
             return newSyncsCreated >= Config.dailyNewSyncsLimit;
         });
