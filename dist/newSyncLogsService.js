@@ -16,6 +16,20 @@ const server_1 = require("./server");
 const Config = require('./config.json');
 // Implementation of data service for new sync log operations
 class NewSyncLogsService extends baseService_1.default {
+    // Deletes all new sync logs created before today
+    clearLog(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield new Promise((resolve, reject) => {
+                newSyncLogsModel_1.default.remove({ syncCreated: { $lt: moment().startOf('day').toDate() } }, err => {
+                    if (err) {
+                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
+                        reject(err);
+                    }
+                });
+                resolve();
+            });
+        });
+    }
     // Creates a new sync log entry with the supplied request data
     createLog(req) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -33,15 +47,13 @@ class NewSyncLogsService extends baseService_1.default {
             };
             const newSyncLogsModel = new newSyncLogsModel_1.default(newLog);
             // Commit the payload to the db
-            yield new Promise((resolve, reject) => {
-                newSyncLogsModel.save((err, document) => {
-                    if (err) {
-                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
-                        reject(err);
-                    }
-                    resolve();
-                });
+            yield newSyncLogsModel.save((err, document) => {
+                if (err) {
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
+                    throw err;
+                }
             });
+            return newLog;
         });
     }
     // Returns true/false depending on whether a given request's ip address has hit the limit for daily new syncs created
@@ -58,12 +70,11 @@ class NewSyncLogsService extends baseService_1.default {
             }
             // Query the newsynclogs collection for the total number of logs for the given ip address
             const newSyncsCreated = yield new Promise((resolve, reject) => {
-                newSyncLogsModel_1.default.count({
-                    ipAddress: clientIp
-                }, (err, count) => {
+                newSyncLogsModel_1.default.count({ ipAddress: clientIp }, (err, count) => {
                     if (err) {
                         this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
                         reject(err);
+                        return;
                     }
                     resolve(count);
                 });
@@ -72,26 +83,11 @@ class NewSyncLogsService extends baseService_1.default {
             return newSyncsCreated >= Config.dailyNewSyncsLimit;
         });
     }
-    // Deletes all new sync logs created before today
-    clearLog(req) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const result = yield new Promise((resolve, reject) => {
-                newSyncLogsModel_1.default.remove({
-                    syncCreated: {
-                        $lt: moment().startOf('day').toDate()
-                    }
-                }, err => {
-                    if (err) {
-                        this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.clearLog', req, err);
-                        reject(err);
-                    }
-                });
-                resolve();
-            });
-        });
-    }
     // Extracts and cleans the client's ip address from a given request
     getClientIpAddress(req) {
+        if (!req.ip) {
+            return;
+        }
         const matches = req.ip.match(/(\d+\.\d+\.\d+\.\d+)/) || [''];
         return matches[0];
     }

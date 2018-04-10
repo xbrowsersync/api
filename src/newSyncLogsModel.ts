@@ -3,7 +3,7 @@ import * as uuid from 'uuid';
 
 export interface INewSyncLog {
   ipAddress: string,
-  syncCreated: Date
+  syncCreated?: Date
 }
 
 export interface INewSyncLogsModel extends INewSyncLog, mongoose.Document {
