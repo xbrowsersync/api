@@ -67,13 +67,12 @@ export default class NewSyncLogsService extends BaseService<void> {
     return newSyncsCreated >= Config.dailyNewSyncsLimit;
   }
 
-  // Extracts and cleans the client's ip address from a given request
+  // Extracts the client's ip address from a given request
   private getClientIpAddress(req: Request): string {
-    if (!req.ip) {
+    if (!req || !req.ip) {
       return;
     }
 
-    const matches = req.ip.match(/(\d+\.\d+\.\d+\.\d+)/) || [''];
-    return matches[0];
+    return req.ip;
   }
 }
