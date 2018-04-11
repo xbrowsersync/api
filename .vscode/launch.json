@@ -8,7 +8,7 @@
       "name": "Debug API",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}\\dist\\api.js",
+      "program": "${workspaceFolder}/dist/api.js",
       "preLaunchTask": "build",
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
