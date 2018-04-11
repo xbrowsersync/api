@@ -144,7 +144,8 @@ If you're using [VSCode](https://code.visualstudio.com/), there are three launch
 
   1. Debug API: Will compile and debug the main API service.
   2. Debug docs: Will launch API home page in chrome and attach to debugger for debugging docs issues. 
-  3. Run tests: Will debug all tests in `test` folder. 
+  3. Run unit tests: Will run and debug all tests in `test/unit` folder.
+  4. Run integration tests: Will debug all tests in `test/integration` folder.
 
 # Issues
 

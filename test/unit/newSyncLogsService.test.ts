@@ -2,10 +2,10 @@ import { assert, expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-import { ClientIpAddressEmptyException } from '../src/exception';
-import NewSyncLogsModel from '../src/newSyncLogsModel';
-import NewSyncLogsService from '../src/newSyncLogsService';
-const Config = require('../src/config.json');
+import { ClientIpAddressEmptyException } from '../../src/exception';
+import NewSyncLogsModel from '../../src/newSyncLogsModel';
+import NewSyncLogsService from '../../src/newSyncLogsService';
+const Config = require('../../src/config.json');
 
 describe('NewSyncLogsService', () => {
   const testClientIPAddress = '123.456.789.0';

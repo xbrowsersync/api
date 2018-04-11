@@ -2,10 +2,10 @@ import { assert, expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-import BookmarksService from '../src/bookmarksService';
-import InfoService from '../src/infoService';
-import { ApiStatus } from '../src/server';
-const Config = require('../src/config.json');
+import BookmarksService from '../../src/bookmarksService';
+import InfoService from '../../src/infoService';
+import { ApiStatus } from '../../src/server';
+const Config = require('../../src/config.json');
 
 describe('InfoService', () => {
   let bookmarksService: BookmarksService;

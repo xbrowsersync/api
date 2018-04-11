@@ -1,2 +1,4 @@
 import Server from './server';
-export default new Server();
+
+const server = new Server();
+server.init().then(server.start);

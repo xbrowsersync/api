@@ -2,9 +2,9 @@ import { assert, expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-import { ServiceNotAvailableException } from '../src/exception';
-import Server from '../src/server';
-const Config = require('../src/config.json');
+import { ServiceNotAvailableException } from '../../src/exception';
+import Server from '../../src/server';
+const Config = require('../../src/config.json');
 
 describe('Server', () => {
   afterEach(() => {

@@ -55,9 +55,8 @@ var LogLevel;
 // Main class for the xBrowserSync api service
 class Server {
     constructor() {
+        this.logToConsole = true;
         this.rateLimit = require('express-rate-limit');
-        this.config = require('./config.json');
-        this.init();
     }
     // Throws an error if the service status is set to offline in config
     static checkServiceAvailability() {
@@ -65,32 +64,93 @@ class Server {
             throw new exception_1.ServiceNotAvailableException();
         }
     }
-    // Starts a new instance of the api service
+    getApplication() {
+        return this.app;
+    }
+    // Initialises the xBrowserSync api service when a new instance is created
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.configureServer();
+                this.prepareDataServices();
+                this.prepareRoutes();
+                this.app.use(this.handleErrors);
+                // Establish database connection
+                yield this.connectToDb();
+            }
+            catch (err) {
+                this.log(LogLevel.Error, `Service failed to start`, null, err);
+                process.exit(1);
+            }
+        });
+    }
+    // Logs messages and errors to console and to file (if enabled)
+    log(level, message, req, err) {
+        switch (level) {
+            case LogLevel.Error:
+                if (Config.log.enabled) {
+                    this.logger.error({ req, err }, message);
+                }
+                if (this.logToConsole) {
+                    console.error(err ? `${message}: ${err.message}` : message);
+                }
+                break;
+            case LogLevel.Info:
+                if (Config.log.enabled) {
+                    this.logger.info({ req }, message);
+                }
+                if (this.logToConsole) {
+                    console.log(message);
+                }
+                break;
+        }
+    }
+    // Enables/disables logging messages to the console
+    logToConsoleEnabled(logToConsole) {
+        this.logToConsole = logToConsole;
+    }
+    // Starts the api service
     start() {
-        return new Promise((resolve, reject) => {
-            let server;
+        return __awaiter(this, void 0, void 0, function* () {
             // Create https server if enabled in config, otherwise create http server
-            if (this.config.server.https.enabled) {
+            if (Config.server.https.enabled) {
                 const options = {
-                    cert: fs.readFileSync(this.config.server.https.certPath),
-                    key: fs.readFileSync(this.config.server.https.keyPath)
+                    cert: fs.readFileSync(Config.server.https.certPath),
+                    key: fs.readFileSync(Config.server.https.keyPath)
                 };
-                server = https.createServer(options, this.app);
+                this.server = https.createServer(options, this.app);
             }
             else {
-                server = http.createServer(this.app);
+                this.server = http.createServer(this.app);
             }
-            server.listen(this.config.server.port);
-            server.on('close', conn => {
-                this.log(LogLevel.Error, `Service terminating.`);
+            this.server.listen(Config.server.port);
+            // Wait for server to start before continuing
+            yield new Promise((resolve, reject) => {
+                this.server.on('close', conn => {
+                    this.log(LogLevel.Info, `Service terminating.`);
+                });
+                this.server.on('error', (err) => {
+                    this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
+                    this.server.close();
+                });
+                this.server.on('listening', (conn) => __awaiter(this, void 0, void 0, function* () {
+                    this.log(LogLevel.Info, `Service started on ${Config.server.host}:${Config.server.port}`);
+                    resolve();
+                }));
             });
-            server.on('error', (err) => {
-                this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
-                server.close();
-            });
-            server.on('listening', conn => {
-                this.log(LogLevel.Info, `Service started on ${this.config.server.host}:${this.config.server.port}`);
-                resolve();
+        });
+    }
+    // Stops the api service
+    stop() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield new Promise((resolve, reject) => {
+                this.server.close((err) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve();
+                });
             });
         });
     }
@@ -98,25 +158,25 @@ class Server {
     configureServer() {
         this.app = express();
         // Add logging if required
-        if (this.config.log.enabled) {
+        if (Config.log.enabled) {
             // Ensure log directory exists
-            const logDirectory = this.config.log.path.substring(0, this.config.log.path.lastIndexOf('/'));
+            const logDirectory = Config.log.path.substring(0, Config.log.path.lastIndexOf('/'));
             if (!fs.existsSync(logDirectory)) {
                 mkdirp.sync(logDirectory);
             }
             // Delete the log file if it exists
-            if (fs.existsSync(this.config.log.path)) {
-                fs.unlinkSync(this.config.log.path);
+            if (fs.existsSync(Config.log.path)) {
+                fs.unlinkSync(Config.log.path);
             }
             // Initialise bunyan logger
             this.logger = bunyan.createLogger({
-                level: this.config.log.level,
-                name: this.config.log.name,
+                level: Config.log.level,
+                name: Config.log.name,
                 serializers: bunyan.stdSerializers,
                 streams: [
                     {
-                        level: this.config.log.level,
-                        path: this.config.log.path
+                        level: Config.log.level,
+                        path: Config.log.path
                     }
                 ]
             });
@@ -126,36 +186,36 @@ class Server {
             noCache: true
         };
         // Configure hpkp for helmet if enabled
-        if (this.config.server.hpkp.enabled) {
-            if (!this.config.server.https.enabled) {
+        if (Config.server.hpkp.enabled) {
+            if (!Config.server.https.enabled) {
                 throw new Error('HTTPS must be enabled when using HPKP');
             }
-            if (this.config.server.hpkp.sha256s.length < 2) {
+            if (Config.server.hpkp.sha256s.length < 2) {
                 throw new Error('At least two public keys are required when using HPKP');
             }
             helmetConfig.hpkp = {
-                maxAge: this.config.server.hpkp.maxAge,
-                sha256s: this.config.server.hpkp.sha256s
+                maxAge: Config.server.hpkp.maxAge,
+                sha256s: Config.server.hpkp.sha256s
             };
         }
         this.app.use(helmet(helmetConfig));
         // Add default version to request if not supplied
         this.app.use((req, res, next) => {
-            req.version = req.headers['accept-version'] || this.config.version;
+            req.version = req.headers['accept-version'] || Config.version;
             next();
         });
         // If behind proxy use 'X-Forwarded-For' header for client ip address
-        if (this.config.server.behindProxy) {
+        if (Config.server.behindProxy) {
             this.app.enable('trust proxy');
         }
         // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
         this.app.use(express.json({
-            limit: this.config.maxSyncSize || 512000
+            limit: Config.maxSyncSize || 512000
         }));
         // Enable support for CORS
-        const corsOptions = this.config.allowedOrigins.length > 0 && {
+        const corsOptions = Config.allowedOrigins.length > 0 && {
             origin: (origin, callback) => {
-                if (this.config.allowedOrigins.indexOf(origin) !== -1) {
+                if (Config.allowedOrigins.indexOf(origin) !== -1) {
                     callback(null, true);
                 }
                 else {
@@ -167,11 +227,11 @@ class Server {
         this.app.use(cors(corsOptions));
         this.app.options('*', cors(corsOptions));
         // Add thottling if enabled
-        if (this.config.throttle.maxRequests > 0) {
+        if (Config.throttle.maxRequests > 0) {
             this.app.use(new this.rateLimit({
                 delayMs: 0,
-                max: this.config.throttle.maxRequests,
-                windowMs: this.config.throttle.timeWindow
+                max: Config.throttle.maxRequests,
+                windowMs: Config.throttle.timeWindow
             }));
         }
     }
@@ -197,40 +257,6 @@ class Server {
             }
             res.status(err.status || 500);
             res.json(responseObj);
-        }
-    }
-    // Initialises the xBrowserSync api service when a new instance is created
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.configureServer();
-                yield this.connectToDb();
-                this.prepareDataServices();
-                this.prepareRoutes();
-                this.app.use(this.handleErrors);
-                yield this.start();
-            }
-            catch (err) {
-                this.log(LogLevel.Error, `Service failed to start`, null, err);
-                process.exit(1);
-            }
-        });
-    }
-    // Logs messages and errors to console and to file (if enabled)
-    log(level, message, req, err) {
-        switch (level) {
-            case LogLevel.Error:
-                if (this.config.log.enabled) {
-                    this.logger.error({ req, err }, message);
-                }
-                console.error(err ? `${message}: ${err.message}` : message);
-                break;
-            case LogLevel.Info:
-                if (this.config.log.enabled) {
-                    this.logger.info({ req }, message);
-                }
-                console.log(message);
-                break;
         }
     }
     // Initialise data services
@@ -261,5 +287,8 @@ class Server {
 __decorate([
     core_decorators_1.autobind
 ], Server.prototype, "log", null);
+__decorate([
+    core_decorators_1.autobind
+], Server.prototype, "start", null);
 exports.default = Server;
 //# sourceMappingURL=server.js.map
