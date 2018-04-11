@@ -2,9 +2,9 @@ import { Request } from 'express';
 import * as uuid from 'uuid';
 import BaseService from './baseService';
 import BookmarksModel, { IBookmarks, IBookmarksModel } from './bookmarksModel';
-import { NewSyncsForbiddenException, NewSyncsLimitExceededException, SyncIdNotFoundException, UnspecifiedException } from './exception';
+import { NewSyncsForbiddenException, NewSyncsLimitExceededException, UnspecifiedException } from './exception';
 import NewSyncLogsService from './newSyncLogsService';
-import { LogLevel } from './server';
+import Server, { LogLevel } from './server';
 const Config = require('./config.json');
 
 // Interface for create bookmarks operation response object
@@ -35,7 +35,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // Returns a new sync ID and last updated date
   public async createBookmarks(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
-    this.checkServiceAvailability();
+    Server.checkServiceAvailability();
 
     // Check service is accepting new syncs
     const isAcceptingNewSyncs = await this.isAcceptingNewSyncs();
@@ -51,15 +51,10 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       }
     }
 
-    // Get a new sync id
-    const id = this.newSyncId();
-    if (!id) {
-      const err = new SyncIdNotFoundException();
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
-      throw err;
-    }
-
     try {
+      // Get a new sync id
+      const id = this.newSyncId();
+
       // Create new bookmarks payload
       const newBookmarks: IBookmarks = {
         _id: id,
@@ -93,7 +88,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // Returns the corresponding bookmarks data and last updated date
   public async getBookmarks(id: string, req: Request): Promise<IGetBookmarksResponse> {
     // Before proceeding, check service is available
-    this.checkServiceAvailability();
+    Server.checkServiceAvailability();
 
     try {
       // Query the db for the existing bookmarks data and update the last accessed date
@@ -120,7 +115,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // Returns the last updated date for the supplied sync ID
   public async getLastUpdated(id: string, req: Request): Promise<IGetLastUpdatedResponse> {
     // Before proceeding, check service is available
-    this.checkServiceAvailability();
+    Server.checkServiceAvailability();
 
     try {
       // Query the db for the existing bookmarks data and update the last accessed date
@@ -164,7 +159,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // Returns the last updated date
   public async updateBookmarks(id: string, bookmarksData: string, req: Request): Promise<IUpdateBookmarksResponse> {
     // Before proceeding, check service is available
-    this.checkServiceAvailability();
+    Server.checkServiceAvailability();
 
     try {
       // Update the bookmarks data corresponding to the sync id in the db
@@ -177,7 +172,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
           lastUpdated: now
         },
         { new: true }
-      );
+      ).exec();
 
       // Return the last updated date if bookmarks data found and updated
       const response: IGetLastUpdatedResponse = {};
@@ -226,6 +221,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
     catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
+      throw err;
     }
 
     return newId;

@@ -1,2 +1,2 @@
 import Server from './server';
-(() => new Server())();
+export default new Server();

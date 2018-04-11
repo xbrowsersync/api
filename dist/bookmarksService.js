@@ -21,7 +21,7 @@ class BookmarksService extends baseService_1.default {
     createBookmarks(bookmarksData, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
-            this.checkServiceAvailability();
+            server_1.default.checkServiceAvailability();
             // Check service is accepting new syncs
             const isAcceptingNewSyncs = yield this.isAcceptingNewSyncs();
             if (!isAcceptingNewSyncs) {
@@ -34,14 +34,9 @@ class BookmarksService extends baseService_1.default {
                     throw new exception_1.NewSyncsLimitExceededException();
                 }
             }
-            // Get a new sync id
-            const id = this.newSyncId();
-            if (!id) {
-                const err = new exception_1.SyncIdNotFoundException();
-                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
-                throw err;
-            }
             try {
+                // Get a new sync id
+                const id = this.newSyncId();
                 // Create new bookmarks payload
                 const newBookmarks = {
                     _id: id,
@@ -73,7 +68,7 @@ class BookmarksService extends baseService_1.default {
     getBookmarks(id, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
-            this.checkServiceAvailability();
+            server_1.default.checkServiceAvailability();
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true }).exec();
@@ -95,7 +90,7 @@ class BookmarksService extends baseService_1.default {
     getLastUpdated(id, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
-            this.checkServiceAvailability();
+            server_1.default.checkServiceAvailability();
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true });
@@ -133,7 +128,7 @@ class BookmarksService extends baseService_1.default {
     updateBookmarks(id, bookmarksData, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
-            this.checkServiceAvailability();
+            server_1.default.checkServiceAvailability();
             try {
                 // Update the bookmarks data corresponding to the sync id in the db
                 const now = new Date();
@@ -141,7 +136,7 @@ class BookmarksService extends baseService_1.default {
                     bookmarks: bookmarksData,
                     lastAccessed: now,
                     lastUpdated: now
-                }, { new: true });
+                }, { new: true }).exec();
                 // Return the last updated date if bookmarks data found and updated
                 const response = {};
                 if (updatedBookmarks) {
@@ -185,6 +180,7 @@ class BookmarksService extends baseService_1.default {
         }
         catch (err) {
             this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
+            throw err;
         }
         return newId;
     }

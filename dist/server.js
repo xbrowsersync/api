@@ -31,6 +31,7 @@ const exception_1 = require("./exception");
 const infoRouter_1 = require("./infoRouter");
 const infoService_1 = require("./infoService");
 const newSyncLogsService_1 = require("./newSyncLogsService");
+const Config = require('./config.json');
 var ApiStatus;
 (function (ApiStatus) {
     ApiStatus[ApiStatus["online"] = 1] = "online";
@@ -57,6 +58,12 @@ class Server {
         this.rateLimit = require('express-rate-limit');
         this.config = require('./config.json');
         this.init();
+    }
+    // Throws an error if the service status is set to offline in config
+    static checkServiceAvailability() {
+        if (!Config.status.online) {
+            throw new exception_1.ServiceNotAvailableException();
+        }
     }
     // Starts a new instance of the api service
     start() {

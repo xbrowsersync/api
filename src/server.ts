@@ -15,11 +15,13 @@ import {
   ExceptionBase,
   NotImplementedException,
   OriginNotPermittedException,
+  ServiceNotAvailableException,
   UnspecifiedException
 } from './exception';
 import InfoRouter from './infoRouter';
 import InfoService from './infoService';
 import NewSyncLogsService from './newSyncLogsService';
+const Config = require('./config.json');
 
 export enum ApiStatus {
   online = 1,
@@ -43,6 +45,13 @@ export enum LogLevel {
 
 // Main class for the xBrowserSync api service
 export default class Server {
+  // Throws an error if the service status is set to offline in config
+  public static checkServiceAvailability(): void {
+    if (!Config.status.online) {
+      throw new ServiceNotAvailableException();
+    }
+  }
+
   private rateLimit = require('express-rate-limit');
   private config = require('./config.json');
   private bookmarksService: BookmarksService;
