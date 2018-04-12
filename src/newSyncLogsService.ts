@@ -1,9 +1,9 @@
 import { Request } from 'express';
 import BaseService from './baseService';
+import Config from './config';
 import { ClientIpAddressEmptyException, UnspecifiedException } from './exception';
 import NewSyncLogsModel, { INewSyncLog, INewSyncLogsModel } from './newSyncLogsModel';
 import { LogLevel } from './server';
-const Config = require('./config.json');
 
 // Implementation of data service for new sync log operations
 export default class NewSyncLogsService extends BaseService<void> {
@@ -64,7 +64,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     }
 
     // Check returned count against config setting
-    return newSyncsCreated >= Config.dailyNewSyncsLimit;
+    return newSyncsCreated >= Config.get().dailyNewSyncsLimit;
   }
 
   // Extracts the client's ip address from a given request

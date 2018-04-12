@@ -13,14 +13,6 @@ class ExceptionBase extends Error {
     }
 }
 exports.ExceptionBase = ExceptionBase;
-class BookmarksDataLimitExceededException extends ExceptionBase {
-    constructor(message) {
-        super(message || 'Bookmarks data limit exceeded');
-        this.name = 'BookmarksDataLimitExceededException';
-        this.status = 413;
-    }
-}
-exports.BookmarksDataLimitExceededException = BookmarksDataLimitExceededException;
 class BookmarksDataNotFoundException extends ExceptionBase {
     constructor(message) {
         super(message || 'Unable to find bookmarks data');
@@ -37,6 +29,14 @@ class ClientIpAddressEmptyException extends ExceptionBase {
     }
 }
 exports.ClientIpAddressEmptyException = ClientIpAddressEmptyException;
+class InvalidSyncIdException extends ExceptionBase {
+    constructor(message) {
+        super(message || 'Invalid sync ID');
+        this.name = 'InvalidSyncIdException';
+        this.status = 409;
+    }
+}
+exports.InvalidSyncIdException = InvalidSyncIdException;
 class NewSyncsForbiddenException extends ExceptionBase {
     constructor(message) {
         super(message || 'The service is not accepting new syncs');
@@ -57,7 +57,7 @@ class NotImplementedException extends ExceptionBase {
     constructor(message) {
         super(message || 'The requested route has not been implemented');
         this.name = 'NotImplementedException';
-        this.status = 500;
+        this.status = 404;
     }
 }
 exports.NotImplementedException = NotImplementedException;
@@ -69,6 +69,14 @@ class OriginNotPermittedException extends ExceptionBase {
     }
 }
 exports.OriginNotPermittedException = OriginNotPermittedException;
+class RequestThrottledException extends ExceptionBase {
+    constructor(message) {
+        super(message || 'Too many requests');
+        this.name = 'RequestThrottledException';
+        this.status = 429;
+    }
+}
+exports.RequestThrottledException = RequestThrottledException;
 class ServiceNotAvailableException extends ExceptionBase {
     constructor(message) {
         super(message || 'The service is currently offline');
@@ -77,14 +85,14 @@ class ServiceNotAvailableException extends ExceptionBase {
     }
 }
 exports.ServiceNotAvailableException = ServiceNotAvailableException;
-class SyncIdNotFoundException extends ExceptionBase {
+class SyncDataLimitExceededException extends ExceptionBase {
     constructor(message) {
-        super(message || 'Unable to find sync ID');
-        this.name = 'SyncIdNotFoundException';
-        this.status = 409;
+        super(message || 'Sync data limit exceeded');
+        this.name = 'SyncDataLimitExceededException';
+        this.status = 413;
     }
 }
-exports.SyncIdNotFoundException = SyncIdNotFoundException;
+exports.SyncDataLimitExceededException = SyncDataLimitExceededException;
 class UnspecifiedException extends ExceptionBase {
     constructor(message) {
         super(message || 'An unspecified error has occurred');

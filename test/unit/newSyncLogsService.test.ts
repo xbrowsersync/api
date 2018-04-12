@@ -1,28 +1,30 @@
 import { assert, expect } from 'chai';
+import decache = require('decache');
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
+import Config from '../../src/config';
 import { ClientIpAddressEmptyException } from '../../src/exception';
 import NewSyncLogsModel from '../../src/newSyncLogsModel';
 import NewSyncLogsService from '../../src/newSyncLogsService';
-const Config = require('../../src/config.json');
 
 describe('NewSyncLogsService', () => {
   const testClientIPAddress = '123.456.789.0';
   let newSyncLogsService: NewSyncLogsService;
   let sandbox: sinon.SinonSandbox;
+  let testConfig: any;
 
   beforeEach(() => {
+    testConfig = require('../../config/config.json');
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
-
     sandbox = sinon.sandbox.create();
+    sandbox.stub(Config, 'get').returns(testConfig);
   });
 
   afterEach(() => {
-    Config.dailyNewSyncsLimit = 3;
-
     sandbox.restore();
+    decache('../../config/config.json');
   });
 
   it('createLog: should create a new sync log using the request IP address', async () => {
@@ -54,7 +56,7 @@ describe('NewSyncLogsService', () => {
       ip: testClientIPAddress
     };
     const dailyNewSyncsLimitTestVal = 1;
-    Config.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
+    testConfig.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
 
     const countStub = sandbox.stub(NewSyncLogsModel, 'count').returns({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
@@ -69,7 +71,7 @@ describe('NewSyncLogsService', () => {
     const req: Partial<Request> = {
       ip: testClientIPAddress
     };
-    Config.dailyNewSyncsLimit = 3;
+    testConfig.dailyNewSyncsLimit = 3;
 
     const countStub = sandbox.stub(NewSyncLogsModel, 'count').returns({
       exec: () => Promise.resolve(1)

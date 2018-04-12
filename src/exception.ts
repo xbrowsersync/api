@@ -2,8 +2,8 @@
 export class ExceptionBase extends Error {
   public message: string;
   public name: string;
-  public status: number;  
-  
+  public status: number;
+
   constructor(message: string) {
     super(message);
   }
@@ -13,14 +13,6 @@ export class ExceptionBase extends Error {
       code: this.name,
       message: this.message
     };
-  }
-}
-
-export class BookmarksDataLimitExceededException extends ExceptionBase {
-  constructor(message?: string) {
-    super(message || 'Bookmarks data limit exceeded');
-    this.name = 'BookmarksDataLimitExceededException';
-    this.status = 413;
   }
 }
 
@@ -36,6 +28,14 @@ export class ClientIpAddressEmptyException extends ExceptionBase {
   constructor(message?: string) {
     super(message || `Unable to determine client's IP address`);
     this.name = 'ClientIpAddressEmptyException';
+    this.status = 409;
+  }
+}
+
+export class InvalidSyncIdException extends ExceptionBase {
+  constructor(message?: string) {
+    super(message || 'Invalid sync ID');
+    this.name = 'InvalidSyncIdException';
     this.status = 409;
   }
 }
@@ -60,7 +60,7 @@ export class NotImplementedException extends ExceptionBase {
   constructor(message?: string) {
     super(message || 'The requested route has not been implemented');
     this.name = 'NotImplementedException';
-    this.status = 500;
+    this.status = 404;
   }
 }
 
@@ -72,6 +72,14 @@ export class OriginNotPermittedException extends ExceptionBase {
   }
 }
 
+export class RequestThrottledException extends ExceptionBase {
+  constructor(message?: string) {
+    super(message || 'Too many requests');
+    this.name = 'RequestThrottledException';
+    this.status = 429;
+  }
+}
+
 export class ServiceNotAvailableException extends ExceptionBase {
   constructor(message?: string) {
     super(message || 'The service is currently offline');
@@ -80,11 +88,11 @@ export class ServiceNotAvailableException extends ExceptionBase {
   }
 }
 
-export class SyncIdNotFoundException extends ExceptionBase {
+export class SyncDataLimitExceededException extends ExceptionBase {
   constructor(message?: string) {
-    super(message || 'Unable to find sync ID');
-    this.name = 'SyncIdNotFoundException';
-    this.status = 409;
+    super(message || 'Sync data limit exceeded');
+    this.name = 'SyncDataLimitExceededException';
+    this.status = 413;
   }
 }
 

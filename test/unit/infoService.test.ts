@@ -1,38 +1,37 @@
 import { assert, expect } from 'chai';
+import decache = require('decache');
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
+import Config from '../../src/config';
 import BookmarksService from '../../src/bookmarksService';
 import InfoService from '../../src/infoService';
 import { ApiStatus } from '../../src/server';
-const Config = require('../../src/config.json');
 
 describe('InfoService', () => {
   let bookmarksService: BookmarksService;
   let infoService: InfoService;
   let sandbox: sinon.SinonSandbox;
+  let testConfig: any;
 
   beforeEach(() => {
+    testConfig = require('../../config/config.json');
     const log = () => { };
     bookmarksService = new BookmarksService(null, log);
     infoService = new InfoService(bookmarksService as BookmarksService, log);
-
     sandbox = sinon.sandbox.create();
+    sandbox.stub(Config, 'get').returns(testConfig);
     sandbox.stub(bookmarksService, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
   });
 
   afterEach(() => {
-    Config.maxSyncSize = 512000;
-    Config.status.message = '';
-    Config.status.online = true;
-    Config.version = '1.1.0';
-
     sandbox.restore();
+    decache('../../config/config.json');
   });
 
   it('getInfo: should return max sync size config value', async () => {
     const maxSyncSizeTestVal = 1;
-    Config.maxSyncSize = maxSyncSizeTestVal;
+    testConfig.maxSyncSize = maxSyncSizeTestVal;
     const req: Partial<Request> = {};
 
     const response = await infoService.getInfo(req as Request);
@@ -41,7 +40,7 @@ describe('InfoService', () => {
 
   it('getInfo: should return message config value', async () => {
     const messageTestVal = 'Test API message';
-    Config.status.message = messageTestVal;
+    testConfig.status.message = messageTestVal;
     const req: Partial<Request> = {};
 
     const response = await infoService.getInfo(req as Request);
@@ -49,7 +48,7 @@ describe('InfoService', () => {
   });
 
   it('getInfo: should return correct API status when online', async () => {
-    Config.status.online = true;
+    testConfig.status.online = true;
     const req: Partial<Request> = {};
 
     const response = await infoService.getInfo(req as Request);
@@ -57,7 +56,7 @@ describe('InfoService', () => {
   });
 
   it('getInfo: should return correct API status when offline', async () => {
-    Config.status.online = false;
+    testConfig.status.online = false;
     const req: Partial<Request> = {};
 
     const response = await infoService.getInfo(req as Request);
@@ -66,7 +65,7 @@ describe('InfoService', () => {
 
   it('getInfo: should return version config value', async () => {
     const versionTestVal = '0.0.0';
-    Config.version = versionTestVal;
+    testConfig.version = versionTestVal;
     const req: Partial<Request> = {};
 
     const response = await infoService.getInfo(req as Request);

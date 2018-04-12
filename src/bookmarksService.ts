@@ -2,10 +2,10 @@ import { Request } from 'express';
 import * as uuid from 'uuid';
 import BaseService from './baseService';
 import BookmarksModel, { IBookmarks, IBookmarksModel } from './bookmarksModel';
+import Config from './config';
 import { NewSyncsForbiddenException, NewSyncsLimitExceededException, UnspecifiedException } from './exception';
 import NewSyncLogsService from './newSyncLogsService';
 import Server, { LogLevel } from './server';
-const Config = require('./config.json');
 
 // Interface for create bookmarks operation response object
 export interface ICreateBookmarksResponse {
@@ -44,7 +44,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
 
     // Check if daily new syncs limit has been hit if config value enabled
-    if (Config.dailyNewSyncsLimit > 0) {
+    if (Config.get().dailyNewSyncsLimit > 0) {
       const newSyncsLimitHit = await this.service.newSyncsLimitHit(req);
       if (newSyncsLimitHit) {
         throw new NewSyncsLimitExceededException();
@@ -66,7 +66,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       const savedBookmarks = await bookmarksModel.save();
 
       // Add to logs
-      if (Config.dailyNewSyncsLimit > 0) {
+      if (Config.get().dailyNewSyncsLimit > 0) {
         await this.service.createLog(req);
       }
       this.log(LogLevel.Info, 'New bookmarks sync created', req);
@@ -141,18 +141,18 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // Returns true/false depending whether the service is currently accepting new syncs
   public async isAcceptingNewSyncs(): Promise<boolean> {
     // Check if allowNewSyncs config value enabled
-    if (!Config.status.allowNewSyncs) {
+    if (!Config.get().status.allowNewSyncs) {
       return false;
     }
 
     // Check if maxSyncs config value disabled
-    if (Config.maxSyncs === 0) {
+    if (Config.get().maxSyncs === 0) {
       return true;
     }
 
     // Check if total syncs have reached limit set in config  
     const bookmarksCount = await this.getBookmarksCount();
-    return bookmarksCount < Config.maxSyncs;
+    return bookmarksCount < Config.get().maxSyncs;
   }
 
   // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data

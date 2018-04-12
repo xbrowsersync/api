@@ -1,18 +1,29 @@
 import { assert, expect } from 'chai';
+import decache = require('decache');
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
+import Config from '../../src/config';
 import { ServiceNotAvailableException } from '../../src/exception';
 import Server from '../../src/server';
-const Config = require('../../src/config.json');
 
 describe('Server', () => {
+  let sandbox: sinon.SinonSandbox;
+  let testConfig: any;
+
+  beforeEach(() => {
+    testConfig = require('../../config/config.json');
+    sandbox = sinon.sandbox.create();
+    sandbox.stub(Config, 'get').returns(testConfig);
+  });
+  
   afterEach(() => {
-    Config.status.online = true;
+    sandbox.restore();
+    decache('../../config/config.json');
   });
 
   it('checkServiceAvailability: should not throw an error when status set as online in config settings', done => {
-    Config.status.online = true;
+    testConfig.status.online = true;
 
     try {
       Server.checkServiceAvailability();
@@ -25,7 +36,7 @@ describe('Server', () => {
   });
 
   it('checkServiceAvailability: should throw a ServiceNotAvailableException when status set as offline in config settings', done => {
-    Config.status.online = false;
+    testConfig.status.online = false;
 
     try {
       Server.checkServiceAvailability();

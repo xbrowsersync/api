@@ -4,15 +4,16 @@ import decache = require('decache');
 import 'mocha';
 import * as sinon from 'sinon';
 import Config from '../../src/config';
+import {
+  UnsupportedVersionException
+} from '../../src/exception';
 import Server from '../../src/server';
-
-let server: Server;
 
 before(() => {
   use(chaiHttp);
 });
 
-describe('InfoRouter', () => {
+describe('BaseRouter', () => {
   let sandbox: sinon.SinonSandbox;
   let server: Server;
   let testConfig: any;
@@ -36,12 +37,14 @@ describe('InfoRouter', () => {
     decache('../../config/config.json');
   });
 
-  it('GET info: should return api status info', async () => {
+  it('Should return an UnsupportedVersionException error code when requested api version is not supported', async () => {
     await new Promise((resolve) => {
       request(server.getApplication())
         .get('/info')
+        .set('content-type', 'application/json')
+        .set('accept-version', '0.0.0')
         .end((err, res) => {
-          expect(res).to.have.status(200);
+          expect(res).to.have.status((new UnsupportedVersionException()).status);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
           resolve();

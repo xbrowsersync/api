@@ -8,34 +8,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const mongojs = require("mongojs");
 const mongoose = require("mongoose");
+const config_1 = require("./config");
+const exception_1 = require("./exception");
 const server_1 = require("./server");
-const Config = require('./config.json');
 // Handles database interaction
 class DB {
+    static idIsValid(id) {
+        let binary;
+        if (!id) {
+            throw new exception_1.InvalidSyncIdException();
+        }
+        try {
+            binary = mongojs.Binary(new Buffer(id, 'hex'), mongojs.Binary.SUBTYPE_UUID);
+        }
+        catch (err) {
+            throw new exception_1.InvalidSyncIdException();
+        }
+        if (!binary || !binary.toJSON()) {
+            throw new exception_1.InvalidSyncIdException();
+        }
+    }
     constructor(log) {
         this.log = log;
     }
+    // Closes the database connection
+    closeConnection() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield mongoose.disconnect();
+        });
+    }
     // Initialises the database connection using config settings
-    connect() {
+    openConnection() {
         return __awaiter(this, void 0, void 0, function* () {
             // Set the db connection options from config settings
             const options = {
-                connectTimeoutMS: Config.db.connTimeout,
+                connectTimeoutMS: config_1.default.get().db.connTimeout,
                 keepAlive: 1,
-                pass: Config.db.password || process.env.XBROWSERSYNC_DB_PWD,
-                user: Config.db.username || process.env.XBROWSERSYNC_DB_USER
+                pass: config_1.default.get().db.password || process.env.XBROWSERSYNC_DB_PWD,
+                user: config_1.default.get().db.username || process.env.XBROWSERSYNC_DB_USER
             };
             // Connect to the host and db name defined in config settings
-            const dbServerUrl = `mongodb://${Config.db.host}/${Config.db.name}`;
+            const dbServerUrl = `mongodb://${config_1.default.get().db.host}/${config_1.default.get().db.name}`;
             mongoose.connect(dbServerUrl, options);
-            const db = mongoose.connection;
+            const dbConn = mongoose.connection;
             yield new Promise((resolve, reject) => {
-                db.on('error', (err) => {
+                dbConn.on('close', () => {
+                    dbConn.removeAllListeners();
+                });
+                dbConn.on('error', (err) => {
                     this.log(server_1.LogLevel.Error, 'Uncaught exception occurred in database', null, err);
                     reject(err);
                 });
-                db.once('open', resolve);
+                dbConn.once('open', resolve);
             });
         });
     }

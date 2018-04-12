@@ -26,12 +26,12 @@ const mkdirp = require("mkdirp");
 const path = require("path");
 const bookmarksRouter_1 = require("./bookmarksRouter");
 const bookmarksService_1 = require("./bookmarksService");
+const config_1 = require("./config");
 const db_1 = require("./db");
 const exception_1 = require("./exception");
 const infoRouter_1 = require("./infoRouter");
 const infoService_1 = require("./infoService");
 const newSyncLogsService_1 = require("./newSyncLogsService");
-const Config = require('./config.json');
 var ApiStatus;
 (function (ApiStatus) {
     ApiStatus[ApiStatus["online"] = 1] = "online";
@@ -60,7 +60,7 @@ class Server {
     }
     // Throws an error if the service status is set to offline in config
     static checkServiceAvailability() {
-        if (!Config.status.online) {
+        if (!config_1.default.get().status.online) {
             throw new exception_1.ServiceNotAvailableException();
         }
     }
@@ -88,7 +88,7 @@ class Server {
     log(level, message, req, err) {
         switch (level) {
             case LogLevel.Error:
-                if (Config.log.enabled) {
+                if (config_1.default.get().log.enabled) {
                     this.logger.error({ req, err }, message);
                 }
                 if (this.logToConsole) {
@@ -96,7 +96,7 @@ class Server {
                 }
                 break;
             case LogLevel.Info:
-                if (Config.log.enabled) {
+                if (config_1.default.get().log.enabled) {
                     this.logger.info({ req }, message);
                 }
                 if (this.logToConsole) {
@@ -113,70 +113,98 @@ class Server {
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             // Create https server if enabled in config, otherwise create http server
-            if (Config.server.https.enabled) {
+            if (config_1.default.get().server.https.enabled) {
                 const options = {
-                    cert: fs.readFileSync(Config.server.https.certPath),
-                    key: fs.readFileSync(Config.server.https.keyPath)
+                    cert: fs.readFileSync(config_1.default.get().server.https.certPath),
+                    key: fs.readFileSync(config_1.default.get().server.https.keyPath)
                 };
                 this.server = https.createServer(options, this.app);
             }
             else {
                 this.server = http.createServer(this.app);
             }
-            this.server.listen(Config.server.port);
+            this.server.listen(config_1.default.get().server.port);
             // Wait for server to start before continuing
             yield new Promise((resolve, reject) => {
-                this.server.on('close', conn => {
-                    this.log(LogLevel.Info, `Service terminating.`);
-                });
                 this.server.on('error', (err) => {
                     this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
-                    this.server.close();
+                    this.server.close(() => __awaiter(this, void 0, void 0, function* () {
+                        yield this.cleanupServer();
+                        process.exit(1);
+                    }));
                 });
-                this.server.on('listening', (conn) => __awaiter(this, void 0, void 0, function* () {
-                    this.log(LogLevel.Info, `Service started on ${Config.server.host}:${Config.server.port}`);
+                this.server.on('listening', conn => {
+                    this.log(LogLevel.Info, `Service started on ${config_1.default.get().server.host}:${config_1.default.get().server.port}`);
                     resolve();
+                });
+            });
+            // Catches ctrl+c event
+            process.on('SIGINT', () => {
+                this.log(LogLevel.Info, `Process terminated by SIGINT`, null, null);
+                this.server.close(() => __awaiter(this, void 0, void 0, function* () {
+                    yield this.cleanupServer();
+                    process.exit(0);
+                }));
+            });
+            // Catches kill pid event
+            process.on('SIGUSR1', () => {
+                this.log(LogLevel.Info, `Process terminated by SIGUSR1`, null, null);
+                this.server.close(() => __awaiter(this, void 0, void 0, function* () {
+                    yield this.cleanupServer();
+                    process.exit(0);
+                }));
+            });
+            // Catches kill pid event
+            process.on('SIGUSR2', () => {
+                this.log(LogLevel.Info, `Process terminated by SIGUSR2`, null, null);
+                this.server.close(() => __awaiter(this, void 0, void 0, function* () {
+                    yield this.cleanupServer();
+                    process.exit(0);
                 }));
             });
         });
     }
     // Stops the api service
     stop() {
+        return new Promise(resolve => {
+            this.server.close(() => __awaiter(this, void 0, void 0, function* () {
+                yield this.cleanupServer();
+                resolve();
+            }));
+        });
+    }
+    // Cleans up server connections when stopping the service
+    cleanupServer() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield new Promise((resolve, reject) => {
-                this.server.close((err) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve();
-                });
-            });
+            this.log(LogLevel.Info, `Service shutting down`);
+            yield this.db.closeConnection();
+            this.server.removeAllListeners();
+            process.removeAllListeners();
         });
     }
     // Initialises the express application and middleware
     configureServer() {
         this.app = express();
         // Add logging if required
-        if (Config.log.enabled) {
+        if (config_1.default.get().log.enabled) {
             // Ensure log directory exists
-            const logDirectory = Config.log.path.substring(0, Config.log.path.lastIndexOf('/'));
+            const logDirectory = config_1.default.get().log.path.substring(0, config_1.default.get().log.path.lastIndexOf('/'));
             if (!fs.existsSync(logDirectory)) {
                 mkdirp.sync(logDirectory);
             }
             // Delete the log file if it exists
-            if (fs.existsSync(Config.log.path)) {
-                fs.unlinkSync(Config.log.path);
+            if (fs.existsSync(config_1.default.get().log.path)) {
+                fs.unlinkSync(config_1.default.get().log.path);
             }
             // Initialise bunyan logger
             this.logger = bunyan.createLogger({
-                level: Config.log.level,
-                name: Config.log.name,
+                level: config_1.default.get().log.level,
+                name: config_1.default.get().log.name,
                 serializers: bunyan.stdSerializers,
                 streams: [
                     {
-                        level: Config.log.level,
-                        path: Config.log.path
+                        level: config_1.default.get().log.level,
+                        path: config_1.default.get().log.path
                     }
                 ]
             });
@@ -186,36 +214,36 @@ class Server {
             noCache: true
         };
         // Configure hpkp for helmet if enabled
-        if (Config.server.hpkp.enabled) {
-            if (!Config.server.https.enabled) {
+        if (config_1.default.get().server.hpkp.enabled) {
+            if (!config_1.default.get().server.https.enabled) {
                 throw new Error('HTTPS must be enabled when using HPKP');
             }
-            if (Config.server.hpkp.sha256s.length < 2) {
+            if (config_1.default.get().server.hpkp.sha256s.length < 2) {
                 throw new Error('At least two public keys are required when using HPKP');
             }
             helmetConfig.hpkp = {
-                maxAge: Config.server.hpkp.maxAge,
-                sha256s: Config.server.hpkp.sha256s
+                maxAge: config_1.default.get().server.hpkp.maxAge,
+                sha256s: config_1.default.get().server.hpkp.sha256s
             };
         }
         this.app.use(helmet(helmetConfig));
         // Add default version to request if not supplied
         this.app.use((req, res, next) => {
-            req.version = req.headers['accept-version'] || Config.version;
+            req.version = req.headers['accept-version'] || config_1.default.get().version;
             next();
         });
         // If behind proxy use 'X-Forwarded-For' header for client ip address
-        if (Config.server.behindProxy) {
+        if (config_1.default.get().server.behindProxy) {
             this.app.enable('trust proxy');
         }
         // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
         this.app.use(express.json({
-            limit: Config.maxSyncSize || 512000
+            limit: config_1.default.get().maxSyncSize || 512000
         }));
         // Enable support for CORS
-        const corsOptions = Config.allowedOrigins.length > 0 && {
+        const corsOptions = config_1.default.get().allowedOrigins.length > 0 && {
             origin: (origin, callback) => {
-                if (Config.allowedOrigins.indexOf(origin) !== -1) {
+                if (config_1.default.get().allowedOrigins.indexOf(origin) !== -1) {
                     callback(null, true);
                 }
                 else {
@@ -227,11 +255,14 @@ class Server {
         this.app.use(cors(corsOptions));
         this.app.options('*', cors(corsOptions));
         // Add thottling if enabled
-        if (Config.throttle.maxRequests > 0) {
+        if (config_1.default.get().throttle.maxRequests > 0) {
             this.app.use(new this.rateLimit({
                 delayMs: 0,
-                max: Config.throttle.maxRequests,
-                windowMs: Config.throttle.timeWindow
+                handler: (req, res, next) => {
+                    next(new exception_1.RequestThrottledException());
+                },
+                max: config_1.default.get().throttle.maxRequests,
+                windowMs: config_1.default.get().throttle.timeWindow
             }));
         }
     }
@@ -239,21 +270,28 @@ class Server {
     connectToDb() {
         return __awaiter(this, void 0, void 0, function* () {
             this.db = new db_1.default(this.log);
-            yield this.db.connect();
+            yield this.db.openConnection();
         });
     }
     // Handles and logs api errors
     handleErrors(err, req, res, next) {
         if (err) {
             let responseObj;
-            // If the error is one of our exception, get the reponse object to return to the client
-            // otherwise create a new unspecified exception and use that 
-            if (err instanceof exception_1.ExceptionBase) {
-                responseObj = err.getResponseObject();
-            }
-            else {
-                err = new exception_1.UnspecifiedException();
-                responseObj = err.getResponseObject();
+            // Determine the response value based on the error thrown
+            switch (true) {
+                // If the error is one of our exceptions get the reponse object to return to the client
+                case err instanceof exception_1.ExceptionBase:
+                    responseObj = err.getResponseObject();
+                    break;
+                // If the error is 413 Request Entity Too Large return a SyncDataLimitExceededException
+                case err.status === 413:
+                    err = new exception_1.SyncDataLimitExceededException();
+                    responseObj = err.getResponseObject();
+                    break;
+                // Otherwise return an UnspecifiedException
+                default:
+                    err = new exception_1.UnspecifiedException();
+                    responseObj = err.getResponseObject();
             }
             res.status(err.status || 500);
             res.json(responseObj);

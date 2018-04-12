@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const baseService_1 = require("./baseService");
+const config_1 = require("./config");
 const server_1 = require("./server");
-const Config = require('./config.json');
 // Implementation of data service for service info operations
 class InfoService extends baseService_1.default {
     // Returns information describing the xBrowserSync service
@@ -18,12 +18,12 @@ class InfoService extends baseService_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             // Create response object from config settings
             const serviceInfo = {
-                maxSyncSize: Config.maxSyncSize,
-                message: Config.status.message,
+                maxSyncSize: config_1.default.get().maxSyncSize,
+                message: config_1.default.get().status.message,
                 status: server_1.ApiStatus.offline,
-                version: Config.version
+                version: config_1.default.get().version
             };
-            if (Config.status.online) {
+            if (config_1.default.get().status.online) {
                 try {
                     // Call service method to check if accepting new syncs
                     const acceptingNewSyncs = yield this.service.isAcceptingNewSyncs();

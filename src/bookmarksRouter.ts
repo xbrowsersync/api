@@ -2,7 +2,8 @@ import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response, Router } from 'express';
 import BaseRouter from './baseRouter';
 import BookmarksService from './bookmarksService';
-import { BookmarksDataNotFoundException, SyncIdNotFoundException } from './exception';
+import DB from './db';
+import { BookmarksDataNotFoundException, InvalidSyncIdException } from './exception';
 import { ApiVerb } from './server';
 
 // Implementation of routes for bookmarks operations
@@ -21,7 +22,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
     try {
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
-      
+
       // Call service method to create new bookmarks sync and return response as json
       const newBookmarksSync = await this.service.createBookmarks(bookmarksData, req);
       res.json(newBookmarksSync);
@@ -37,7 +38,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
-      
+
       // Call service method to retrieve bookmarks data and return response as json
       const bookmarksSync = await this.service.getBookmarks(id, req);
       res.json(bookmarksSync);
@@ -62,7 +63,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
-      
+
       // Call service method to get bookmarks last updated date and return response as json
       const bookmarksSync = await this.service.getLastUpdated(id, req);
       res.json(bookmarksSync);
@@ -75,9 +76,9 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
   // Retrieves the bookmarks sync ID from the request query string parameters
   private getSyncId(req: Request): string {
     const id = req.params.id;
-    if (!id) {
-      throw new SyncIdNotFoundException();
-    }
+
+    // Check id is valid
+    DB.idIsValid(id);
 
     return id;
   }
@@ -91,7 +92,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
 
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
-      
+
       // Call service method to update bookmarks data and return response as json
       const bookmarksSync = await this.service.updateBookmarks(id, bookmarksData, req);
       res.json(bookmarksSync);

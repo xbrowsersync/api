@@ -11,9 +11,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const uuid = require("uuid");
 const baseService_1 = require("./baseService");
 const bookmarksModel_1 = require("./bookmarksModel");
+const config_1 = require("./config");
 const exception_1 = require("./exception");
 const server_1 = require("./server");
-const Config = require('./config.json');
 // Implementation of data service for bookmarks operations
 class BookmarksService extends baseService_1.default {
     // Creates a new bookmarks sync with the supplied bookmarks data
@@ -28,7 +28,7 @@ class BookmarksService extends baseService_1.default {
                 throw new exception_1.NewSyncsForbiddenException();
             }
             // Check if daily new syncs limit has been hit if config value enabled
-            if (Config.dailyNewSyncsLimit > 0) {
+            if (config_1.default.get().dailyNewSyncsLimit > 0) {
                 const newSyncsLimitHit = yield this.service.newSyncsLimitHit(req);
                 if (newSyncsLimitHit) {
                     throw new exception_1.NewSyncsLimitExceededException();
@@ -46,7 +46,7 @@ class BookmarksService extends baseService_1.default {
                 // Commit the bookmarks payload to the db
                 const savedBookmarks = yield bookmarksModel.save();
                 // Add to logs
-                if (Config.dailyNewSyncsLimit > 0) {
+                if (config_1.default.get().dailyNewSyncsLimit > 0) {
                     yield this.service.createLog(req);
                 }
                 this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
@@ -111,16 +111,16 @@ class BookmarksService extends baseService_1.default {
     isAcceptingNewSyncs() {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if allowNewSyncs config value enabled
-            if (!Config.status.allowNewSyncs) {
+            if (!config_1.default.get().status.allowNewSyncs) {
                 return false;
             }
             // Check if maxSyncs config value disabled
-            if (Config.maxSyncs === 0) {
+            if (config_1.default.get().maxSyncs === 0) {
                 return true;
             }
             // Check if total syncs have reached limit set in config  
             const bookmarksCount = yield this.getBookmarksCount();
-            return bookmarksCount < Config.maxSyncs;
+            return bookmarksCount < config_1.default.get().maxSyncs;
         });
     }
     // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data

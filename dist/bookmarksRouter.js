@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const baseRouter_1 = require("./baseRouter");
+const db_1 = require("./db");
 const exception_1 = require("./exception");
 const server_1 = require("./server");
 // Implementation of routes for bookmarks operations
@@ -82,9 +83,8 @@ class BookmarksRouter extends baseRouter_1.default {
     // Retrieves the bookmarks sync ID from the request query string parameters
     getSyncId(req) {
         const id = req.params.id;
-        if (!id) {
-            throw new exception_1.SyncIdNotFoundException();
-        }
+        // Check id is valid
+        db_1.default.idIsValid(id);
         return id;
     }
     // Updates bookmarks data for a given bookmarks sync ID

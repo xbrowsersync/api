@@ -1,8 +1,8 @@
 import { Request } from 'express';
 import BaseService from './baseService';
 import BookmarksService from './bookmarksService';
+import Config from './config';
 import { ApiStatus, LogLevel } from './server';
-const Config = require('./config.json');
 
 // Interface for get info operation response object
 export interface IGetInfoResponse {
@@ -18,13 +18,13 @@ export default class InfoService extends BaseService<BookmarksService> {
   public async getInfo(req: Request): Promise<IGetInfoResponse> {
     // Create response object from config settings
     const serviceInfo: IGetInfoResponse = {
-      maxSyncSize: Config.maxSyncSize,
-      message: Config.status.message,
+      maxSyncSize: Config.get().maxSyncSize,
+      message: Config.get().status.message,
       status: ApiStatus.offline,
-      version: Config.version
+      version: Config.get().version
     };
 
-    if (Config.status.online) {
+    if (Config.get().status.online) {
       try {
         // Call service method to check if accepting new syncs
         const acceptingNewSyncs = await this.service.isAcceptingNewSyncs();

@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const baseService_1 = require("./baseService");
+const config_1 = require("./config");
 const exception_1 = require("./exception");
 const newSyncLogsModel_1 = require("./newSyncLogsModel");
 const server_1 = require("./server");
-const Config = require('./config.json');
 // Implementation of data service for new sync log operations
 class NewSyncLogsService extends baseService_1.default {
     // Creates a new sync log entry with the supplied request data
@@ -67,7 +67,7 @@ class NewSyncLogsService extends baseService_1.default {
                 throw err;
             }
             // Check returned count against config setting
-            return newSyncsCreated >= Config.dailyNewSyncsLimit;
+            return newSyncsCreated >= config_1.default.get().dailyNewSyncsLimit;
         });
     }
     // Extracts the client's ip address from a given request

@@ -8,12 +8,12 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Prerequisites
 
-- [Node.js](https://nodejs.org/) (8.0.0 or later)
-- [mongoDB](https://www.mongodb.com/)
+- [Node.js v8 (LTS)](https://nodejs.org/)
+- [mongoDB v3](https://www.mongodb.com/)
 
 # Upgrading from an earlier version
 
-If you are curently running v1.0.3 or earlier, you will need to export existing syncs and delete the xBrowserSync database (due to case changes in db object names).
+If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before running v1.1.0.
 
 To export existing syncs, run the following command:
 
@@ -138,9 +138,29 @@ If you've made configuration changes, be sure to run a fresh build:
 
     $ node dist/api.js
 
-# VSCode
+# Testing
 
-If you're using [VSCode](https://code.visualstudio.com/), there are three launch configurations:
+To run unit tests, run either of the following commands:
+
+    $ npm run test
+    $ npm run unittests
+
+To run integration tests, you will need to create the test database first. Run the following commands in the mongo shell:
+
+  (Replace `[dbname]` with your xBrowserSync database name and `[password]` with the xBrowserSync database user account password)
+
+  ```
+  use [dbname]test
+  db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
+  ```
+
+You can then run the integration tests by running the following command:
+
+    $ npm run integrationtests
+
+# VS Code
+
+If you're using [VS Code](https://code.visualstudio.com/), you have the following launch configurations:
 
   1. Debug API: Will compile and debug the main API service.
   2. Debug docs: Will launch API home page in chrome and attach to debugger for debugging docs issues. 

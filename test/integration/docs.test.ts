@@ -6,13 +6,11 @@ import * as sinon from 'sinon';
 import Config from '../../src/config';
 import Server from '../../src/server';
 
-let server: Server;
-
 before(() => {
   use(chaiHttp);
 });
 
-describe('InfoRouter', () => {
+describe('Docs', () => {
   let sandbox: sinon.SinonSandbox;
   let server: Server;
   let testConfig: any;
@@ -36,14 +34,14 @@ describe('InfoRouter', () => {
     decache('../../config/config.json');
   });
 
-  it('GET info: should return api status info', async () => {
+  it('GET /: Should return a 200 code', async () => {
     await new Promise((resolve) => {
       request(server.getApplication())
-        .get('/info')
+        .get('/')
+        .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(200);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.be.html;
           resolve();
         });
     });
