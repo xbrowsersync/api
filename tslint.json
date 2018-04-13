@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "ban-comma-operator": false,
+    "max-classes-per-file": false,
+    "no-console": false
+  },
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "test/*.ts"
+    ]
+}
+}
