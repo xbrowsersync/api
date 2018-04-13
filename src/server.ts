@@ -226,22 +226,7 @@ export default class Server {
     const helmetConfig: helmet.IHelmetConfiguration = {
       noCache: true
     };
-
-    // Configure hpkp for helmet if enabled
-    if (Config.get().server.hpkp.enabled) {
-      if (!Config.get().server.https.enabled) {
-        throw new Error('HTTPS must be enabled when using HPKP');
-      }
-
-      if (Config.get().server.hpkp.sha256s.length < 2) {
-        throw new Error('At least two public keys are required when using HPKP');
-      }
-
-      helmetConfig.hpkp = {
-        maxAge: Config.get().server.hpkp.maxAge,
-        sha256s: Config.get().server.hpkp.sha256s
-      };
-    }
+    
     this.app.use(helmet(helmetConfig));
 
     // Add default version to request if not supplied

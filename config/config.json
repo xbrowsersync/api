@@ -19,11 +19,6 @@
   "server": {
     "behindProxy": false,
     "host": "127.0.0.1",
-    "hpkp": {
-      "enabled": false,
-      "maxAge": 5184000,
-      "sha256s": []
-    },
     "https": {
       "certPath": "",
       "enabled": false,

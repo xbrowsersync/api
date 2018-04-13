@@ -113,9 +113,6 @@ Config Setting | Description | Default Value
 `maxSyncSize` | The maximum sync size in bytes. Note this is not equivalent to the size/amount of bookmarks as data is compressed and encrypted client-side before being sent to the service. | `512000` (500kb)
 `server.behindProxy` | Set to `true` if service is behind a proxy, client IP address will be set from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users. | `false`
 `server.host` | Host name or IP address to use for Node.js server for accepting incoming connections. | `127.0.0.1`
-`server.hpkp.enabled` | Enables [HTTP Public Key Pinning](https://developer.mozilla.org/en-US/docs/Web/HTTP/Public_Key_Pinning) to decrease the risk of [MITM](https://developer.mozilla.org/en-US/docs/Glossary/MITM) attacks with forged certificates. Note: HTTPS must be enabled (see below) when HPKP is enabled. | `false`
-`server.hpkp.maxAge` | The amount of time (in seconds) that the browser should remember that this site is only to be accessed using one of the defined keys. | `5184000` (60 days)
-`server.hpkp.sha256s` | Array of Base64 encoded Subject Public Key Information (SPKI) fingerprints. A minimum of two public key hashes are required when HPKP is enabled. | `[]` (No keys set)
 `server.https.certPath` | Path to a valid SSL certificate. Required when HTTPS is enabled. | (Empty string, no path set)
 `server.https.enabled` | If enabled, the service is started using HTTPS. | `false`
 `server.https.keyPath` | Path to the SSL certificate's private key. Required when HTTPS is enabled. | (Empty string, no path set)
