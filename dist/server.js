@@ -213,19 +213,6 @@ class Server {
         const helmetConfig = {
             noCache: true
         };
-        // Configure hpkp for helmet if enabled
-        if (config_1.default.get().server.hpkp.enabled) {
-            if (!config_1.default.get().server.https.enabled) {
-                throw new Error('HTTPS must be enabled when using HPKP');
-            }
-            if (config_1.default.get().server.hpkp.sha256s.length < 2) {
-                throw new Error('At least two public keys are required when using HPKP');
-            }
-            helmetConfig.hpkp = {
-                maxAge: config_1.default.get().server.hpkp.maxAge,
-                sha256s: config_1.default.get().server.hpkp.sha256s
-            };
-        }
         this.app.use(helmet(helmetConfig));
         // Add default version to request if not supplied
         this.app.use((req, res, next) => {

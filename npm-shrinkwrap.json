@@ -8824,9 +8824,9 @@
       "dev": true
     },
     "prettier": {
-      "version": "1.11.1",
-      "resolved": "https://registry.npmjs.org/prettier/-/prettier-1.11.1.tgz",
-      "integrity": "sha512-T/KD65Ot0PB97xTrG8afQ46x3oiVhnfGjGESSI9NWYcG92+OUPZKkwHqGWXH2t9jK1crnQjubECW0FuOth+hxw==",
+      "version": "1.12.0",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-1.12.0.tgz",
+      "integrity": "sha512-Wz0SMncgaglBzDcohH3ZIAi4nVpzOIEweFzCOmgVEoRSeO72b4dcKGfgxoRGVMaFlh1r7dlVaJ+f3CIHfeH6xg==",
       "dev": true
     },
     "pretty-bytes": {
@@ -9580,9 +9580,9 @@
       }
     },
     "sass-loader": {
-      "version": "6.0.7",
-      "resolved": "https://registry.npmjs.org/sass-loader/-/sass-loader-6.0.7.tgz",
-      "integrity": "sha512-JoiyD00Yo1o61OJsoP2s2kb19L1/Y2p3QFcCdWdF6oomBGKVYuZyqHWemRBfQ2uGYsk+CH3eCguXNfpjzlcpaA==",
+      "version": "7.0.1",
+      "resolved": "https://registry.npmjs.org/sass-loader/-/sass-loader-7.0.1.tgz",
+      "integrity": "sha512-MeVVJFejJELlAbA7jrRchi88PGP6U9yIfqyiG+bBC4a9s2PX+ulJB9h8bbEohtPBfZmlLhNZ0opQM9hovRXvlw==",
       "dev": true,
       "requires": {
         "clone-deep": "2.0.2",
@@ -12260,7 +12260,7 @@
         "mkdirp": "0.5.1",
         "p-each-series": "1.0.0",
         "p-lazy": "1.0.0",
-        "prettier": "1.11.1",
+        "prettier": "1.12.0",
         "supports-color": "5.3.0",
         "v8-compile-cache": "1.1.2",
         "webpack-addons": "1.1.5",
