@@ -2015,7 +2015,7 @@
     "clone-deep": {
       "version": "2.0.2",
       "resolved": "https://registry.npmjs.org/clone-deep/-/clone-deep-2.0.2.tgz",
-      "integrity": "sha1-ANs6Hhc2VnMNEYjD1qztbX6pdxM=",
+      "integrity": "sha512-SZegPTKjCgpQH63E+eN6mVEEPdQBOUzjyJm5Pora4lrwWRFS8I0QAxV/KD6vV/i0WuijHZWQC1fMsPEdxfdVCQ==",
       "dev": true,
       "requires": {
         "for-own": "1.0.0",
@@ -2036,7 +2036,7 @@
         "kind-of": {
           "version": "6.0.2",
           "resolved": "https://registry.npmjs.org/kind-of/-/kind-of-6.0.2.tgz",
-          "integrity": "sha1-ARRrNqYhjmTljzqNZt5df8b20FE=",
+          "integrity": "sha512-s5kLOcnH0XqDO+FvuaLX8DDjZ18CGFk7VygH40QoKPUQhW4e2rvM0rwUq0t8IQDOwYSeLK01U90OjzBTme2QqA==",
           "dev": true
         }
       }
@@ -8826,7 +8826,7 @@
     "prettier": {
       "version": "1.11.1",
       "resolved": "https://registry.npmjs.org/prettier/-/prettier-1.11.1.tgz",
-      "integrity": "sha1-YeQ/xM1E5o8rDfwsOM1LsPzNzHU=",
+      "integrity": "sha512-T/KD65Ot0PB97xTrG8afQ46x3oiVhnfGjGESSI9NWYcG92+OUPZKkwHqGWXH2t9jK1crnQjubECW0FuOth+hxw==",
       "dev": true
     },
     "pretty-bytes": {
@@ -9582,7 +9582,7 @@
     "sass-loader": {
       "version": "6.0.7",
       "resolved": "https://registry.npmjs.org/sass-loader/-/sass-loader-6.0.7.tgz",
-      "integrity": "sha1-3S/bPn7v9KU/NbpqxAhxVIg1PQA=",
+      "integrity": "sha512-JoiyD00Yo1o61OJsoP2s2kb19L1/Y2p3QFcCdWdF6oomBGKVYuZyqHWemRBfQ2uGYsk+CH3eCguXNfpjzlcpaA==",
       "dev": true,
       "requires": {
         "clone-deep": "2.0.2",
@@ -9733,7 +9733,7 @@
     "shallow-clone": {
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/shallow-clone/-/shallow-clone-1.0.0.tgz",
-      "integrity": "sha1-RIDNBuiC72iyrYij6lSDLixItXE=",
+      "integrity": "sha512-oeXreoKR/SyNJtRJMAKPDSvd28OqEwG4eR/xc856cRGBII7gX9lvAqDxusPm0846z/w/hWYjI1NpKwJ00NHzRA==",
       "dev": true,
       "requires": {
         "is-extendable": "0.1.1",
@@ -9744,7 +9744,7 @@
         "kind-of": {
           "version": "5.1.0",
           "resolved": "https://registry.npmjs.org/kind-of/-/kind-of-5.1.0.tgz",
-          "integrity": "sha1-cpyR4thXt6QZofmqZWhcTDP1hF0=",
+          "integrity": "sha512-NGEErnH6F2vUuXDh+OlbcKW7/wOcfdRHaZ7VWtqCztfHri/++YKmP51OdWeGPuqCOba6kk2OTe5d02VmTB80Pw==",
           "dev": true
         }
       }
