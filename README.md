@@ -94,7 +94,7 @@ CD into the source directory and install dependencies:
 
 ## 3. Edit xBrowserSync service configuration
 
-Open `src/config.json` in a text editor and update the following variables with your desired values:
+Open `config/config.json` in a text editor and update the following variables with your desired values:
 
 Config Setting | Description | Default Value
 -------------- | ----------- | -------------
