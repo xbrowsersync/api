@@ -13,7 +13,15 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Upgrading from an earlier version
 
-If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
+If there has been any changes to `config/config.json` since the version you are running, it is recommended to save your config file elsewhere then undo any changes before getting latest files from the repo and installing updated dependencies:
+
+    $ git checkout -- config/config.json
+    $ git pull
+    $ npm install --unsafe-perm
+
+You can then manually change config settings back to their previous values as required.
+
+In addition, if you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
 
 To export existing syncs, run the following command:
 
@@ -39,9 +47,9 @@ Once you've upgraded and completed the installation steps below, you can import 
 
 ## 1. Install and build xBrowserSync API package
 
-CD into the source directory and install dependencies:
+CD into the source directory and install dependencies (use `unsafe-perm` flag if you get any permissions issues whilst trying to install):
 
-    $ npm install
+    $ npm install --unsafe-perm
 
 ## 2. Configure mongoDB database
 
