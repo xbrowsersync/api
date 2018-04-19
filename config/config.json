@@ -11,8 +11,9 @@
   "log": {
     "enabled": true,
     "level": "info",
-    "name": "xBrowserSync_api",
-    "path": "/var/log/xBrowserSync_api.log"
+    "path": "/var/log/xBrowserSync/api.log",
+    "rotatedFilesToKeep": 5,
+    "rotationPeriod": "1d"
   },
   "maxSyncs": 5242,
   "maxSyncSize": 512000,
@@ -35,5 +36,5 @@
     "maxRequests": 1000,
     "timeWindow": 300000
   },
-  "version": "1.1.0"
+  "version": "1.1.1"
 }

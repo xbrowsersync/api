@@ -86,22 +86,38 @@ class Server {
     }
     // Logs messages and errors to console and to file (if enabled)
     log(level, message, req, err) {
+        const writeToLogFile = (logAction) => {
+            if (!config_1.default.get().log.enabled || !logAction) {
+                return;
+            }
+            if (!this.logger) {
+                console.error('Unable to write to log as it has not been initialised.');
+                return;
+            }
+            logAction();
+        };
+        const writeToConsole = (logAction) => {
+            if (!this.logToConsole) {
+                return;
+            }
+            logAction();
+        };
         switch (level) {
             case LogLevel.Error:
-                if (config_1.default.get().log.enabled) {
+                writeToLogFile(() => {
                     this.logger.error({ req, err }, message);
-                }
-                if (this.logToConsole) {
+                });
+                writeToConsole(() => {
                     console.error(err ? `${message}: ${err.message}` : message);
-                }
+                });
                 break;
             case LogLevel.Info:
-                if (config_1.default.get().log.enabled) {
+                writeToLogFile(() => {
                     this.logger.info({ req }, message);
-                }
-                if (this.logToConsole) {
+                });
+                writeToConsole(() => {
                     console.log(message);
-                }
+                });
                 break;
         }
     }
@@ -187,27 +203,32 @@ class Server {
         this.app = express();
         // Add logging if required
         if (config_1.default.get().log.enabled) {
-            // Ensure log directory exists
-            const logDirectory = config_1.default.get().log.path.substring(0, config_1.default.get().log.path.lastIndexOf('/'));
-            if (!fs.existsSync(logDirectory)) {
-                mkdirp.sync(logDirectory);
+            try {
+                // Ensure log directory exists
+                const logDirectory = config_1.default.get().log.path.substring(0, config_1.default.get().log.path.lastIndexOf('/'));
+                if (!fs.existsSync(logDirectory)) {
+                    mkdirp.sync(logDirectory);
+                }
+                // Initialise bunyan logger
+                this.logger = bunyan.createLogger({
+                    level: config_1.default.get().log.level,
+                    name: 'xBrowserSync_api',
+                    serializers: bunyan.stdSerializers,
+                    streams: [
+                        {
+                            count: config_1.default.get().log.rotatedFilesToKeep,
+                            level: config_1.default.get().log.level,
+                            path: config_1.default.get().log.path,
+                            period: config_1.default.get().log.rotationPeriod,
+                            type: 'rotating-file'
+                        }
+                    ]
+                });
             }
-            // Delete the log file if it exists
-            if (fs.existsSync(config_1.default.get().log.path)) {
-                fs.unlinkSync(config_1.default.get().log.path);
+            catch (err) {
+                console.error(`Failed to initialise log file.`);
+                throw err;
             }
-            // Initialise bunyan logger
-            this.logger = bunyan.createLogger({
-                level: config_1.default.get().log.level,
-                name: config_1.default.get().log.name,
-                serializers: bunyan.stdSerializers,
-                streams: [
-                    {
-                        level: config_1.default.get().log.level,
-                        path: config_1.default.get().log.path
-                    }
-                ]
-            });
         }
         // Set default config for helmet security hardening
         const helmetConfig = {

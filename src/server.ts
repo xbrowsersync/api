@@ -88,22 +88,45 @@ export default class Server {
   // Logs messages and errors to console and to file (if enabled)
   @autobind
   public log(level: LogLevel, message: string, req?: express.Request, err?: Error): void {
+    const writeToLogFile = (logAction: () => void) => {
+      if (!Config.get().log.enabled || !logAction) {
+        return;
+      }
+      
+      if (!this.logger) {
+        console.error('Unable to write to log as it has not been initialised.');
+        return;
+      }
+
+      logAction();
+    };
+
+    const writeToConsole = (logAction: () => void) => {
+      if (!this.logToConsole) {
+        return;
+      }
+
+      logAction();
+    };
+    
     switch (level) {
       case LogLevel.Error:
-        if (Config.get().log.enabled) {
+        writeToLogFile(() => {
           this.logger.error({ req, err }, message);
-        }
-        if (this.logToConsole) {
+        });
+        
+        writeToConsole(() => {
           console.error(err ? `${message}: ${err.message}` : message);
-        }
+        });
         break;
       case LogLevel.Info:
-        if (Config.get().log.enabled) {
+        writeToLogFile(() => {
           this.logger.info({ req }, message);
-        }
-        if (this.logToConsole) {
+        });
+
+        writeToConsole(() => {
           console.log(message);
-        }
+        });
         break;
     }
   }
@@ -197,29 +220,33 @@ export default class Server {
 
     // Add logging if required
     if (Config.get().log.enabled) {
-      // Ensure log directory exists
-      const logDirectory = Config.get().log.path.substring(0, Config.get().log.path.lastIndexOf('/'));
-      if (!fs.existsSync(logDirectory)) {
-        mkdirp.sync(logDirectory);
-      }
+      try {
+        // Ensure log directory exists
+        const logDirectory = Config.get().log.path.substring(0, Config.get().log.path.lastIndexOf('/'));
+        if (!fs.existsSync(logDirectory)) {
+          mkdirp.sync(logDirectory);
+        }
 
-      // Delete the log file if it exists
-      if (fs.existsSync(Config.get().log.path)) {
-        fs.unlinkSync(Config.get().log.path);
+        // Initialise bunyan logger
+        this.logger = bunyan.createLogger({
+          level: Config.get().log.level,
+          name: 'xBrowserSync_api',
+          serializers: bunyan.stdSerializers,
+          streams: [
+            {
+              count: Config.get().log.rotatedFilesToKeep,
+              level: Config.get().log.level,
+              path: Config.get().log.path,
+              period: Config.get().log.rotationPeriod,
+              type: 'rotating-file'
+            }
+          ]
+        });
       }
-
-      // Initialise bunyan logger
-      this.logger = bunyan.createLogger({
-        level: Config.get().log.level,
-        name: Config.get().log.name,
-        serializers: bunyan.stdSerializers,
-        streams: [
-          {
-            level: Config.get().log.level,
-            path: Config.get().log.path
-          }
-        ]
-      });
+      catch (err) {
+        console.error(`Failed to initialise log file.`);
+        throw err;
+      }
     }
 
     // Set default config for helmet security hardening

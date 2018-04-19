@@ -1,4 +1,4 @@
-# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg?branch=v1.1.0)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev)
+# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg?branch=v1.1.1)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
@@ -13,7 +13,7 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Upgrading from an earlier version
 
-If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before running v1.1.0.
+If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
 
 To export existing syncs, run the following command:
 
@@ -105,10 +105,11 @@ Config Setting | Description | Default Value
 `db.name` | Name of the mongoDB database to use. | `xbrowsersync`
 `db.username` | Username of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
 `db.password` | Password of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
-`log.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. | `true`
+`log.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.path` and the log file is rotated automatically each period set by `log.rotationPeriod`, resulting in files "`log.path`.0", "`log.path`.1", etc. | `true`
 `log.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
-`log.name` | Name of the bunyan logger. | `xBrowserSync_api`
-`log.path` | Path to the file to log messages to (ensure node has permission to write to this location). Will be created automatically if path does not exist. | `/var/log/xBrowserSync_api.log`
+`log.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log`
+`log.rotatedFilesToKeep` | Maximum number of rotated log files to retain. | `5`
+`log.rotationPeriod` | 	The period at which to rotate log files. This is a string of the format "$number$scope" where "$scope" is one of "ms" (milliseconds -- only useful for testing), "h" (hours), "d" (days), "w" (weeks), "m" (months), "y" (years). Or one of the following names can be used "hourly" (means 1h), "daily" (1d), "weekly" (1w), "monthly" (1m), "yearly" (1y). Rotation is done at the start of the scope: top of the hour (h), midnight (d), start of Sunday (w), start of the 1st of the month (m), start of Jan 1st (y). | `1d`
 `maxSyncs` | The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Esers with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable. | `5242`
 `maxSyncSize` | The maximum sync size in bytes. Note this is not equivalent to the size/amount of bookmarks as data is compressed and encrypted client-side before being sent to the service. | `512000` (500kb)
 `server.behindProxy` | Set to `true` if service is behind a proxy, client IP address will be set from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users. | `false`
@@ -122,18 +123,21 @@ Config Setting | Description | Default Value
 `status.online` | If set to true no clients will be able to connect to this service. | `true`
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
 `throttle.timeWindow` | Amount of time (in milliseconds) before throttle counter is reset. | `300000` (5 mins)
-`version` | Current version for the API routes. | `1.1.0`
+`version` | Current version for the API routes. | `1.1.1`
 
+## 4. Create log folder
 
-## 4. (Re)build api
-
-If you've made configuration changes, be sure to run a fresh build:
-
-    $ npm run build
+Ensure that the path set in the `log.path` config value exists, and that the account node will be running as can write to that location.
 
 ## 5. Run xBrowserSync service
 
     $ node dist/api.js
+
+# Building
+
+If you've made code changes you can run a fresh build with the command:
+
+    $ npm run build
 
 # Testing
 
