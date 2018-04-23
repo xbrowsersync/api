@@ -31,7 +31,10 @@ describe('Server', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = require('../../config/config.json');
+    testConfig = {
+      ...require('../../config/settings.json'),
+      ...require('../../config/version.json')
+    };    
     testConfig.db.name = `${testConfig.db.name}test`;
     testConfig.log.enabled = false;
     sandbox = sinon.sandbox.create();
@@ -46,7 +49,8 @@ describe('Server', () => {
   afterEach(async () => {
     await server.stop();
     sandbox.restore();
-    decache('../../config/config.json');
+    decache('../../config/settings.json');
+    decache('../../config/version.json');
   });
 
   it('Should return a NotImplementedException error code for an invalid route', async () => {

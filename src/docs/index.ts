@@ -1,5 +1,9 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { autobind } from 'core-decorators';
+import es6promise = require('es6-promise');
 import * as SmoothScroll from 'smooth-scroll';
+import 'typeface-roboto-condensed';
+import 'typeface-source-code-pro';
 import 'whatwg-fetch';
 import { IGetInfoResponse } from '../infoService';
 
@@ -9,7 +13,7 @@ class Docs {
   @autobind
   public static async onInit() {
     // Add support for promises pre-es6
-    require('es6-promise').polyfill();
+    es6promise.polyfill();
 
     // Enable smooth scrolling of page links
     const scroll = new SmoothScroll('a[href*="#"]', {

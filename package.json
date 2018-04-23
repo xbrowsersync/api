@@ -1,7 +1,7 @@
 {
   "name": "xbrowsersync-api",
   "description": "The REST API service component of the xBrowserSync application.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "xBrowserSync",
   "license": "MIT",
   "main": "dist/api.js",
@@ -13,6 +13,7 @@
     "url": "https://github.com/xBrowserSync/API/issues"
   },
   "dependencies": {
+    "bootstrap": "^3.3.7",
     "bunyan": "^1.8.12",
     "core-decorators": "^0.20.0",
     "cors": "^2.8.4",
@@ -27,6 +28,8 @@
     "mongoose": "^5.0.15",
     "mongoose-uuid2": "^2.1.0",
     "smooth-scroll": "^12.1.5",
+    "typeface-roboto-condensed": "0.0.54",
+    "typeface-source-code-pro": "0.0.54",
     "uuid": "^3.2.1",
     "whatwg-fetch": "^2.0.4"
   },

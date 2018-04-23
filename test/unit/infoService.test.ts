@@ -15,7 +15,10 @@ describe('InfoService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = require('../../config/config.json');
+    testConfig = {
+      ...require('../../config/settings.json'),
+      ...require('../../config/version.json')
+    };
     const log = () => { };
     bookmarksService = new BookmarksService(null, log);
     infoService = new InfoService(bookmarksService as BookmarksService, log);
@@ -26,7 +29,8 @@ describe('InfoService', () => {
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/config.json');
+    decache('../../config/settings.json');
+    decache('../../config/version.json');
   });
 
   it('getInfo: should return max sync size config value', async () => {

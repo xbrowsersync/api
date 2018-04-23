@@ -15,7 +15,10 @@ describe('NewSyncLogsService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = require('../../config/config.json');
+    testConfig = {
+      ...require('../../config/settings.json'),
+      ...require('../../config/version.json')
+    };
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
     sandbox = sinon.sandbox.create();
@@ -24,7 +27,8 @@ describe('NewSyncLogsService', () => {
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/config.json');
+    decache('../../config/settings.json');
+    decache('../../config/version.json');
   });
 
   it('createLog: should create a new sync log using the request IP address', async () => {

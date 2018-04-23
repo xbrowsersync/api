@@ -2,7 +2,8 @@
   "rules": {
     "ban-comma-operator": false,
     "max-classes-per-file": false,
-    "no-console": false
+    "no-console": false,
+    "no-submodule-imports": false
   },
   "extends": [
     "tslint:latest",
@@ -12,5 +13,5 @@
     "exclude": [
       "test/*.ts"
     ]
-}
+  }
 }

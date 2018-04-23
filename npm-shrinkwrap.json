@@ -1,6 +1,6 @@
 {
   "name": "xbrowsersync-api",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -1756,6 +1756,11 @@
       "requires": {
         "hoek": "2.16.3"
       }
+    },
+    "bootstrap": {
+      "version": "3.3.7",
+      "resolved": "https://registry.npmjs.org/bootstrap/-/bootstrap-3.3.7.tgz",
+      "integrity": "sha1-WjiTlFSfIzMIdaOxUGVldPip63E="
     },
     "brace-expansion": {
       "version": "1.1.11",
@@ -11436,6 +11441,16 @@
       "resolved": "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz",
       "integrity": "sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=",
       "dev": true
+    },
+    "typeface-roboto-condensed": {
+      "version": "0.0.54",
+      "resolved": "https://registry.npmjs.org/typeface-roboto-condensed/-/typeface-roboto-condensed-0.0.54.tgz",
+      "integrity": "sha512-1o6p2h4VGqGKQmhjNUli1jY6EHpUobRCYZilhJJ50WtANOy2jKnhIDudDYSj2TcY2VRGFXVm8xRjct3iUkhS7A=="
+    },
+    "typeface-source-code-pro": {
+      "version": "0.0.54",
+      "resolved": "https://registry.npmjs.org/typeface-source-code-pro/-/typeface-source-code-pro-0.0.54.tgz",
+      "integrity": "sha512-rzCoj8PrX55xuBXJPlSGIFzRdWSRjJyvgVjRrDFEdlej2yFaKcff8O7AmNmHApqMmIreYNS563eb3ZjdSgRqpg=="
     },
     "typescript": {
       "version": "2.8.1",

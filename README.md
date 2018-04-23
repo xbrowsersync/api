@@ -13,13 +13,7 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Upgrading from an earlier version
 
-If there has been any changes to `config/config.json` since the version you are running, it is recommended to save your config file elsewhere then undo any changes before getting latest files from the repo and installing updated dependencies:
-
-    $ git checkout -- config/config.json
-    $ git pull
-    $ npm install --unsafe-perm
-
-You can then manually change config settings back to their previous values as required.
+The file `config/settings.json` is untracked so you'll need to check for any changes to this file before upgrading and manually integrate them into your settings file.
 
 In addition, if you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
 
@@ -102,7 +96,7 @@ CD into the source directory and install dependencies (use `unsafe-perm` flag if
 
 ## 3. Edit xBrowserSync service configuration
 
-Open `config/config.json` in a text editor and update the following variables with your desired values:
+Open `config/settings.json` in a text editor and update the following variables with your desired values:
 
 Config Setting | Description | Default Value
 -------------- | ----------- | -------------
@@ -131,7 +125,6 @@ Config Setting | Description | Default Value
 `status.online` | If set to true no clients will be able to connect to this service. | `true`
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
 `throttle.timeWindow` | Amount of time (in milliseconds) before throttle counter is reset. | `300000` (5 mins)
-`version` | Current version for the API routes. | `1.1.1`
 
 ## 4. Create log folder
 

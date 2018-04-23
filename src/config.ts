@@ -1,5 +1,11 @@
 export default class Config {
   public static get(): any {
-    return require('../config/config.json');
+    const settings = require('../config/settings.json');
+    const version = require('../config/version.json');
+
+    return {
+      ...settings,
+      ...version
+    };
   }
 }

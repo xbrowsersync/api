@@ -27,7 +27,10 @@ describe('BookmarksRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = require('../../config/config.json');
+    testConfig = {
+      ...require('../../config/settings.json'),
+      ...require('../../config/version.json')
+    };    
     testConfig.db.name = `${testConfig.db.name}test`;
     testConfig.log.enabled = false;
     sandbox = sinon.sandbox.create();
@@ -45,7 +48,8 @@ describe('BookmarksRouter', () => {
 
     await server.stop();
     sandbox.restore();
-    decache('../../config/config.json');
+    decache('../../config/settings.json');
+    decache('../../config/version.json');
   });
 
   it('POST bookmarks: should return a BookmarksDataNotFoundException error code if bookmarks data not provided', async () => {

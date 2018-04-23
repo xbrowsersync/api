@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class Config {
     static get() {
-        return require('../config/config.json');
+        const settings = require('../config/settings.json');
+        const version = require('../config/version.json');
+        return Object.assign({}, settings, version);
     }
 }
 exports.default = Config;
