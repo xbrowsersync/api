@@ -13,7 +13,7 @@ describe('Server', () => {
 
   beforeEach(() => {
     testConfig = {
-      ...require('../../config/settings.json'),
+      ...require('../../config/settings.default.json'),
       ...require('../../config/version.json')
     };
     sandbox = sinon.sandbox.create();
@@ -22,7 +22,7 @@ describe('Server', () => {
   
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/settings.json');
+    decache('../../config/settings.default.json');
     decache('../../config/version.json');
   });
 

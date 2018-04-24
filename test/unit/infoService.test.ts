@@ -16,7 +16,7 @@ describe('InfoService', () => {
 
   beforeEach(() => {
     testConfig = {
-      ...require('../../config/settings.json'),
+      ...require('../../config/settings.default.json'),
       ...require('../../config/version.json')
     };
     const log = () => { };
@@ -29,7 +29,7 @@ describe('InfoService', () => {
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/settings.json');
+    decache('../../config/settings.default.json');
     decache('../../config/version.json');
   });
 
@@ -49,6 +49,15 @@ describe('InfoService', () => {
 
     const response = await infoService.getInfo(req as Request);
     expect(response.message).to.equal(messageTestVal);
+  });
+
+  it('getInfo: should strip script tags from message config value', async () => {
+    const messageTestVal = `<script>alert('test');</script>`;
+    testConfig.status.message = messageTestVal;
+    const req: Partial<Request> = {};
+
+    const response = await infoService.getInfo(req as Request);
+    expect(response.message).to.equal('');
   });
 
   it('getInfo: should return correct API status when online', async () => {

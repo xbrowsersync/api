@@ -1,4 +1,4 @@
-# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev)
+# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
@@ -13,9 +13,7 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 # Upgrading from an earlier version
 
-The file `config/settings.json` is untracked so you'll need to check for any changes to this file before upgrading and manually integrate them into your settings file.
-
-In addition, if you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
+If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
 
 To export existing syncs, run the following command:
 
@@ -94,9 +92,19 @@ CD into the source directory and install dependencies (use `unsafe-perm` flag if
       db.bookmarks.createIndex( { "lastAccessed": 1 }, { expireAfterSeconds: 21*86400 } )
       ```
 
-## 3. Edit xBrowserSync service configuration
+## 3. Modify configuration settings
 
-Open `config/settings.json` in a text editor and update the following variables with your desired values:
+The file `config/settings.default.json` contains all of the default configuration settings. User configuration values should be stored in `config/settings.json` and will override the defaults. Should you wish to change any of the configuration settings, copy `settings.default.json` and rename the copy to `settings.json` before changing any values as required. Be sure to remove any settings that have not been changed so that any amendments to the default values in future versions are picked up. For example, a basic user configuration to modify the service status message could look like:
+
+```
+{
+  "status": {
+    "message": "Welcome to my xBrowserSync service!"
+  }
+}
+```
+
+Any changes to the user configuration will require the service to be restarted before being picked up. The available configuration settings are:
 
 Config Setting | Description | Default Value
 -------------- | ----------- | -------------

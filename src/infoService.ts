@@ -19,7 +19,7 @@ export default class InfoService extends BaseService<BookmarksService> {
     // Create response object from config settings
     const serviceInfo: IGetInfoResponse = {
       maxSyncSize: Config.get().maxSyncSize,
-      message: Config.get().status.message,
+      message: this.stripScriptsFromHtml(Config.get().status.message),
       status: ApiStatus.offline,
       version: Config.get().version
     };
@@ -36,5 +36,10 @@ export default class InfoService extends BaseService<BookmarksService> {
     }
 
     return serviceInfo;
+  }
+
+  // Removes script tags from a given HTML string
+  private stripScriptsFromHtml(html: string): string {
+    return !html ? '' : html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   }
 }

@@ -1,2 +1,3 @@
-node_modules/
 *.log
+config/settings.json
+node_modules/

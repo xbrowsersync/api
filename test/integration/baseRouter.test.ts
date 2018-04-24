@@ -20,7 +20,7 @@ describe('BaseRouter', () => {
 
   beforeEach(async () => {
     testConfig = {
-      ...require('../../config/settings.json'),
+      ...require('../../config/settings.default.json'),
       ...require('../../config/version.json')
     };    
     testConfig.db.name = `${testConfig.db.name}test`;
@@ -37,7 +37,7 @@ describe('BaseRouter', () => {
   afterEach(async () => {
     await server.stop();
     sandbox.restore();
-    decache('../../config/settings.json');
+    decache('../../config/settings.default.json');
     decache('../../config/version.json');
   });
 

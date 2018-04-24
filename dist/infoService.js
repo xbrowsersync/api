@@ -19,7 +19,7 @@ class InfoService extends baseService_1.default {
             // Create response object from config settings
             const serviceInfo = {
                 maxSyncSize: config_1.default.get().maxSyncSize,
-                message: config_1.default.get().status.message,
+                message: this.stripScriptsFromHtml(config_1.default.get().status.message),
                 status: server_1.ApiStatus.offline,
                 version: config_1.default.get().version
             };
@@ -35,6 +35,10 @@ class InfoService extends baseService_1.default {
             }
             return serviceInfo;
         });
+    }
+    // Removes script tags from a given HTML string
+    stripScriptsFromHtml(html) {
+        return !html ? '' : html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     }
 }
 exports.default = InfoService;

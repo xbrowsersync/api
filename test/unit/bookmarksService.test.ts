@@ -23,7 +23,7 @@ describe('BookmarksService', () => {
 
   beforeEach(() => {
     testConfig = {
-      ...require('../../config/settings.json'),
+      ...require('../../config/settings.default.json'),
       ...require('../../config/version.json')
     };
     const log = () => { };
@@ -36,7 +36,7 @@ describe('BookmarksService', () => {
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/settings.json');
+    decache('../../config/settings.default.json');
     decache('../../config/version.json');
   });
 

@@ -16,7 +16,7 @@ describe('NewSyncLogsService', () => {
 
   beforeEach(() => {
     testConfig = {
-      ...require('../../config/settings.json'),
+      ...require('../../config/settings.default.json'),
       ...require('../../config/version.json')
     };
     const log = () => { };
@@ -27,7 +27,7 @@ describe('NewSyncLogsService', () => {
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/settings.json');
+    decache('../../config/settings.default.json');
     decache('../../config/version.json');
   });
 
