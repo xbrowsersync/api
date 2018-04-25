@@ -1,4 +1,4 @@
-# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API)
+# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
