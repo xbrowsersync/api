@@ -52,20 +52,6 @@ describe('BookmarksRouter', () => {
     decache('../../config/version.json');
   });
 
-  it('POST bookmarks: should return a BookmarksDataNotFoundException error code if bookmarks data not provided', async () => {
-    await new Promise((resolve) => {
-      request(server.getApplication())
-        .post('/bookmarks')
-        .set('content-type', 'application/json')
-        .end((err, res) => {
-          expect(res).to.have.status((new BookmarksDataNotFoundException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
-          resolve();
-        });
-    });
-  });
-
   it('POST bookmarks: Should return a SyncDataLimitExceededException error code when bookmarks data size exceeds server limit', async () => {
     await server.stop();
     testConfig.maxSyncSize = 1;

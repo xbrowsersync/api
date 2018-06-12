@@ -60,10 +60,7 @@ class BookmarksRouter extends baseRouter_1.default {
     }
     // Retrieves posted bookmarks data from request body
     getBookmarksData(req) {
-        if (!req.body.bookmarks) {
-            throw new exception_1.BookmarksDataNotFoundException;
-        }
-        return req.body.bookmarks;
+        return req.body.bookmarks || '';
     }
     // Retrieves last updated date for a given bookmarks sync ID
     getLastUpdated(req, res, next) {
@@ -95,6 +92,9 @@ class BookmarksRouter extends baseRouter_1.default {
                 const id = this.getSyncId(req);
                 // Get posted bookmarks data
                 const bookmarksData = this.getBookmarksData(req);
+                if (bookmarksData === '') {
+                    throw new exception_1.BookmarksDataNotFoundException;
+                }
                 // Call service method to update bookmarks data and return response as json
                 const bookmarksSync = yield this.service.updateBookmarks(id, bookmarksData, req);
                 res.json(bookmarksSync);

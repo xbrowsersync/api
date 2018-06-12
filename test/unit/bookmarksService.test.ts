@@ -9,7 +9,6 @@ import {
   NewSyncsForbiddenException,
   NewSyncsLimitExceededException
 } from '../../src/exception';
-import NewSyncLogsModel from '../../src/newSyncLogsModel';
 import NewSyncLogsService from '../../src/newSyncLogsService';
 import Server from '../../src/server';
 import BookmarksModel, { IBookmarksModel } from '../../src/bookmarksModel';

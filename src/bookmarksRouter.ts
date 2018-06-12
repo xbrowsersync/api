@@ -3,7 +3,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import BaseRouter from './baseRouter';
 import BookmarksService from './bookmarksService';
 import DB from './db';
-import { BookmarksDataNotFoundException, InvalidSyncIdException } from './exception';
+import { BookmarksDataNotFoundException } from './exception';
 import { ApiVerb } from './server';
 
 // Implementation of routes for bookmarks operations
@@ -50,11 +50,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
 
   // Retrieves posted bookmarks data from request body
   private getBookmarksData(req: Request): string {
-    if (!req.body.bookmarks) {
-      throw new BookmarksDataNotFoundException;
-    }
-
-    return req.body.bookmarks;
+    return req.body.bookmarks || '';
   }
 
   // Retrieves last updated date for a given bookmarks sync ID
@@ -92,6 +88,9 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
 
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
+      if (bookmarksData === '') {
+        throw new BookmarksDataNotFoundException;
+      }
 
       // Call service method to update bookmarks data and return response as json
       const bookmarksSync = await this.service.updateBookmarks(id, bookmarksData, req);
