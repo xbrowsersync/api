@@ -9,6 +9,7 @@ import Server, { LogLevel } from './server';
 
 // Interface for create bookmarks operation response object
 export interface ICreateBookmarksResponse {
+  version?: string,
   id?: string,
   lastUpdated?: Date
 }
@@ -16,12 +17,18 @@ export interface ICreateBookmarksResponse {
 // Interface for get bookmarks operation response object
 export interface IGetBookmarksResponse {
   bookmarks?: string,
+  version?: string,
   lastUpdated?: Date
 }
 
 // Interface for get bookmarks last updated date operation response object
 export interface IGetLastUpdatedResponse {
   lastUpdated?: Date
+}
+
+// Interface for get sync version operation response object
+export interface IGetVersionResponse {
+  version?: string
 }
 
 // Interface for update bookmarks operation response object
@@ -31,9 +38,8 @@ export interface IUpdateBookmarksResponse {
 
 // Implementation of data service for bookmarks operations
 export default class BookmarksService extends BaseService<NewSyncLogsService> {
-  // Creates a new bookmarks sync with the supplied bookmarks data
   // Returns a new sync ID and last updated date
-  public async createBookmarks(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
+  public async createBookmarks_v1(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -83,6 +89,61 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       throw err;
     }
   }
+  
+  // Creates a new bookmarks sync with the supplied bookmarks data
+  // Returns a new sync ID and last updated date
+  public async createBookmarks_v2(bookmarksData: string, clientVersion: string, req: Request): Promise<ICreateBookmarksResponse> {
+    // Before proceeding, check service is available
+    Server.checkServiceAvailability();
+
+    // Check service is accepting new syncs
+    const isAcceptingNewSyncs = await this.isAcceptingNewSyncs();
+    if (!isAcceptingNewSyncs) {
+      throw new NewSyncsForbiddenException();
+    }
+
+    // Check if daily new syncs limit has been hit if config value enabled
+    if (Config.get().dailyNewSyncsLimit > 0) {
+      const newSyncsLimitHit = await this.service.newSyncsLimitHit(req);
+      if (newSyncsLimitHit) {
+        throw new NewSyncsLimitExceededException();
+      }
+    }
+
+    try {
+      // Get a new sync id
+      const id = this.newSyncId();
+
+      // Create new bookmarks payload
+      const newBookmarks: IBookmarks = {
+        _id: id,
+        bookmarks: bookmarksData,
+        version: clientVersion
+      };
+      const bookmarksModel = new BookmarksModel(newBookmarks);
+
+      // Commit the bookmarks payload to the db
+      const savedBookmarks = await bookmarksModel.save();
+
+      // Add to logs
+      if (Config.get().dailyNewSyncsLimit > 0) {
+        await this.service.createLog(req);
+      }
+      this.log(LogLevel.Info, 'New bookmarks sync created', req);
+
+      // Return the response data
+      const returnObj: ICreateBookmarksResponse = {
+        id,
+        lastUpdated: savedBookmarks.lastUpdated,
+        version: savedBookmarks.version
+      };
+      return returnObj;
+    }
+    catch (err) {
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      throw err;
+    }
+  }
 
   // Retrieves an existing bookmarks sync using the supplied sync ID
   // Returns the corresponding bookmarks data and last updated date
@@ -102,6 +163,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       const response: IGetBookmarksResponse = {};
       if (updatedBookmarks) {
         response.bookmarks = updatedBookmarks.bookmarks;
+        response.version = updatedBookmarks.version;
         response.lastUpdated = updatedBookmarks.lastUpdated;
       }
       return response;
@@ -134,6 +196,32 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
     catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+      throw err;
+    }
+  }
+
+  // Returns the sync version for the supplied sync ID
+  public async getVersion(id: string, req: Request): Promise<IGetVersionResponse> {
+    // Before proceeding, check service is available
+    Server.checkServiceAvailability();
+
+    try {
+      // Query the db for the existing bookmarks data and update the last accessed date
+      const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
+        { _id: id },
+        { lastAccessed: new Date() },
+        { new: true }
+      );
+
+      // Return the last updated date if bookmarks data found 
+      const response: IGetVersionResponse = {};
+      if (updatedBookmarks) {
+        response.version = updatedBookmarks.version;
+      }
+      return response;
+    }
+    catch (err) {
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
       throw err;
     }
   }

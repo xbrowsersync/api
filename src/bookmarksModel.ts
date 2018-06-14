@@ -5,7 +5,8 @@ export interface IBookmarks {
   _id: any,
   bookmarks: string,
   lastAccessed?: Date,
-  lastUpdated?: Date
+  lastUpdated?: Date,
+  version?: string
 }
 
 export interface IBookmarksModel extends IBookmarks, mongoose.Document {
@@ -34,7 +35,8 @@ export default (() => {
       lastUpdated: {
         default: () => new Date(),
         type: Date
-      }
+      },
+      version: String
     },
     {
       _id: false,

@@ -98,26 +98,29 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="description">
-                <p>Creates a new bookmark sync using the provided encrypted bookmarks.</p>
+                <p>Creates a new (empty) bookmark sync and returns the corresponding ID.</p>
               </div>
               <p>Post body example:</p>
               <pre>{
-  "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds..."
+  "version":"1.0.0"
 }</pre>
               <ul>
                 <li>
-                  <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+                  <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.</li>
               </ul>
               <p>Response example:</p>
               <pre>{
   "id":"52758cb942814faa9ab255208025ae59",
-  "lastUpdated":"2016-07-06T12:43:16.866Z"
+  "lastUpdated":"2016-07-06T12:43:16.866Z",
+  "version":"1.0.0"
 }</pre>
               <ul>
                 <li>
-                  <strong>id:</strong> 32 character alphanumeric ID created to identify synced bookmarks.</li>
+                  <strong>id:</strong> 32 character alphanumeric sync ID.</li>
                 <li>
                   <strong>lastUpdated:</strong> Last updated timestamp for created bookmarks.</li>
+                <li>
+                  <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.</li>
               </ul>
             </div>
           </div>
@@ -137,22 +140,25 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="description">
-                <p>Retrieves an existing bookmark sync corresponding to the provided sync ID.</p>
+                <p>Retrieves the bookmark sync corresponding to the provided sync ID.</p>
                 <ul>
                   <li>
-                    <strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
+                    <strong>id:</strong> 32 character alphanumeric sync ID.</li>
                 </ul>
               </div>
               <p>Response example:</p>
               <pre>{
   "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09onApoAULX4Xt+ckxswtFNds...",
-  "lastUpdated":"2016-07-06T12:43:16.866Z"
+  "lastUpdated":"2016-07-06T12:43:16.866Z",
+  "version":"1.0.0"
 }</pre>
               <ul>
                 <li>
                   <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
                 <li>
                   <strong>lastUpdated:</strong> Last updated timestamp for retrieved bookmarks.</li>
+                  <li>
+                    <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.</li>
               </ul>
             </div>
           </div>
@@ -172,10 +178,10 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="description">
-                <p>Updates an existing bookmark sync corresponding to the provided sync ID, using the provided encrypted bookmarks.</p>
+                <p>Updates the bookmark sync data corresponding to the provided sync ID with the provided encrypted bookmarks data.</p>
                 <ul>
                   <li>
-                    <strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
+                    <strong>id:</strong> 32 character alphanumeric sync ID.</li>
                 </ul>
               </div>
               <p>Post body example:</p>
@@ -212,10 +218,42 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="description">
-                <p>Retrieves an existing bookmark sync's last updated time stamp corresponding to the provided sync ID.</p>
+                <p>Retrieves the bookmark sync last updated time stamp corresponding to the provided sync ID.</p>
                 <ul>
                   <li>
-                    <strong>id:</strong> 32 character alphanumeric ID identifying synced bookmarks.</li>
+                    <strong>id:</strong> 32 character alphanumeric sync ID.</li>
+                </ul>
+              </div>
+              <p>Response example:</p>
+              <pre>{
+  "lastUpdated":"2016-07-06T12:43:16.866Z"
+}</pre>
+              <ul>
+                <li>
+                  <strong>lastUpdated:</strong> Last updated timestamp for corresponding bookmarks.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2 panel">
+          <div class="row header">
+            <div class="col-sm-6">
+              <h4>Get Sync Version</h4>
+            </div>
+            <div class="col-sm-6 text-right">
+              <span class="label label-success">Get</span>
+              <code>/bookmarks/{id}/version</code>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="description">
+                <p>Retrieves the bookmark sync version number of the xBrowserSync client used to create the bookmarks sync corresponding to the provided sync ID.</p>
+                <ul>
+                  <li>
+                    <strong>id:</strong> 32 character alphanumeric sync ID.</li>
                 </ul>
               </div>
               <p>Response example:</p>
@@ -257,10 +295,10 @@
               </div>
               <p>Response example:</p>
               <pre>{
-  "status":1,
+  "maxSyncSize":204800,
   "message":"",
-  "version":"1.0.0",
-  "maxSyncSize":204800
+  "status":1,
+  "version":"1.0.0"
 }</pre>
               <ul>
                 <li>

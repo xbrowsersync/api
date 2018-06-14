@@ -16,9 +16,8 @@ const exception_1 = require("./exception");
 const server_1 = require("./server");
 // Implementation of data service for bookmarks operations
 class BookmarksService extends baseService_1.default {
-    // Creates a new bookmarks sync with the supplied bookmarks data
     // Returns a new sync ID and last updated date
-    createBookmarks(bookmarksData, req) {
+    createBookmarks_v1(bookmarksData, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
             server_1.default.checkServiceAvailability();
@@ -63,6 +62,55 @@ class BookmarksService extends baseService_1.default {
             }
         });
     }
+    // Creates a new bookmarks sync with the supplied bookmarks data
+    // Returns a new sync ID and last updated date
+    createBookmarks_v2(bookmarksData, clientVersion, req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Before proceeding, check service is available
+            server_1.default.checkServiceAvailability();
+            // Check service is accepting new syncs
+            const isAcceptingNewSyncs = yield this.isAcceptingNewSyncs();
+            if (!isAcceptingNewSyncs) {
+                throw new exception_1.NewSyncsForbiddenException();
+            }
+            // Check if daily new syncs limit has been hit if config value enabled
+            if (config_1.default.get().dailyNewSyncsLimit > 0) {
+                const newSyncsLimitHit = yield this.service.newSyncsLimitHit(req);
+                if (newSyncsLimitHit) {
+                    throw new exception_1.NewSyncsLimitExceededException();
+                }
+            }
+            try {
+                // Get a new sync id
+                const id = this.newSyncId();
+                // Create new bookmarks payload
+                const newBookmarks = {
+                    _id: id,
+                    bookmarks: bookmarksData,
+                    version: clientVersion
+                };
+                const bookmarksModel = new bookmarksModel_1.default(newBookmarks);
+                // Commit the bookmarks payload to the db
+                const savedBookmarks = yield bookmarksModel.save();
+                // Add to logs
+                if (config_1.default.get().dailyNewSyncsLimit > 0) {
+                    yield this.service.createLog(req);
+                }
+                this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
+                // Return the response data
+                const returnObj = {
+                    id,
+                    lastUpdated: savedBookmarks.lastUpdated,
+                    version: savedBookmarks.version
+                };
+                return returnObj;
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                throw err;
+            }
+        });
+    }
     // Retrieves an existing bookmarks sync using the supplied sync ID
     // Returns the corresponding bookmarks data and last updated date
     getBookmarks(id, req) {
@@ -76,6 +124,7 @@ class BookmarksService extends baseService_1.default {
                 const response = {};
                 if (updatedBookmarks) {
                     response.bookmarks = updatedBookmarks.bookmarks;
+                    response.version = updatedBookmarks.version;
                     response.lastUpdated = updatedBookmarks.lastUpdated;
                 }
                 return response;
@@ -103,6 +152,27 @@ class BookmarksService extends baseService_1.default {
             }
             catch (err) {
                 this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+                throw err;
+            }
+        });
+    }
+    // Returns the sync version for the supplied sync ID
+    getVersion(id, req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Before proceeding, check service is available
+            server_1.default.checkServiceAvailability();
+            try {
+                // Query the db for the existing bookmarks data and update the last accessed date
+                const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true });
+                // Return the last updated date if bookmarks data found 
+                const response = {};
+                if (updatedBookmarks) {
+                    response.version = updatedBookmarks.version;
+                }
+                return response;
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
                 throw err;
             }
         });

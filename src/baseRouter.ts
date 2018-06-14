@@ -20,10 +20,8 @@ export default class BaseRouter<T> {
 
   // Adds a new route to this router implementation
   @autobind
-  protected createRoute(verb: ApiVerb, path: string, version: string, routeMethod: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
-    const options = {};
-    options[version] = routeMethod;
-    this.router[verb](path, this.routesVersioning(options, this.unsupportedVersion));
+  protected createRoute(verb: ApiVerb, path: string, versionMappings: any) {
+    this.router[verb](path, this.routesVersioning(versionMappings, this.unsupportedVersion));
   }
 
   // Initialises the routes for this router implementation

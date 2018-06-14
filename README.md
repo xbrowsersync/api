@@ -1,4 +1,10 @@
-# xBrowserSync: API [![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev)
+# xBrowserSync
+## API service
+
+[![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev) [![GitHub license](https://img.shields.io/github/license/xBrowserSync/API.svg)](https://github.com/xBrowserSync/API/blob/master/LICENSE.md)
+
+[![GitHub forks](https://img.shields.io/github/forks/xBrowserSync/API.svg?style=social&label=Fork)](https://github.com/xBrowserSync/API/fork)
+[![GitHub stars](https://img.shields.io/github/stars/xBrowserSync/API.svg?style=social&label=Star)](https://github.com/xBrowserSync/API)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
@@ -6,12 +12,12 @@ This repository contains the source code for the REST service API that client ap
 
 Once configured, you can begin syncing your browser data to your xBrowserSync service, and if you're feeling generous, [allow others to sync their data to your service](https://www.xbrowsersync.org/#getinvolved) also!
 
-# Prerequisites
+## Prerequisites
 
 - [Node.js v8 (LTS)](https://nodejs.org/)
 - [mongoDB v3](https://www.mongodb.com/)
 
-# Upgrading from an earlier version
+## Upgrading from an earlier version
 
 If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
 
@@ -35,15 +41,15 @@ Once you've upgraded and completed the installation steps below, you can import 
   mongoimport --db xbrowsersync -c bookmarks --file /path/to/export/file
   ```
 
-# Installation
+## Installation
 
-## 1. Install and build xBrowserSync API package
+### 1. Install and build xBrowserSync API package
 
 CD into the source directory and install dependencies (use `unsafe-perm` flag if you get any permissions issues whilst trying to install):
 
     $ npm install --unsafe-perm
 
-## 2. Configure mongoDB database
+### 2. Configure mongoDB database
 
   1. Run the following commands in the mongo shell:
   
@@ -92,7 +98,7 @@ CD into the source directory and install dependencies (use `unsafe-perm` flag if
       db.bookmarks.createIndex( { "lastAccessed": 1 }, { expireAfterSeconds: 21*86400 } )
       ```
 
-## 3. Modify configuration settings
+### 3. Modify configuration settings
 
 The file `config/settings.default.json` contains all of the default configuration settings. User configuration values should be stored in `config/settings.json` and will override the defaults. Should you wish to change any of the configuration settings, copy `settings.default.json` and rename the copy to `settings.json` before changing any values as required. Be sure to remove any settings that have not been changed so that any amendments to the default values in future versions are picked up. For example, a basic user configuration to modify the service status message could look like:
 
@@ -134,21 +140,21 @@ Config Setting | Description | Default Value
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
 `throttle.timeWindow` | Amount of time (in milliseconds) before throttle counter is reset. | `300000` (5 mins)
 
-## 4. Create log folder
+### 4. Create log folder
 
 Ensure that the path set in the `log.path` config value exists, and that the account node will be running as can write to that location.
 
-## 5. Run xBrowserSync service
+### 5. Run xBrowserSync service
 
     $ node dist/api.js
 
-# Building
+## Building
 
 If you've made code changes you can run a fresh build with the command:
 
     $ npm run build
 
-# Testing
+## Testing
 
 To run unit tests, run either of the following commands:
 
@@ -168,7 +174,7 @@ You can then run the integration tests by running the following command:
 
     $ npm run integrationtests
 
-# VS Code
+## VS Code
 
 If you're using [VS Code](https://code.visualstudio.com/), you have the following launch configurations:
 
@@ -177,6 +183,6 @@ If you're using [VS Code](https://code.visualstudio.com/), you have the followin
   3. Run unit tests: Will run and debug all tests in `test/unit` folder.
   4. Run integration tests: Will debug all tests in `test/integration` folder.
 
-# Issues
+## Issues
 
 If you've found a bug or wish to request a new feature, please submit it [here](https://github.com/xBrowserSync/API/issues/).

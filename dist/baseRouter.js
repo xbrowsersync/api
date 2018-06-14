@@ -20,10 +20,8 @@ class BaseRouter {
         this.initRoutes();
     }
     // Adds a new route to this router implementation
-    createRoute(verb, path, version, routeMethod) {
-        const options = {};
-        options[version] = routeMethod;
-        this.router[verb](path, this.routesVersioning(options, this.unsupportedVersion));
+    createRoute(verb, path, versionMappings) {
+        this.router[verb](path, this.routesVersioning(versionMappings, this.unsupportedVersion));
     }
     // Initialises the routes for this router implementation
     initRoutes() {

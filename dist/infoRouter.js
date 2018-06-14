@@ -21,10 +21,10 @@ const server_1 = require("./server");
 class InfoRouter extends baseRouter_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
-        this.createRoute(server_1.ApiVerb.get, '/', '^1.0.0', this.info);
+        this.createRoute(server_1.ApiVerb.get, '/', { '^1.0.0': this.getInfo });
     }
     // Gets service info such as status, version, etc
-    info(req, res, next) {
+    getInfo(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // Call service method to get service info and return response as json
@@ -39,6 +39,6 @@ class InfoRouter extends baseRouter_1.default {
 }
 __decorate([
     core_decorators_1.autobind
-], InfoRouter.prototype, "info", null);
+], InfoRouter.prototype, "getInfo", null);
 exports.default = InfoRouter;
 //# sourceMappingURL=infoRouter.js.map

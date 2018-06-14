@@ -23,7 +23,8 @@ exports.default = (() => {
         lastUpdated: {
             default: () => new Date(),
             type: Date
-        }
+        },
+        version: String
     }, {
         _id: false,
         id: false,
