@@ -2,14 +2,15 @@ import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 
 export interface IBookmarks {
-  _id: any,
-  bookmarks: string,
+  _id?: any,
+  bookmarks?: string,
   lastAccessed?: Date,
   lastUpdated?: Date,
   version?: string
 }
 
 export interface IBookmarksModel extends IBookmarks, mongoose.Document {
+  _id: any
 }
 
 // Implements a mongoose schema and model to connect data service methods to MongoDB collection

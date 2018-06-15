@@ -16,7 +16,7 @@ describe('Server', () => {
       ...require('../../config/settings.default.json'),
       ...require('../../config/version.json')
     };
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.stub(Config, 'get').returns(testConfig);
   });
   

@@ -21,7 +21,7 @@ describe('NewSyncLogsService', () => {
     };
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.stub(Config, 'get').returns(testConfig);
   });
 

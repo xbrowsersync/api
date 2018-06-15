@@ -22,7 +22,7 @@ describe('InfoService', () => {
     const log = () => { };
     bookmarksService = new BookmarksService(null, log);
     infoService = new InfoService(bookmarksService as BookmarksService, log);
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.stub(Config, 'get').returns(testConfig);
     sandbox.stub(bookmarksService, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
   });

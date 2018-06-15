@@ -15,17 +15,23 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
       '~1.1.3': this.createBookmarks_v2
     });
     this.createRoute(ApiVerb.get, '/:id', { '^1.0.0': this.getBookmarks });
-    this.createRoute(ApiVerb.put, '/:id', { '^1.0.0': this.updateBookmarks });
+    this.createRoute(ApiVerb.put, '/:id', {
+      '~1.0.0': this.updateBookmarks_v1,
+      '~1.1.3': this.updateBookmarks_v2
+    });
     this.createRoute(ApiVerb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
     this.createRoute(ApiVerb.get, '/:id/version', { '~1.1.3': this.getVersion });
   }
 
-  // Creates a new sync and returns new sync ID
+  // Creates a new bookmarks sync and returns new sync ID
   @autobind
   private async createBookmarks_v1(req: Request, res: Response, next: NextFunction) {
     try {
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
+      if (bookmarksData === '') {
+        throw new BookmarksDataNotFoundException;
+      }
 
       // Call service method to create new bookmarks sync and return response as json
       const newSync = await this.service.createBookmarks_v1(bookmarksData, req);
@@ -36,15 +42,12 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
     }
   }
 
-  // Creates a new sync and returns new sync ID
+  // Creates an empty sync using sync version and returns new sync ID
   @autobind
   private async createBookmarks_v2(req: Request, res: Response, next: NextFunction) {
     try {
-      // Get posted bookmarks data
-      const bookmarksData = this.getBookmarksData(req);
-
-      // Call service method to create new bookmarks sync and return response as json
-      const newSync = await this.service.createBookmarks_v2(bookmarksData, req.body.version, req);
+      // Call service method to create new sync and return response as json
+      const newSync = await this.service.createBookmarks_v2(req.body.version, req);
       res.json(newSync);
     }
     catch (err) {
@@ -117,7 +120,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
 
   // Updates bookmarks data for a given bookmarks sync ID
   @autobind
-  private async updateBookmarks(req: Request, res: Response, next: NextFunction) {
+  private async updateBookmarks_v1(req: Request, res: Response, next: NextFunction) {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
@@ -129,7 +132,29 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
       }
 
       // Call service method to update bookmarks data and return response as json
-      const bookmarksSync = await this.service.updateBookmarks(id, bookmarksData, req);
+      const bookmarksSync = await this.service.updateBookmarks_v1(id, bookmarksData, req);
+      res.json(bookmarksSync);
+    }
+    catch (err) {
+      next(err);
+    }
+  }
+
+  // Updates bookmarks sync bookmarks data and sync version for a given bookmarks sync ID
+  @autobind
+  private async updateBookmarks_v2(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Check sync id has been provided
+      const id = this.getSyncId(req);
+
+      // Get posted bookmarks data
+      const bookmarksData = this.getBookmarksData(req);
+      if (bookmarksData === '') {
+        throw new BookmarksDataNotFoundException;
+      }
+
+      // Call service method to update bookmarks data and return response as json
+      const bookmarksSync = await this.service.updateBookmarks_v2(id, bookmarksData, req.body.version, req);
       res.json(bookmarksSync);
     }
     catch (err) {

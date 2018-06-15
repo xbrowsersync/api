@@ -38,7 +38,7 @@ export interface IUpdateBookmarksResponse {
 
 // Implementation of data service for bookmarks operations
 export default class BookmarksService extends BaseService<NewSyncLogsService> {
-  // Returns a new sync ID and last updated date
+  // Creates a new bookmarks sync with the supplied bookmarks data
   public async createBookmarks_v1(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
@@ -90,9 +90,8 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
   }
   
-  // Creates a new bookmarks sync with the supplied bookmarks data
-  // Returns a new sync ID and last updated date
-  public async createBookmarks_v2(bookmarksData: string, clientVersion: string, req: Request): Promise<ICreateBookmarksResponse> {
+  // Creates an empty sync with the supplied version info
+  public async createBookmarks_v2(syncVersion: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -117,8 +116,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       // Create new bookmarks payload
       const newBookmarks: IBookmarks = {
         _id: id,
-        bookmarks: bookmarksData,
-        version: clientVersion
+        version: syncVersion
       };
       const bookmarksModel = new BookmarksModel(newBookmarks);
 
@@ -146,7 +144,6 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Retrieves an existing bookmarks sync using the supplied sync ID
-  // Returns the corresponding bookmarks data and last updated date
   public async getBookmarks(id: string, req: Request): Promise<IGetBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
@@ -244,8 +241,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data
-  // Returns the last updated date
-  public async updateBookmarks(id: string, bookmarksData: string, req: Request): Promise<IUpdateBookmarksResponse> {
+  public async updateBookmarks_v1(id: string, bookmarksData: string, req: Request): Promise<IUpdateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -259,6 +255,44 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
           lastAccessed: now,
           lastUpdated: now
         },
+        { new: true }
+      ).exec();
+
+      // Return the last updated date if bookmarks data found and updated
+      const response: IGetLastUpdatedResponse = {};
+      if (updatedBookmarks) {
+        response.lastUpdated = updatedBookmarks.lastUpdated;
+      }
+
+      return response;
+    }
+    catch (err) {
+      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      throw err;
+    }
+  }
+
+  // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks and version data
+  public async updateBookmarks_v2(id: string, bookmarksData: string, syncVersion: string, req: Request): Promise<IUpdateBookmarksResponse> {
+    // Before proceeding, check service is available
+    Server.checkServiceAvailability();
+
+    // Create update payload depending on whether sync version supplied
+    const now = new Date();
+    const updatePayload: IBookmarks = {
+      bookmarks: bookmarksData,
+      lastAccessed: now,
+      lastUpdated: now
+    };
+    if (syncVersion) {
+      updatePayload.version = syncVersion;
+    }
+
+    try {
+      // Update the bookmarks data corresponding to the sync id in the db
+      const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
+        { _id: id },
+        updatePayload,
         { new: true }
       ).exec();
 

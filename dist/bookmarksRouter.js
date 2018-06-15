@@ -28,16 +28,22 @@ class BookmarksRouter extends baseRouter_1.default {
             '~1.1.3': this.createBookmarks_v2
         });
         this.createRoute(server_1.ApiVerb.get, '/:id', { '^1.0.0': this.getBookmarks });
-        this.createRoute(server_1.ApiVerb.put, '/:id', { '^1.0.0': this.updateBookmarks });
+        this.createRoute(server_1.ApiVerb.put, '/:id', {
+            '~1.0.0': this.updateBookmarks_v1,
+            '~1.1.3': this.updateBookmarks_v2
+        });
         this.createRoute(server_1.ApiVerb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
         this.createRoute(server_1.ApiVerb.get, '/:id/version', { '~1.1.3': this.getVersion });
     }
-    // Creates a new sync and returns new sync ID
+    // Creates a new bookmarks sync and returns new sync ID
     createBookmarks_v1(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // Get posted bookmarks data
                 const bookmarksData = this.getBookmarksData(req);
+                if (bookmarksData === '') {
+                    throw new exception_1.BookmarksDataNotFoundException;
+                }
                 // Call service method to create new bookmarks sync and return response as json
                 const newSync = yield this.service.createBookmarks_v1(bookmarksData, req);
                 res.json(newSync);
@@ -47,14 +53,12 @@ class BookmarksRouter extends baseRouter_1.default {
             }
         });
     }
-    // Creates a new sync and returns new sync ID
+    // Creates an empty sync using sync version and returns new sync ID
     createBookmarks_v2(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Get posted bookmarks data
-                const bookmarksData = this.getBookmarksData(req);
-                // Call service method to create new bookmarks sync and return response as json
-                const newSync = yield this.service.createBookmarks_v2(bookmarksData, req.body.version, req);
+                // Call service method to create new sync and return response as json
+                const newSync = yield this.service.createBookmarks_v2(req.body.version, req);
                 res.json(newSync);
             }
             catch (err) {
@@ -119,7 +123,7 @@ class BookmarksRouter extends baseRouter_1.default {
         });
     }
     // Updates bookmarks data for a given bookmarks sync ID
-    updateBookmarks(req, res, next) {
+    updateBookmarks_v1(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // Check sync id has been provided
@@ -130,7 +134,27 @@ class BookmarksRouter extends baseRouter_1.default {
                     throw new exception_1.BookmarksDataNotFoundException;
                 }
                 // Call service method to update bookmarks data and return response as json
-                const bookmarksSync = yield this.service.updateBookmarks(id, bookmarksData, req);
+                const bookmarksSync = yield this.service.updateBookmarks_v1(id, bookmarksData, req);
+                res.json(bookmarksSync);
+            }
+            catch (err) {
+                next(err);
+            }
+        });
+    }
+    // Updates bookmarks sync bookmarks data and sync version for a given bookmarks sync ID
+    updateBookmarks_v2(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Check sync id has been provided
+                const id = this.getSyncId(req);
+                // Get posted bookmarks data
+                const bookmarksData = this.getBookmarksData(req);
+                if (bookmarksData === '') {
+                    throw new exception_1.BookmarksDataNotFoundException;
+                }
+                // Call service method to update bookmarks data and return response as json
+                const bookmarksSync = yield this.service.updateBookmarks_v2(id, bookmarksData, req.body.version, req);
                 res.json(bookmarksSync);
             }
             catch (err) {
@@ -156,6 +180,9 @@ __decorate([
 ], BookmarksRouter.prototype, "getVersion", null);
 __decorate([
     core_decorators_1.autobind
-], BookmarksRouter.prototype, "updateBookmarks", null);
+], BookmarksRouter.prototype, "updateBookmarks_v1", null);
+__decorate([
+    core_decorators_1.autobind
+], BookmarksRouter.prototype, "updateBookmarks_v2", null);
 exports.default = BookmarksRouter;
 //# sourceMappingURL=bookmarksRouter.js.map

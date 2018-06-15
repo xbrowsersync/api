@@ -25,7 +25,7 @@ describe('BaseRouter', () => {
     };    
     testConfig.db.name = `${testConfig.db.name}test`;
     testConfig.log.enabled = false;
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     sandbox.stub(Config, 'get').returns(testConfig);
 
     server = new Server();

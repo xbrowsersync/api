@@ -16,7 +16,7 @@ const exception_1 = require("./exception");
 const server_1 = require("./server");
 // Implementation of data service for bookmarks operations
 class BookmarksService extends baseService_1.default {
-    // Returns a new sync ID and last updated date
+    // Creates a new bookmarks sync with the supplied bookmarks data
     createBookmarks_v1(bookmarksData, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
@@ -62,9 +62,8 @@ class BookmarksService extends baseService_1.default {
             }
         });
     }
-    // Creates a new bookmarks sync with the supplied bookmarks data
-    // Returns a new sync ID and last updated date
-    createBookmarks_v2(bookmarksData, clientVersion, req) {
+    // Creates an empty sync with the supplied version info
+    createBookmarks_v2(syncVersion, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
             server_1.default.checkServiceAvailability();
@@ -86,8 +85,7 @@ class BookmarksService extends baseService_1.default {
                 // Create new bookmarks payload
                 const newBookmarks = {
                     _id: id,
-                    bookmarks: bookmarksData,
-                    version: clientVersion
+                    version: syncVersion
                 };
                 const bookmarksModel = new bookmarksModel_1.default(newBookmarks);
                 // Commit the bookmarks payload to the db
@@ -112,7 +110,6 @@ class BookmarksService extends baseService_1.default {
         });
     }
     // Retrieves an existing bookmarks sync using the supplied sync ID
-    // Returns the corresponding bookmarks data and last updated date
     getBookmarks(id, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
@@ -194,8 +191,7 @@ class BookmarksService extends baseService_1.default {
         });
     }
     // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data
-    // Returns the last updated date
-    updateBookmarks(id, bookmarksData, req) {
+    updateBookmarks_v1(id, bookmarksData, req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Before proceeding, check service is available
             server_1.default.checkServiceAvailability();
@@ -207,6 +203,37 @@ class BookmarksService extends baseService_1.default {
                     lastAccessed: now,
                     lastUpdated: now
                 }, { new: true }).exec();
+                // Return the last updated date if bookmarks data found and updated
+                const response = {};
+                if (updatedBookmarks) {
+                    response.lastUpdated = updatedBookmarks.lastUpdated;
+                }
+                return response;
+            }
+            catch (err) {
+                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                throw err;
+            }
+        });
+    }
+    // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks and version data
+    updateBookmarks_v2(id, bookmarksData, syncVersion, req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Before proceeding, check service is available
+            server_1.default.checkServiceAvailability();
+            // Create update payload depending on whether sync version supplied
+            const now = new Date();
+            const updatePayload = {
+                bookmarks: bookmarksData,
+                lastAccessed: now,
+                lastUpdated: now
+            };
+            if (syncVersion) {
+                updatePayload.version = syncVersion;
+            }
+            try {
+                // Update the bookmarks data corresponding to the sync id in the db
+                const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, updatePayload, { new: true }).exec();
                 // Return the last updated date if bookmarks data found and updated
                 const response = {};
                 if (updatedBookmarks) {
