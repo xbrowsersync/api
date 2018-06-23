@@ -3,7 +3,12 @@ import * as uuid from 'uuid';
 import BaseService from './baseService';
 import BookmarksModel, { IBookmarks, IBookmarksModel } from './bookmarksModel';
 import Config from './config';
-import { NewSyncsForbiddenException, NewSyncsLimitExceededException, UnspecifiedException } from './exception';
+import {
+  InvalidSyncIdException,
+  NewSyncsForbiddenException,
+  NewSyncsLimitExceededException,
+  UnspecifiedException
+} from './exception';
 import NewSyncLogsService from './newSyncLogsService';
 import Server, { LogLevel } from './server';
 
@@ -156,6 +161,10 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         { new: true }
       ).exec();
 
+      if (!updatedBookmarks) {
+        throw new InvalidSyncIdException();
+      }
+
       // Return the existing bookmarks data if found 
       const response: IGetBookmarksResponse = {};
       if (updatedBookmarks) {
@@ -166,7 +175,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
+      if (!(err instanceof InvalidSyncIdException)) {
+        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
+      }
       throw err;
     }
   }
@@ -182,7 +193,11 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         { _id: id },
         { lastAccessed: new Date() },
         { new: true }
-      );
+      ).exec();
+
+      if (!updatedBookmarks) {
+        throw new InvalidSyncIdException();
+      }
 
       // Return the last updated date if bookmarks data found 
       const response: IGetLastUpdatedResponse = {};
@@ -192,7 +207,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+      if (!(err instanceof InvalidSyncIdException)) {
+        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+      }
       throw err;
     }
   }
@@ -208,7 +225,11 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         { _id: id },
         { lastAccessed: new Date() },
         { new: true }
-      );
+      ).exec();
+
+      if (!updatedBookmarks) {
+        throw new InvalidSyncIdException();
+      }
 
       // Return the last updated date if bookmarks data found 
       const response: IGetVersionResponse = {};
@@ -218,7 +239,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
+      if (!(err instanceof InvalidSyncIdException)) {
+        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
+      }
       throw err;
     }
   }
@@ -296,6 +319,10 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         { new: true }
       ).exec();
 
+      if (!updatedBookmarks) {
+        throw new InvalidSyncIdException();
+      }
+
       // Return the last updated date if bookmarks data found and updated
       const response: IGetLastUpdatedResponse = {};
       if (updatedBookmarks) {
@@ -305,7 +332,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      if (!(err instanceof InvalidSyncIdException)) {
+        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      }
       throw err;
     }
   }

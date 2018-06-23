@@ -6,11 +6,11 @@ import * as sinon from 'sinon';
 import BookmarksModel from '../../src/bookmarksModel';
 import Config from '../../src/config';
 import {
-  SyncDataLimitExceededException,
-  BookmarksDataNotFoundException,
+  InvalidSyncIdException,
   NewSyncsForbiddenException,
   NewSyncsLimitExceededException,
-  InvalidSyncIdException
+  RequiredDataNotFoundException,
+  SyncDataLimitExceededException
 } from '../../src/exception';
 import NewSyncLogsModel from '../../src/newSyncLogsModel';
 import Server from '../../src/server';
@@ -116,7 +116,9 @@ describe('BookmarksRouter', () => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body.id).to.not.be.empty;
+          expect(res.body.id).to.be.a('string');
+          expect(new Date(res.body.lastUpdated)).to.be.a('date');
+          expect(res.body.version).to.equal(syncVersionTestVal);
           resolve();
         });
     });
@@ -147,7 +149,7 @@ describe('BookmarksRouter', () => {
   it('PUT /bookmarks/:id should return a InvalidSyncIdException error code if sync id is invalid', async () => {
     await new Promise((resolve) => {
       request(server.getApplication())
-        .put(`/bookmarks/0`)
+        .put(`/bookmarks/invalidid`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status((new InvalidSyncIdException()).status);
@@ -158,13 +160,13 @@ describe('BookmarksRouter', () => {
     });
   });
 
-  it('PUT /bookmarks/:id should return a BookmarksDataNotFoundException error code if bookmarks data not provided', async () => {
+  it('PUT /bookmarks/:id should return a RequiredDataNotFoundException error code if bookmarks data not provided', async () => {
     await new Promise((resolve) => {
       request(server.getApplication())
         .put(`/bookmarks/${syncIdTestVal}`)
         .set('content-type', 'application/json')
         .end((err, res) => {
-          expect(res).to.have.status((new BookmarksDataNotFoundException()).status);
+          expect(res).to.have.status((new RequiredDataNotFoundException()).status);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
           resolve();
@@ -196,7 +198,6 @@ describe('BookmarksRouter', () => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body.lastUpdated).to.not.be.empty;
           expect(new Date(res.body.lastUpdated)).to.be.a('date');
           resolve();
         });
@@ -206,7 +207,7 @@ describe('BookmarksRouter', () => {
   it('GET /bookmarks/:id should return a InvalidSyncIdException error code if sync id is invalid', async () => {
     await new Promise((resolve) => {
       request(server.getApplication())
-        .get(`/bookmarks/0`)
+        .get(`/bookmarks/invalidid`)
         .end((err, res) => {
           expect(res).to.have.status((new InvalidSyncIdException()).status);
           expect(res).to.be.json;
@@ -252,8 +253,89 @@ describe('BookmarksRouter', () => {
           expect(res.body).to.be.an('object');
           expect(res.body.bookmarks).to.equal(bookmarksDataTestVal);
           expect(res.body.version).to.equal(syncVersionTestVal);
-          expect(res.body.lastUpdated).to.not.be.empty;
           expect(new Date(res.body.lastUpdated)).to.be.a('date');
+          resolve();
+        });
+    });
+  });
+
+  it('GET /bookmarks/:id/lastUpdated should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+    await new Promise((resolve) => {
+      request(server.getApplication())
+        .get(`/bookmarks/invalidid/lastUpdated`)
+        .end((err, res) => {
+          expect(res).to.have.status((new InvalidSyncIdException()).status);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          resolve();
+        });
+    });
+  });
+
+  it('GET /bookmarks/:id/lastUpdated should return a 200 code and last updated date for the provided sync id', async () => {
+    testConfig.dailyNewSyncsLimit = 0;
+
+    // Create a new sync
+    const id = await new Promise((resolve) => {
+      request(server.getApplication())
+        .post(`/bookmarks`)
+        .set('content-type', 'application/json')
+        .send({ version: syncVersionTestVal })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          resolve(res.body.id);
+        });
+    });
+
+    await new Promise((resolve) => {
+      request(server.getApplication())
+        .get(`/bookmarks/${id}/lastUpdated`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(new Date(res.body.lastUpdated)).to.be.a('date');
+          resolve();
+        });
+    });
+  });
+
+  it('GET /bookmarks/:id/version should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+    await new Promise((resolve) => {
+      request(server.getApplication())
+        .get(`/bookmarks/invalidid/version`)
+        .end((err, res) => {
+          expect(res).to.have.status((new InvalidSyncIdException()).status);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          resolve();
+        });
+    });
+  });
+
+  it('GET /bookmarks/:id/version should return a 200 code and last updated date for the provided sync id', async () => {
+    testConfig.dailyNewSyncsLimit = 0;
+
+    // Create a new sync
+    const id = await new Promise((resolve) => {
+      request(server.getApplication())
+        .post(`/bookmarks`)
+        .set('content-type', 'application/json')
+        .send({ version: syncVersionTestVal })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          resolve(res.body.id);
+        });
+    });
+
+    await new Promise((resolve) => {
+      request(server.getApplication())
+        .get(`/bookmarks/${id}/version`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body.version).to.equal(syncVersionTestVal);
           resolve();
         });
     });

@@ -3,7 +3,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import BaseRouter from './baseRouter';
 import BookmarksService from './bookmarksService';
 import DB from './db';
-import { BookmarksDataNotFoundException } from './exception';
+import { RequiredDataNotFoundException } from './exception';
 import { ApiVerb } from './server';
 
 // Implementation of routes for bookmarks operations
@@ -30,7 +30,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
       if (bookmarksData === '') {
-        throw new BookmarksDataNotFoundException;
+        throw new RequiredDataNotFoundException;
       }
 
       // Call service method to create new bookmarks sync and return response as json
@@ -46,6 +46,12 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
   @autobind
   private async createBookmarks_v2(req: Request, res: Response, next: NextFunction) {
     try {
+      // Get posted sync version
+      const syncVersion = req.body.version;
+      if (!syncVersion) {
+        throw new RequiredDataNotFoundException;
+      }
+      
       // Call service method to create new sync and return response as json
       const newSync = await this.service.createBookmarks_v2(req.body.version, req);
       res.json(newSync);
@@ -128,7 +134,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
       if (bookmarksData === '') {
-        throw new BookmarksDataNotFoundException;
+        throw new RequiredDataNotFoundException;
       }
 
       // Call service method to update bookmarks data and return response as json
@@ -150,7 +156,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> {
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
       if (bookmarksData === '') {
-        throw new BookmarksDataNotFoundException;
+        throw new RequiredDataNotFoundException;
       }
 
       // Call service method to update bookmarks data and return response as json

@@ -16,14 +16,6 @@ export class ExceptionBase extends Error {
   }
 }
 
-export class BookmarksDataNotFoundException extends ExceptionBase {
-  constructor(message?: string) {
-    super(message || 'Unable to find bookmarks data');
-    this.name = 'BookmarksDataNotFoundException';
-    this.status = 409;
-  }
-}
-
 export class ClientIpAddressEmptyException extends ExceptionBase {
   constructor(message?: string) {
     super(message || `Unable to determine client's IP address`);
@@ -77,6 +69,14 @@ export class RequestThrottledException extends ExceptionBase {
     super(message || 'Too many requests');
     this.name = 'RequestThrottledException';
     this.status = 429;
+  }
+}
+
+export class RequiredDataNotFoundException extends ExceptionBase {
+  constructor(message?: string) {
+    super(message || 'Unable to find required data');
+    this.name = 'RequiredDataNotFoundException';
+    this.status = 409;
   }
 }
 

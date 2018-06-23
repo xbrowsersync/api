@@ -117,6 +117,9 @@ class BookmarksService extends baseService_1.default {
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true }).exec();
+                if (!updatedBookmarks) {
+                    throw new exception_1.InvalidSyncIdException();
+                }
                 // Return the existing bookmarks data if found 
                 const response = {};
                 if (updatedBookmarks) {
@@ -127,7 +130,9 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
+                if (!(err instanceof exception_1.InvalidSyncIdException)) {
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
+                }
                 throw err;
             }
         });
@@ -140,6 +145,9 @@ class BookmarksService extends baseService_1.default {
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true });
+                if (!updatedBookmarks) {
+                    throw new exception_1.InvalidSyncIdException();
+                }
                 // Return the last updated date if bookmarks data found 
                 const response = {};
                 if (updatedBookmarks) {
@@ -148,7 +156,9 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+                if (!(err instanceof exception_1.InvalidSyncIdException)) {
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+                }
                 throw err;
             }
         });
@@ -161,6 +171,9 @@ class BookmarksService extends baseService_1.default {
             try {
                 // Query the db for the existing bookmarks data and update the last accessed date
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true });
+                if (!updatedBookmarks) {
+                    throw new exception_1.InvalidSyncIdException();
+                }
                 // Return the last updated date if bookmarks data found 
                 const response = {};
                 if (updatedBookmarks) {
@@ -169,7 +182,9 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
+                if (!(err instanceof exception_1.InvalidSyncIdException)) {
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
+                }
                 throw err;
             }
         });
@@ -234,6 +249,9 @@ class BookmarksService extends baseService_1.default {
             try {
                 // Update the bookmarks data corresponding to the sync id in the db
                 const updatedBookmarks = yield bookmarksModel_1.default.findOneAndUpdate({ _id: id }, updatePayload, { new: true }).exec();
+                if (!updatedBookmarks) {
+                    throw new exception_1.InvalidSyncIdException();
+                }
                 // Return the last updated date if bookmarks data found and updated
                 const response = {};
                 if (updatedBookmarks) {
@@ -242,7 +260,9 @@ class BookmarksService extends baseService_1.default {
                 return response;
             }
             catch (err) {
-                this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                if (!(err instanceof exception_1.InvalidSyncIdException)) {
+                    this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+                }
                 throw err;
             }
         });

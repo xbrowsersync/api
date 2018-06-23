@@ -42,7 +42,7 @@ class BookmarksRouter extends baseRouter_1.default {
                 // Get posted bookmarks data
                 const bookmarksData = this.getBookmarksData(req);
                 if (bookmarksData === '') {
-                    throw new exception_1.BookmarksDataNotFoundException;
+                    throw new exception_1.RequiredDataNotFoundException;
                 }
                 // Call service method to create new bookmarks sync and return response as json
                 const newSync = yield this.service.createBookmarks_v1(bookmarksData, req);
@@ -57,6 +57,11 @@ class BookmarksRouter extends baseRouter_1.default {
     createBookmarks_v2(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Get posted sync version
+                const syncVersion = req.body.version;
+                if (!syncVersion) {
+                    throw new exception_1.RequiredDataNotFoundException;
+                }
                 // Call service method to create new sync and return response as json
                 const newSync = yield this.service.createBookmarks_v2(req.body.version, req);
                 res.json(newSync);
@@ -131,7 +136,7 @@ class BookmarksRouter extends baseRouter_1.default {
                 // Get posted bookmarks data
                 const bookmarksData = this.getBookmarksData(req);
                 if (bookmarksData === '') {
-                    throw new exception_1.BookmarksDataNotFoundException;
+                    throw new exception_1.RequiredDataNotFoundException;
                 }
                 // Call service method to update bookmarks data and return response as json
                 const bookmarksSync = yield this.service.updateBookmarks_v1(id, bookmarksData, req);
@@ -151,7 +156,7 @@ class BookmarksRouter extends baseRouter_1.default {
                 // Get posted bookmarks data
                 const bookmarksData = this.getBookmarksData(req);
                 if (bookmarksData === '') {
-                    throw new exception_1.BookmarksDataNotFoundException;
+                    throw new exception_1.RequiredDataNotFoundException;
                 }
                 // Call service method to update bookmarks data and return response as json
                 const bookmarksSync = yield this.service.updateBookmarks_v2(id, bookmarksData, req.body.version, req);
