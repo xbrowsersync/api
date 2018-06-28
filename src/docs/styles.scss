@@ -22,7 +22,7 @@ html {
 }
 
 body {
-  font-family: 'Roboto Condensed', sans-serif;
+  font-family: $font-stack-regular;
   font-size: $font-size;
   overflow-x: hidden;
   color: $colour-text1;
@@ -287,7 +287,7 @@ pre {
 }
 
 code {
-  font-family: Consolas, 'Courier New', monospace;
+  font-family: $font-stack-code;
   color: $colour-link-highlight!important;
   background-color: rgba($colour-link-highlight, 0.1);
   font-size: .8em;
