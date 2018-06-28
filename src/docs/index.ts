@@ -3,52 +3,36 @@ import { autobind } from 'core-decorators';
 import es6promise = require('es6-promise');
 import * as SmoothScroll from 'smooth-scroll';
 import 'typeface-roboto-condensed';
-import 'typeface-source-code-pro';
 import 'whatwg-fetch';
-import { IGetInfoResponse } from '../infoService';
+
+import { IGetInfoResponse } from '../services/info.service';
 
 // API home page and documentation
-class Docs {
-  // Initialises the page once DOM is ready
-  @autobind
-  public static async onInit() {
+class DocsPage {
+  constructor() {
     // Add support for promises pre-es6
     es6promise.polyfill();
+  }
+  
+  // Initialises the page once DOM is ready
+  @autobind
+  public async init(): Promise<void> {
+    // Enable resonsive menu
+    this.enableMenu();
+
+    // Check service status
+    this.checkStatus();
 
     // Enable smooth scrolling of page links
     const scroll = new SmoothScroll('a[href*="#"]', {
-      offset: 69
+      updateURL: false
     });
+  }
 
-    const navbar = document.querySelector('.navbar-collapse');
-    const toggle = document.querySelector('.navbar-toggle') as HTMLButtonElement;
+  private async checkStatus() {
     const versionEl = document.querySelector('#version');
     const currentStatusEl = document.querySelector('#currentstatus');
-
-    const toggleMenu = () => {
-      // Toggle navbar collapse and menu button highlight
-      if (navbar.classList.contains('collapse')) {
-        navbar.classList.remove('collapse');
-        toggle.classList.remove('collapsed');
-      }
-      else {
-        navbar.classList.add('collapse');
-        toggle.classList.add('collapsed');
-      }
-    };
-
-    toggle.addEventListener('click', e => {
-      toggleMenu();
-    });
-
-    // Toggle menu bar when menu item clicked
-    document.querySelector('.navbar-right').addEventListener('click', e => {
-      const target = e.target as HTMLElement;
-      if (target.classList.contains('scroll')) {
-        toggleMenu();
-      }
-    });
-
+    
     // Display current status and version for this xBrowserSync service
     try {
       const response = await fetch('/info');
@@ -82,6 +66,39 @@ class Docs {
       currentStatusEl.className = 'danger';
     }
   }
+
+  private enableMenu() {
+    const toggle = document.querySelector<HTMLButtonElement>('.nav-menu-button');
+    const navbar = document.querySelector('nav');
+    
+    const toggleMenu = () => {
+      // Toggle menu display and menu button hide
+      if (navbar.classList.contains('open')) {
+        navbar.classList.remove('open');
+        toggle.classList.remove('hide');
+        document.body.classList.remove('noscroll');
+      }
+      else {
+        navbar.classList.add('open');
+        toggle.classList.add('hide');
+        document.body.classList.add('noscroll');
+      }
+    };
+
+    // Enable menu button
+    toggle.addEventListener('click', e => {
+      toggleMenu();
+    });
+
+    // Hide menu when nav link is clicked
+    const navbarLinks = navbar.querySelectorAll('a');
+    Array.from(navbarLinks).forEach(link => {
+      link.addEventListener('click', e => {
+        toggleMenu();
+      });
+    });
+  }
 }
 
-document.addEventListener('DOMContentLoaded', Docs.onInit);
+const docsPage = new DocsPage();
+document.addEventListener('DOMContentLoaded', docsPage.init);

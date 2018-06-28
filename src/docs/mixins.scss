@@ -8,40 +8,36 @@
 }
 
 @mixin animation($str) {
-  @include css-prefix(animation, $str);
+   @include css-prefix(animation, $str);
 }
 
 @mixin background-gradient($direction, $startColor, $startColorAmount, $endColor, $endColorAmount) {
   background-color: $startColor;
   background: linear-gradient($direction, $startColor $startColorAmount, $endColor $endColorAmount);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#{$startColor}', endColorStr='#{$endColor}');
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr= '#{$startColor}', endColorStr='#{$endColor}');
 }
 
-@mixin hide-text{
+@mixin hide-text {
   font: 0/0 a;
   text-shadow: none;
   color: transparent;
 }
 
 @mixin keyframes($animation-name) {
-  @-webkit-keyframes #{$animation-name} {
+   @-webkit-keyframes #{$animation-name}{
     @content;
   }
-
   @-moz-keyframes #{$animation-name} {
-    @content;
+     @content;
   }
-
   @-ms-keyframes #{$animation-name} {
-    @content;
+     @content;
   }
-
   @-o-keyframes #{$animation-name} {
-    @content;
+     @content;
   }
-
   @keyframes #{$animation-name} {
-    @content;
+     @content;
   }
 }
 
@@ -49,15 +45,16 @@
   &::-webkit-input-placeholder {
     @content;
   }
-  
+
   &:-moz-placeholder {
+    opacity: 1;
     @content;
   }
-  
+
   &::-moz-placeholder {
     @content;
   }
-  
+
   &:-ms-input-placeholder {
     @content;
   }
@@ -69,4 +66,12 @@
   white-space: -pre-pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
+}
+
+@mixin rotate($deg) {
+   @include transform(rotate(#{$deg}deg));
+}
+
+@mixin transform($transforms) {
+   @include css-prefix(transform, $transforms);
 }

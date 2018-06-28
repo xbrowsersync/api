@@ -5,7 +5,7 @@ const Path = require('path');
 
 module.exports = {
   mode: 'production',
-  entry: ['./src/docs/index.ts', './src/docs/index.scss'],
+  entry: ['./src/docs/index.ts', './src/docs/styles.scss'],
   output: {
     filename: 'index.js',
     path: Path.resolve(__dirname, 'dist/docs')
@@ -64,14 +64,14 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([{
-      from: 'src/docs/favicon.png'
+      from: 'src/docs/images'
     }]),
     new HtmlWebPackPlugin({
       template: 'src/docs/index.html',
       filename: 'index.html'
     }),
     new MiniCssExtractPlugin({
-      filename: 'index.css',
+      filename: 'styles.css',
     }),
   ],
   devtool: 'source-map',

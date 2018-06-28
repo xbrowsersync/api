@@ -3,8 +3,9 @@ import chaiHttp = require('chai-http');
 import decache = require('decache');
 import 'mocha';
 import * as sinon from 'sinon';
-import Config from '../../src/config';
-import Server from '../../src/server';
+
+import Config from '../../src/core/config';
+import Server from '../../src/core/server';
 
 before(() => {
   use(chaiHttp);
@@ -40,7 +41,7 @@ describe('Docs', () => {
 
   it('GET /: Should return a 200 code', async () => {
     await new Promise((resolve) => {
-      request(server.getApplication())
+      request(server.Application)
         .get('/')
         .set('content-type', 'application/json')
         .end((err, res) => {

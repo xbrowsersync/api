@@ -1,11 +1,11 @@
 import { assert, expect } from 'chai';
 import decache = require('decache');
-import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-import Config from '../../src/config';
-import { ServiceNotAvailableException } from '../../src/exception';
-import Server from '../../src/server';
+
+import Config from '../../src/core/config';
+import { ServiceNotAvailableException } from '../../src/core/exception';
+import Server from '../../src/core/server';
 
 describe('Server', () => {
   let sandbox: sinon.SinonSandbox;

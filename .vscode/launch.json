@@ -19,15 +19,18 @@
     {
       "name": "Debug docs",
       "type": "chrome",
-      "request": "attach",
-      "port": 9222,
+      "request": "launch",
       "url": "http://127.0.0.1:8080",
       "webRoot": "${workspaceFolder}/dist/docs",
       "sourceMaps": true,
       "smartStep": true,
       "sourceMapPathOverrides": {
         "webpack:///./src/docs/*": "${workspaceFolder}/src/docs/*"
-      }
+      },
+      "runtimeArgs": [
+        "--remote-debugging-port=9222",
+        "-incognito"
+      ]
     },
     {
       "name": "Run unit tests",

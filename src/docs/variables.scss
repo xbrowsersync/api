@@ -1,18 +1,19 @@
-$font-stack:        		'Roboto Condensed', sans-serif;
-$colour-bg1:				#01AB8A;
-$colour-bg2:				#35C6E8;
+$colour-bg1:				        #01AB8A;
+$colour-bg2:				        #35C6E8;
 $colour-text1:              #EDFEFF;
 $colour-text2:              #083039;
-$colour-link:			    #75959C;
-$colour-link-highlight:	    $colour-bg2;
-$colour-section1-bg:        $colour-text2;
-$colour-section1-text:      $colour-text1;
-$colour-section2-bg:        $colour-text1;
-$colour-section2-text:      $colour-text2;
+$colour-link:			          #75959C;
+$colour-link-highlight:	      $colour-bg2;
+$colour-section1-bg:          $colour-text2;
+$colour-section1-text:        $colour-text1;
+$colour-section2-bg:          $colour-text1;
+$colour-section2-text:        $colour-text2;
 $colour-success:            #30D278;
-$colour-info:               $colour-bg2;
 $colour-warning:            #BDC71B;
 $colour-danger:             #EA3869;
-$width-tablet:              768px;
-$width-tablet-landscape:    1023px;
-$width-desktop:             1224px;
+
+$font-size:                   17px;
+
+$width-small:                 768px;
+$width-medium:                992px;
+$width-large:                 1200px;

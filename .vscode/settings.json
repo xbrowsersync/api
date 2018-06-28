@@ -4,5 +4,6 @@
     "search.exclude": {
         "dist": true,
     },
-    "typescript.tsc.autoDetect": "off"
+    "typescript.tsc.autoDetect": "off",
+    "editor.tabSize": 2
 }
