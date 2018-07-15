@@ -137,6 +137,8 @@ Config Setting | Description | Default Value
 `status.allowNewSyncs` | Determines whether users will be allowed to create new syncs on this server. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. | `true`
 `status.message` | This message will be displayed in the service status panel of the client app when using this xBrowserSync service. Ideally the message should be 130 characters or less. | (Empty string, no message set)
 `status.online` | If set to true no clients will be able to connect to this service. | `true`
+`tests.db` | Name of the mongoDB database to use for integration tests. | `xbrowsersynctest`
+`tests.port` | Port to use for running tests. | `8081`
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
 `throttle.timeWindow` | Amount of time (in milliseconds) before throttle counter is reset. | `300000` (5 mins)
 

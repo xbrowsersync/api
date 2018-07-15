@@ -34,8 +34,9 @@ describe('Server', () => {
       ...require('../../config/settings.default.json'),
       version
     };
-    testConfig.db.name = `${testConfig.db.name}test`;
+    testConfig.db.name = testConfig.tests.db;
     testConfig.log.enabled = false;
+    testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
     sandbox.stub(Config, 'get').returns(testConfig);
 

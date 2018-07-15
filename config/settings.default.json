@@ -32,6 +32,10 @@
     "message": "",
     "online": true
   },
+  "tests": {
+    "db": "xbrowsersynctest",
+    "port": 8081
+  },
   "throttle": {
     "maxRequests": 1000,
     "timeWindow": 300000
