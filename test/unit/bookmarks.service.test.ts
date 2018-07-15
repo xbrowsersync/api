@@ -25,9 +25,10 @@ describe('BookmarksService', () => {
   let testConfig: any;
 
   beforeEach(() => {
+    const { version } = require('../../package.json');
     testConfig = {
       ...require('../../config/settings.default.json'),
-      ...require('../../config/version.json')
+      version
     };
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
@@ -40,7 +41,6 @@ describe('BookmarksService', () => {
   afterEach(() => {
     sandbox.restore();
     decache('../../config/settings.default.json');
-    decache('../../config/version.json');
   });
 
   it('createBookmarks: should throw a NewSyncsForbiddenException if service is not accepting new syncs', async () => {

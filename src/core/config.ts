@@ -26,12 +26,11 @@ export default class Config {
     const settings = merge(defaultSettings, userSettings);
     
     // Get current version number
-    const pathToVersion = path.join(pathToConfig, 'version.json');
-    const version = require(pathToVersion);
+    const { version } = require('../../package.json');
 
     this.config = {
       ...settings,
-      ...version
+      version
     };
 
     return this.config;

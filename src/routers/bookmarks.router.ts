@@ -14,15 +14,17 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
     this.app.use('/bookmarks', this.router);    
     this.createRoute(ApiVerb.post, '/', {
       '~1.0.0': this.createBookmarks_v1,
-      '~1.1.3': this.createBookmarks_v2
+      // tslint:disable-next-line:object-literal-sort-keys
+      '^1.1.3': this.createBookmarks_v2
     });
     this.createRoute(ApiVerb.get, '/:id', { '^1.0.0': this.getBookmarks });
     this.createRoute(ApiVerb.put, '/:id', {
       '~1.0.0': this.updateBookmarks_v1,
-      '~1.1.3': this.updateBookmarks_v2
+      // tslint:disable-next-line:object-literal-sort-keys
+      '^1.1.3': this.updateBookmarks_v2
     });
     this.createRoute(ApiVerb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
-    this.createRoute(ApiVerb.get, '/:id/version', { '~1.1.3': this.getVersion });
+    this.createRoute(ApiVerb.get, '/:id/version', { '^1.1.3': this.getVersion });
   }
 
   // Creates a new bookmarks sync and returns new sync ID

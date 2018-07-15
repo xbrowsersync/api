@@ -22,9 +22,8 @@ class Config {
         // Merge default and user settings
         const settings = merge(defaultSettings, userSettings);
         // Get current version number
-        const pathToVersion = path.join(pathToConfig, 'version.json');
-        const version = require(pathToVersion);
-        this.config = Object.assign({}, settings, version);
+        const { version } = require('../../package.json');
+        this.config = Object.assign({}, settings, { version });
         return this.config;
     }
 }

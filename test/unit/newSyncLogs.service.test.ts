@@ -16,9 +16,10 @@ describe('NewSyncLogsService', () => {
   let testConfig: any;
 
   beforeEach(() => {
+    const { version } = require('../../package.json');
     testConfig = {
       ...require('../../config/settings.default.json'),
-      ...require('../../config/version.json')
+      version
     };
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
@@ -29,7 +30,6 @@ describe('NewSyncLogsService', () => {
   afterEach(() => {
     sandbox.restore();
     decache('../../config/settings.default.json');
-    decache('../../config/version.json');
   });
 
   it('createLog: should create a new sync log using the request IP address', async () => {

@@ -12,9 +12,10 @@ describe('Server', () => {
   let testConfig: any;
 
   beforeEach(() => {
+    const { version } = require('../../package.json');
     testConfig = {
       ...require('../../config/settings.default.json'),
-      ...require('../../config/version.json')
+      version
     };
     sandbox = sinon.createSandbox();
     sandbox.stub(Config, 'get').returns(testConfig);
@@ -23,7 +24,6 @@ describe('Server', () => {
   afterEach(() => {
     sandbox.restore();
     decache('../../config/settings.default.json');
-    decache('../../config/version.json');
   });
 
   it('checkServiceAvailability: should not throw an error when status set as online in config settings', done => {

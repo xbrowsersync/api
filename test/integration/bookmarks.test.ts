@@ -29,10 +29,11 @@ describe('BookmarksRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
+    const { version } = require('../../package.json');
     testConfig = {
       ...require('../../config/settings.default.json'),
-      ...require('../../config/version.json')
-    };    
+      version
+    };
     testConfig.db.name = `${testConfig.db.name}test`;
     testConfig.log.enabled = false;
     sandbox = sinon.createSandbox();
@@ -51,7 +52,6 @@ describe('BookmarksRouter', () => {
     await server.stop();
     sandbox.restore();
     decache('../../config/settings.default.json');
-    decache('../../config/version.json');
   });
 
   it('POST /bookmarks should return a NewSyncsForbiddenException error code if new syncs are not allowed', async () => {

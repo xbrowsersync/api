@@ -26,15 +26,17 @@ class BookmarksRouter extends base_router_1.default {
         this.app.use('/bookmarks', this.router);
         this.createRoute(server_1.ApiVerb.post, '/', {
             '~1.0.0': this.createBookmarks_v1,
-            '~1.1.3': this.createBookmarks_v2
+            // tslint:disable-next-line:object-literal-sort-keys
+            '^1.1.3': this.createBookmarks_v2
         });
         this.createRoute(server_1.ApiVerb.get, '/:id', { '^1.0.0': this.getBookmarks });
         this.createRoute(server_1.ApiVerb.put, '/:id', {
             '~1.0.0': this.updateBookmarks_v1,
-            '~1.1.3': this.updateBookmarks_v2
+            // tslint:disable-next-line:object-literal-sort-keys
+            '^1.1.3': this.updateBookmarks_v2
         });
         this.createRoute(server_1.ApiVerb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
-        this.createRoute(server_1.ApiVerb.get, '/:id/version', { '~1.1.3': this.getVersion });
+        this.createRoute(server_1.ApiVerb.get, '/:id/version', { '^1.1.3': this.getVersion });
     }
     // Creates a new bookmarks sync and returns new sync ID
     createBookmarks_v1(req, res, next) {
