@@ -47,10 +47,11 @@ class DB {
                 connectTimeoutMS: config_1.default.get().db.connTimeout,
                 keepAlive: 1,
                 pass: config_1.default.get().db.password || process.env.XBROWSERSYNC_DB_PWD,
+                useNewUrlParser: true,
                 user: config_1.default.get().db.username || process.env.XBROWSERSYNC_DB_USER
             };
             // Connect to the host and db name defined in config settings
-            const dbServerUrl = `mongodb://${config_1.default.get().db.host}/${config_1.default.get().db.name}`;
+            const dbServerUrl = `mongodb://${config_1.default.get().db.host}:${config_1.default.get().db.port}/${config_1.default.get().db.name}`;
             mongoose.connect(dbServerUrl, options);
             const dbConn = mongoose.connection;
             yield new Promise((resolve, reject) => {

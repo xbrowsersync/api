@@ -1,7 +1,9 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const Path = require('path');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -27,26 +29,11 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(css|sass|scss)$/,
+        test: /\.(sa|sc|c)ss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 2
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: () => [
-                require('autoprefixer')
-              ]
-            }
-          },
-          {
-            loader: 'sass-loader'
-          }
+          'css-loader',
+          'sass-loader'
         ]
       },
       {
@@ -57,6 +44,15 @@ module.exports = {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         use: 'file-loader'
       }
+    ]
+  },
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true
+      }),
+      new OptimizeCSSAssetsPlugin({})
     ]
   },
   resolve: {

@@ -41,11 +41,12 @@ export default class DB {
       connectTimeoutMS: Config.get().db.connTimeout,
       keepAlive: 1,
       pass: Config.get().db.password || process.env.XBROWSERSYNC_DB_PWD,
+      useNewUrlParser: true,      
       user: Config.get().db.username || process.env.XBROWSERSYNC_DB_USER
     };
 
     // Connect to the host and db name defined in config settings
-    const dbServerUrl = `mongodb://${Config.get().db.host}/${Config.get().db.name}`;
+    const dbServerUrl = `mongodb://${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
     mongoose.connect(dbServerUrl, options);
     const dbConn = mongoose.connection;
 
