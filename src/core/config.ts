@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export default class Config {
-  public static get(): any {
-    if (this.config) {
+  public static get(force?: boolean): any {
+    if (this.config && !force) {
       return this.config;
     }
 

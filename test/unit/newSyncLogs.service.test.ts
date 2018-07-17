@@ -16,28 +16,20 @@ describe('NewSyncLogsService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    const { version } = require('../../package.json');
-    testConfig = {
-      ...require('../../config/settings.default.json'),
-      version
-    };
+    testConfig = Config.get(true);
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
     sandbox = sinon.createSandbox();
-    sandbox.stub(Config, 'get').returns(testConfig);
   });
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/settings.default.json');
   });
 
   it('createLog: should create a new sync log using the request IP address', async () => {
-    const testClientIPAddress = '123.456.789.0';
     const req: Partial<Request> = {
       ip: testClientIPAddress
     };
-
     const saveStub = sandbox.stub(NewSyncLogsModel.prototype, 'save');
     const savedTestLog = await newSyncLogsService.createLog(req as Request);
 
@@ -62,7 +54,7 @@ describe('NewSyncLogsService', () => {
     };
     const dailyNewSyncsLimitTestVal = 1;
     testConfig.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
-
+    sandbox.stub(Config, 'get').returns(testConfig);
     const countStub = sandbox.stub(NewSyncLogsModel, 'count').returns({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
     });
@@ -77,7 +69,7 @@ describe('NewSyncLogsService', () => {
       ip: testClientIPAddress
     };
     testConfig.dailyNewSyncsLimit = 3;
-
+    sandbox.stub(Config, 'get').returns(testConfig);
     const countStub = sandbox.stub(NewSyncLogsModel, 'count').returns({
       exec: () => Promise.resolve(1)
     });

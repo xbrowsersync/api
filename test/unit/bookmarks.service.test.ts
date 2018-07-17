@@ -25,27 +25,22 @@ describe('BookmarksService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    const { version } = require('../../package.json');
-    testConfig = {
-      ...require('../../config/settings.default.json'),
-      version
-    };
+    testConfig = Config.get(true);
     const log = () => { };
     newSyncLogsService = new NewSyncLogsService(null, log);
     bookmarksService = new BookmarksService(newSyncLogsService, log);
     sandbox = sinon.createSandbox();
-    sandbox.stub(Config, 'get').returns(testConfig);
     sandbox.stub(Server, 'checkServiceAvailability');
   });
 
   afterEach(() => {
     sandbox.restore();
-    decache('../../config/settings.default.json');
   });
 
   it('createBookmarks: should throw a NewSyncsForbiddenException if service is not accepting new syncs', async () => {
     const req: Partial<Request> = {};
     testConfig.status.allowNewSyncs = false;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     try {
       await bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request);
@@ -62,7 +57,7 @@ describe('BookmarksService', () => {
     const req: Partial<Request> = {};
     const maxSyncsTestVal = 1;
     testConfig.maxSyncs = maxSyncsTestVal;
-
+    sandbox.stub(Config, 'get').returns(testConfig);
     sandbox.stub(BookmarksService.prototype, 'isAcceptingNewSyncs').returns(Promise.resolve(false));
 
     try {
@@ -79,7 +74,7 @@ describe('BookmarksService', () => {
   it('createBookmarks: should throw a NewSyncsLimitExceededException if daily new syncs limit has been hit', async () => {
     const req: Partial<Request> = {};
     testConfig.dailyNewSyncsLimit = 1;
-
+    sandbox.stub(Config, 'get').returns(testConfig);
     sandbox.stub(BookmarksService.prototype, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
     sandbox.stub(newSyncLogsService, 'newSyncsLimitHit').returns(Promise.resolve(true));
 
@@ -97,7 +92,7 @@ describe('BookmarksService', () => {
   it('createBookmarks: should add a new sync log if daily new syncs limit is enabled', async () => {
     const req: Partial<Request> = {};
     testConfig.dailyNewSyncsLimit = 1;
-
+    sandbox.stub(Config, 'get').returns(testConfig);
     sandbox.stub(BookmarksService.prototype, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
     sandbox.stub(newSyncLogsService, 'newSyncsLimitHit').returns(Promise.resolve(false));
     sandbox.stub(BookmarksModel.prototype, 'save').returns(Promise.resolve({}));
@@ -109,7 +104,6 @@ describe('BookmarksService', () => {
 
   it('createBookmarks: should return a new sync ID', async () => {
     const req: Partial<Request> = {};
-
     sandbox.stub(BookmarksService.prototype, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
     sandbox.stub(newSyncLogsService, 'newSyncsLimitHit').returns(Promise.resolve(false));
     sandbox.stub(BookmarksModel.prototype, 'save').returns(Promise.resolve({
@@ -144,7 +138,6 @@ describe('BookmarksService', () => {
 
   it('getBookmarks: should return bookmarks data', async () => {
     const req: Partial<Request> = {};
-
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve({
         bookmarks: bookmarksDataTestVal,
@@ -180,7 +173,6 @@ describe('BookmarksService', () => {
 
   it('getLastUpdated: should return bookmarks last updated date', async () => {
     const req: Partial<Request> = {};
-
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve({
         lastUpdated: createdDateTestVal
@@ -212,7 +204,6 @@ describe('BookmarksService', () => {
 
   it('getVersion: should return bookmarks sync version', async () => {
     const req: Partial<Request> = {};
-
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve({
         version: syncVersionTestVal
@@ -227,6 +218,7 @@ describe('BookmarksService', () => {
 
   it('isAcceptingNewSyncs: should return false if service is not accepting new syncs', async () => {
     testConfig.status.allowNewSyncs = false;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     const isAcceptingNewSyncs = await bookmarksService.isAcceptingNewSyncs();
     expect(isAcceptingNewSyncs).to.be.false;
@@ -234,6 +226,7 @@ describe('BookmarksService', () => {
 
   it('isAcceptingNewSyncs: should return true if max syncs limit is disabled', async () => {
     testConfig.maxSyncs = 0;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     const isAcceptingNewSyncs = await bookmarksService.isAcceptingNewSyncs();
     expect(isAcceptingNewSyncs).to.be.true;
@@ -241,6 +234,7 @@ describe('BookmarksService', () => {
 
   it('isAcceptingNewSyncs: should return true if total bookmarks syncs is less than max syncs limit', async () => {
     testConfig.maxSyncs = 1;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     const countStub = sandbox.stub(BookmarksModel, 'count').returns({
       exec: () => Promise.resolve(0)
@@ -253,6 +247,7 @@ describe('BookmarksService', () => {
 
   it('isAcceptingNewSyncs: should return false if total bookmarks syncs is not less than max syncs limit', async () => {
     testConfig.maxSyncs = 1;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     const countStub = sandbox.stub(BookmarksModel, 'count').returns({
       exec: () => Promise.resolve(1)
@@ -282,7 +277,6 @@ describe('BookmarksService', () => {
 
   it('updateBookmarks: should return false if total bookmarks syncs is not less than max syncs limit', async () => {
     const req: Partial<Request> = {};
-
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve({
         lastUpdated: createdDateTestVal

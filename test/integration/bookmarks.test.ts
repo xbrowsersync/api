@@ -29,16 +29,10 @@ describe('BookmarksRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    const { version } = require('../../package.json');
-    testConfig = {
-      ...require('../../config/settings.default.json'),
-      version
-    };
-    testConfig.db.name = testConfig.tests.db;
+    testConfig = Config.get(true);
     testConfig.log.enabled = false;
     testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
-    sandbox.stub(Config, 'get').returns(testConfig);
 
     server = new Server();
     server.logToConsoleEnabled(false);
@@ -52,11 +46,11 @@ describe('BookmarksRouter', () => {
 
     await server.stop();
     sandbox.restore();
-    decache('../../config/settings.default.json');
   });
 
   it('POST /bookmarks should return a NewSyncsForbiddenException error code if new syncs are not allowed', async () => {
     testConfig.status.allowNewSyncs = false;
+    sandbox.stub(Config, 'get').returns(testConfig);
     const data = {
       version: syncVersionTestVal
     };
@@ -77,6 +71,7 @@ describe('BookmarksRouter', () => {
 
   it('POST /bookmarks should return a NewSyncsLimitExceededException error code if daily syncs limit exceeded', async () => {
     testConfig.dailyNewSyncsLimit = 1;
+    sandbox.stub(Config, 'get').returns(testConfig);
     const data = {
       version: syncVersionTestVal
     };
@@ -108,6 +103,7 @@ describe('BookmarksRouter', () => {
 
   it('POST /bookmarks should return a 200 code and bookmarks sync data', async () => {
     testConfig.dailyNewSyncsLimit = 0;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
       request(server.Application)
@@ -129,6 +125,7 @@ describe('BookmarksRouter', () => {
   it('PUT /bookmarks/:id should return a SyncDataLimitExceededException error code when bookmarks data size exceeds server limit', async () => {
     await server.stop();
     testConfig.maxSyncSize = 1;
+    sandbox.stub(Config, 'get').returns(testConfig);
     server = new Server();
     server.logToConsoleEnabled(false);
     await server.init();
@@ -149,6 +146,8 @@ describe('BookmarksRouter', () => {
   });  
 
   it('PUT /bookmarks/:id should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+    
     await new Promise((resolve) => {
       request(server.Application)
         .put(`/bookmarks/invalidid`)
@@ -163,6 +162,8 @@ describe('BookmarksRouter', () => {
   });
 
   it('PUT /bookmarks/:id should return a RequiredDataNotFoundException error code if bookmarks data not provided', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
     await new Promise((resolve) => {
       request(server.Application)
         .put(`/bookmarks/${syncIdTestVal}`)
@@ -178,6 +179,7 @@ describe('BookmarksRouter', () => {
 
   it('PUT /bookmarks/:id should return a 200 code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     // Create a new sync
     const id = await new Promise((resolve) => {
@@ -207,6 +209,8 @@ describe('BookmarksRouter', () => {
   });
 
   it('GET /bookmarks/:id should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
     await new Promise((resolve) => {
       request(server.Application)
         .get(`/bookmarks/invalidid`)
@@ -221,6 +225,7 @@ describe('BookmarksRouter', () => {
 
   it('GET /bookmarks/:id should return a 200 code and existing bookmarks data for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     // Create a new sync
     const id = await new Promise((resolve) => {
@@ -262,6 +267,8 @@ describe('BookmarksRouter', () => {
   });
 
   it('GET /bookmarks/:id/lastUpdated should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
     await new Promise((resolve) => {
       request(server.Application)
         .get(`/bookmarks/invalidid/lastUpdated`)
@@ -276,6 +283,7 @@ describe('BookmarksRouter', () => {
 
   it('GET /bookmarks/:id/lastUpdated should return a 200 code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     // Create a new sync
     const id = await new Promise((resolve) => {
@@ -303,6 +311,8 @@ describe('BookmarksRouter', () => {
   });
 
   it('GET /bookmarks/:id/version should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
     await new Promise((resolve) => {
       request(server.Application)
         .get(`/bookmarks/invalidid/version`)
@@ -317,6 +327,7 @@ describe('BookmarksRouter', () => {
 
   it('GET /bookmarks/:id/version should return a 200 code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
+    sandbox.stub(Config, 'get').returns(testConfig);
 
     // Create a new sync
     const id = await new Promise((resolve) => {
