@@ -29,16 +29,11 @@ describe('Server', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    const { version } = require('../../package.json');
-    testConfig = {
-      ...require('../../config/settings.default.json'),
-      version
-    };
-    testConfig.db.name = testConfig.tests.db;
+    testConfig = Config.get(true);
     testConfig.log.enabled = false;
+    testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
-    sandbox.stub(Config, 'get').returns(testConfig);
 
     server = new Server();
     server.logToConsoleEnabled(false);
@@ -49,10 +44,11 @@ describe('Server', () => {
   afterEach(async () => {
     await server.stop();
     sandbox.restore();
-    decache('../../config/settings.default.json');
   });
 
   it('Should return a NotImplementedException error code for an invalid route', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
     await new Promise((resolve) => {
       request(server.Application)
         .get('/bookmarks')
@@ -69,6 +65,7 @@ describe('Server', () => {
   it('Should return an OriginNotPermittedException error code when requested api version is not supported', async () => {
     await server.stop();
     testConfig.allowedOrigins = ['http://test.com'];
+    sandbox.stub(Config, 'get').returns(testConfig);
     server = new Server();
     server.logToConsoleEnabled(false);
     await server.init();
@@ -90,6 +87,7 @@ describe('Server', () => {
   it('Should return a RequestThrottledException error code when request throttling is triggered', async () => {
     await server.stop();
     testConfig.throttle.maxRequests = 1;
+    sandbox.stub(Config, 'get').returns(testConfig);
     server = new Server();
     server.logToConsoleEnabled(false);
     await server.init();
@@ -118,6 +116,8 @@ describe('Server', () => {
   });
 
   it('Should return an UnsupportedVersionException error code when requested api version is not supported', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+    
     await new Promise((resolve) => {
       request(server.Application)
         .get('/info')

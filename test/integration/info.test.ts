@@ -17,16 +17,11 @@ describe('InfoRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    const { version } = require('../../package.json');
-    testConfig = {
-      ...require('../../config/settings.default.json'),
-      version
-    };
-    testConfig.db.name = testConfig.tests.db;
+    testConfig = Config.get(true);
     testConfig.log.enabled = false;
+    testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
-    sandbox.stub(Config, 'get').returns(testConfig);
 
     server = new Server();
     server.logToConsoleEnabled(false);
@@ -37,10 +32,11 @@ describe('InfoRouter', () => {
   afterEach(async () => {
     await server.stop();
     sandbox.restore();
-    decache('../../config/settings.default.json');
   });
 
   it('GET info: should return api status info', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
     await new Promise((resolve) => {
       request(server.Application)
         .get('/info')

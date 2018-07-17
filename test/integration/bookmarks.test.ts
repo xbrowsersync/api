@@ -31,6 +31,7 @@ describe('BookmarksRouter', () => {
   beforeEach(async () => {
     testConfig = Config.get(true);
     testConfig.log.enabled = false;
+    testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
 
