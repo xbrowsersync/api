@@ -4,8 +4,8 @@ const merge = require("deepmerge");
 const fs = require("fs");
 const path = require("path");
 class Config {
-    static get() {
-        if (this.config) {
+    static get(force) {
+        if (this.config && !force) {
             return this.config;
         }
         // Get full path to config folder
