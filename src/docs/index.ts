@@ -35,7 +35,7 @@ class DocsPage {
     
     // Display current status and version for this xBrowserSync service
     try {
-      const response = await fetch('/info');
+      const response = await fetch(`${location.pathname}info`);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
