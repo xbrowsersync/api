@@ -272,7 +272,7 @@ class BookmarksService extends base_service_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             let bookmarksCount = -1;
             try {
-                bookmarksCount = yield bookmarks_model_1.default.count({}).exec();
+                bookmarksCount = yield bookmarks_model_1.default.estimatedDocumentCount().exec();
             }
             catch (err) {
                 this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);

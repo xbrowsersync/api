@@ -54,7 +54,7 @@ class NewSyncLogsService extends base_service_1.default {
             let newSyncsCreated = -1;
             // Query the newsynclogs collection for the total number of logs for the given ip address
             try {
-                newSyncsCreated = yield newSyncLogs_model_1.default.count({ ipAddress: clientIp }).exec();
+                newSyncsCreated = yield newSyncLogs_model_1.default.estimatedDocumentCount({ ipAddress: clientIp }).exec();
             }
             catch (err) {
                 this.log(server_1.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);

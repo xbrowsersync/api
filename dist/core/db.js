@@ -51,7 +51,7 @@ class DB {
                 user: config_1.default.get().db.username || process.env.XBROWSERSYNC_DB_USER
             };
             // Connect to the host and db name defined in config settings
-            const dbServerUrl = `mongodb://${config_1.default.get().db.host}:${config_1.default.get().db.port}/${config_1.default.get().db.name}`;
+            const dbServerUrl = `mongodb://${config_1.default.get().db.host}:${config_1.default.get().db.port}/${config_1.default.get().db.name}?authSource=${config_1.default.get().db.authSource}`;
             mongoose.connect(dbServerUrl, options);
             const dbConn = mongoose.connection;
             yield new Promise((resolve, reject) => {

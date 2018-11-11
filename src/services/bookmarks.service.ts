@@ -345,7 +345,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     let bookmarksCount = -1;
 
     try {
-      bookmarksCount = await BookmarksModel.count({}).exec();
+      bookmarksCount = await BookmarksModel.estimatedDocumentCount().exec();
     }
     catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);

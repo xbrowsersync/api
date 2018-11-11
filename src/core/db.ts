@@ -46,7 +46,7 @@ export default class DB {
     };
 
     // Connect to the host and db name defined in config settings
-    const dbServerUrl = `mongodb://${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
+    const dbServerUrl = `mongodb://${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}?authSource=${Config.get().db.authSource}`;
     mongoose.connect(dbServerUrl, options);
     const dbConn = mongoose.connection;
 

@@ -2,6 +2,7 @@
   "allowedOrigins": [],
   "dailyNewSyncsLimit": 3,
   "db": {
+    "authSource": "xbrowsersync",
     "connTimeout": 30000,
     "host": "127.0.0.1",
     "name": "xbrowsersync",
