@@ -55,7 +55,7 @@ describe('NewSyncLogsService', () => {
     const dailyNewSyncsLimitTestVal = 1;
     testConfig.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
     sandbox.stub(Config, 'get').returns(testConfig);
-    const countStub = sandbox.stub(NewSyncLogsModel, 'count').returns({
+    const countStub = sandbox.stub(NewSyncLogsModel, 'estimatedDocumentCount').returns({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
     });
 
@@ -70,7 +70,7 @@ describe('NewSyncLogsService', () => {
     };
     testConfig.dailyNewSyncsLimit = 3;
     sandbox.stub(Config, 'get').returns(testConfig);
-    const countStub = sandbox.stub(NewSyncLogsModel, 'count').returns({
+    const countStub = sandbox.stub(NewSyncLogsModel, 'estimatedDocumentCount').returns({
       exec: () => Promise.resolve(1)
     });
 

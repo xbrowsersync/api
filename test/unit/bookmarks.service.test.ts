@@ -236,7 +236,7 @@ describe('BookmarksService', () => {
     testConfig.maxSyncs = 1;
     sandbox.stub(Config, 'get').returns(testConfig);
 
-    const countStub = sandbox.stub(BookmarksModel, 'count').returns({
+    const countStub = sandbox.stub(BookmarksModel, 'estimatedDocumentCount').returns({
       exec: () => Promise.resolve(0)
     });
 
@@ -249,7 +249,7 @@ describe('BookmarksService', () => {
     testConfig.maxSyncs = 1;
     sandbox.stub(Config, 'get').returns(testConfig);
 
-    const countStub = sandbox.stub(BookmarksModel, 'count').returns({
+    const countStub = sandbox.stub(BookmarksModel, 'estimatedDocumentCount').returns({
       exec: () => Promise.resolve(1)
     });
 
