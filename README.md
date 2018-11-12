@@ -19,6 +19,18 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 ## Upgrading from an earlier version
 
+### <= v1.1.5
+
+From v1.1.6, database users are created in the admin database. When upgrading from an earlier version you'll either need to drop the existing users in the xbrowsersync database and recreate them in the admin database, or simply add the following to your `config/settings.json` file:
+
+  ```
+  "db": {
+    "authSource": "xbrowsersync"
+  }
+  ```
+
+### <= v1.0.3
+
 If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
 
 To export existing syncs, run the following command:
@@ -49,15 +61,16 @@ CD into the source directory and install dependencies (use `unsafe-perm` flag if
 
     $ npm install --unsafe-perm
 
-### 2. Configure mongoDB database
+### 2. Configure mongoDB databases
 
   1. Run the following commands in the mongo shell:
   
       (Replace `[password]` with a cleartext password of your choice)
 
       ```
+      use admin
+      db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: [ { role: "readWrite", db: "xbrowsersync" }, { role: "readWrite", db: "xbrowsersynctest" } ] })
       use xbrowsersync
-      db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
       db.newsynclogs.createIndex( { "expiresAt": 1 }, { expireAfterSeconds: 0 } )
       db.newsynclogs.createIndex({ "ipAddress": 1 })
       ```
@@ -116,6 +129,7 @@ Config Setting | Description | Default Value
 -------------- | ----------- | -------------
 `allowedOrigins` | Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted | `[]` (All origins permitted)
 `dailyNewSyncsLimit` | The maximum number of new syncs that a single IP address can create per day. If this setting is enabled, logs are created in newsynclogs collection to track IP addresses (cleared the following day). Set as `0` to disable. | `3`
+`db.authSource` | The database to use for authentication. | `admin`
 `db.connTimeout` | The connection timeout period to use for mongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
 `db.host` | The mongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1`
 `db.name` | Name of the mongoDB database to use. | `xbrowsersync`

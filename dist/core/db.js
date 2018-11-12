@@ -46,12 +46,13 @@ class DB {
             const options = {
                 connectTimeoutMS: config_1.default.get().db.connTimeout,
                 keepAlive: 1,
-                pass: config_1.default.get().db.password || process.env.XBROWSERSYNC_DB_PWD,
-                useNewUrlParser: true,
-                user: config_1.default.get().db.username || process.env.XBROWSERSYNC_DB_USER
+                useNewUrlParser: true
             };
+            // Get db username and password
+            const username = config_1.default.get().db.username || process.env.XBROWSERSYNC_DB_USER;
+            const password = config_1.default.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
             // Connect to the host and db name defined in config settings
-            const dbServerUrl = `mongodb://${config_1.default.get().db.host}:${config_1.default.get().db.port}/${config_1.default.get().db.name}?authSource=${config_1.default.get().db.authSource}`;
+            const dbServerUrl = `mongodb://${username}:${password}@${config_1.default.get().db.host}:${config_1.default.get().db.port}/${config_1.default.get().db.name}?authSource=${config_1.default.get().db.authSource}`;
             mongoose.connect(dbServerUrl, options);
             const dbConn = mongoose.connection;
             yield new Promise((resolve, reject) => {
@@ -59,8 +60,8 @@ class DB {
                     dbConn.removeAllListeners();
                 });
                 dbConn.on('error', (err) => {
-                    this.log(server_1.LogLevel.Error, 'Uncaught exception occurred in database', null, err);
-                    reject(err);
+                    this.log(server_1.LogLevel.Error, 'Database error', null, err);
+                    reject(new Error('Unable to connect to database.'));
                 });
                 dbConn.once('open', resolve);
             });
