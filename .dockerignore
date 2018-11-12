@@ -1,0 +1,5 @@
+.gitignore
+.travis.yml
+.vscode
+node_modules
+test
