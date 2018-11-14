@@ -14,8 +14,8 @@ Once configured, you can begin syncing your browser data to your xBrowserSync se
 
 ## Prerequisites
 
-- [Node.js v8 (LTS)](https://nodejs.org/)
-- [mongoDB v3](https://www.mongodb.com/)
+- [Node.js](https://nodejs.org/)
+- [mongoDB](https://www.mongodb.com/)
 
 ## Upgrading from an earlier version
 
