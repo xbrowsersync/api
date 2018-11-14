@@ -18,13 +18,13 @@ describe('Docs', () => {
 
   beforeEach(async () => {
     testConfig = Config.get(true);
-    testConfig.log.enabled = false;
+    testConfig.log.file.enabled = false;
+    testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
 
     server = new Server();
-    server.logToConsoleEnabled(false);
     await server.init();
     await server.start();
   });

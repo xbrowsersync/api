@@ -11,11 +11,17 @@
     "port": 27017
   },
   "log": {
-    "enabled": true,
-    "level": "info",
-    "path": "/var/log/xBrowserSync/api.log",
-    "rotatedFilesToKeep": 5,
-    "rotationPeriod": "1d"
+    "file": {
+      "enabled": true,
+      "level": "info",
+      "path": "/var/log/xBrowserSync/api.log",
+      "rotatedFilesToKeep": 5,
+      "rotationPeriod": "1d"
+    },
+    "stdout": {
+      "enabled": true,
+      "level": "info"
+    }
   },
   "maxSyncs": 5242,
   "maxSyncSize": 512000,

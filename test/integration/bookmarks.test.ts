@@ -30,13 +30,13 @@ describe('BookmarksRouter', () => {
 
   beforeEach(async () => {
     testConfig = Config.get(true);
-    testConfig.log.enabled = false;
+    testConfig.log.file.enabled = false;
+    testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
     sandbox = sinon.createSandbox();
 
     server = new Server();
-    server.logToConsoleEnabled(false);
     await server.init();
     await server.start();
   });
@@ -128,7 +128,6 @@ describe('BookmarksRouter', () => {
     testConfig.maxSyncSize = 1;
     sandbox.stub(Config, 'get').returns(testConfig);
     server = new Server();
-    server.logToConsoleEnabled(false);
     await server.init();
     await server.start();
 

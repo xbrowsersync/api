@@ -61,7 +61,6 @@ export default class Server {
   private db: DB;
   private infoService: InfoService;
   private logger: bunyan;
-  private logToConsole = true;
   private newSyncLogsService: NewSyncLogsService;
   private rateLimit = require('express-rate-limit');
   private server: http.Server | https.Server;
@@ -90,52 +89,18 @@ export default class Server {
   // Logs messages and errors to console and to file (if enabled)
   @autobind
   public log(level: LogLevel, message: string, req?: express.Request, err?: Error): void {
-    const writeToLogFile = (logAction: () => void) => {
-      if (!Config.get().log.enabled || !logAction) {
-        return;
-      }
-      
-      if (!this.logger) {
-        console.error('Unable to write to log as it has not been initialised.');
-        return;
-      }
-
-      logAction();
-    };
-
-    const writeToConsole = (logAction: () => void) => {
-      if (!this.logToConsole) {
-        return;
-      }
-
-      logAction();
-    };
+    if (!this.logger) {
+      return;
+    }
     
     switch (level) {
       case LogLevel.Error:
-        writeToLogFile(() => {
-          this.logger.error({ req, err }, message);
-        });
-        
-        writeToConsole(() => {
-          console.error(err ? `${message}: ${err.message}` : message);
-        });
+        this.logger.error({ req, err }, message);
         break;
       case LogLevel.Info:
-        writeToLogFile(() => {
-          this.logger.info({ req }, message);
-        });
-
-        writeToConsole(() => {
-          console.log(message);
-        });
+        this.logger.info({ req }, message);
         break;
     }
-  }
-
-  // Enables/disables logging messages to the console
-  public logToConsoleEnabled(logToConsole: boolean): void {
-    this.logToConsole = logToConsole;
   }
 
   // Starts the api service
@@ -218,35 +183,53 @@ export default class Server {
 
   // Initialises the express application and middleware
   private configureServer(): void {
+    const logStreams = [];
     this.app = express();
 
-    // Add logging if required
-    if (Config.get().log.enabled) {
+    // Enabled logging to stdout if required
+    if (Config.get().log.stdout.enabled) {
+      // Add file log stream
+      logStreams.push({
+        level: Config.get().log.stdout.level,
+        stream: process.stdout
+      });
+    }
+
+    // Enable logging to file if required
+    if (Config.get().log.file.enabled) {
       try {
         // Ensure log directory exists
-        const logDirectory = Config.get().log.path.substring(0, Config.get().log.path.lastIndexOf('/'));
+        const logDirectory = Config.get().log.file.path.substring(0, Config.get().log.file.path.lastIndexOf('/'));
         if (!fs.existsSync(logDirectory)) {
           mkdirp.sync(logDirectory);
         }
 
-        // Initialise bunyan logger
-        this.logger = bunyan.createLogger({
-          level: Config.get().log.level,
-          name: 'xBrowserSync_api',
-          serializers: bunyan.stdSerializers,
-          streams: [
-            {
-              count: Config.get().log.rotatedFilesToKeep,
-              level: Config.get().log.level,
-              path: Config.get().log.path,
-              period: Config.get().log.rotationPeriod,
-              type: 'rotating-file'
-            }
-          ]
+        // Add file log stream
+        logStreams.push({
+          count: Config.get().log.file.rotatedFilesToKeep,
+          level: Config.get().log.file.level,
+          path: Config.get().log.file.path,
+          period: Config.get().log.file.rotationPeriod,
+          type: 'rotating-file'
         });
       }
       catch (err) {
         console.error(`Failed to initialise log file.`);
+        throw err;
+      }
+    }
+
+    if (logStreams.length > 0) {
+      try {
+        // Initialise bunyan logger
+        this.logger = bunyan.createLogger({
+          name: 'xBrowserSync_api',
+          serializers: bunyan.stdSerializers,
+          streams: logStreams
+        });
+      }
+      catch (err) {
+        console.error(`Failed to initialise logger.`);
         throw err;
       }
     }

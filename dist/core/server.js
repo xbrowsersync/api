@@ -55,7 +55,6 @@ var LogLevel;
 // Main class for the xBrowserSync api service
 class Server {
     constructor() {
-        this.logToConsole = true;
         this.rateLimit = require('express-rate-limit');
     }
     // Throws an error if the service status is set to offline in config
@@ -86,44 +85,17 @@ class Server {
     }
     // Logs messages and errors to console and to file (if enabled)
     log(level, message, req, err) {
-        const writeToLogFile = (logAction) => {
-            if (!config_1.default.get().log.enabled || !logAction) {
-                return;
-            }
-            if (!this.logger) {
-                console.error('Unable to write to log as it has not been initialised.');
-                return;
-            }
-            logAction();
-        };
-        const writeToConsole = (logAction) => {
-            if (!this.logToConsole) {
-                return;
-            }
-            logAction();
-        };
+        if (!this.logger) {
+            return;
+        }
         switch (level) {
             case LogLevel.Error:
-                writeToLogFile(() => {
-                    this.logger.error({ req, err }, message);
-                });
-                writeToConsole(() => {
-                    console.error(err ? `${message}: ${err.message}` : message);
-                });
+                this.logger.error({ req, err }, message);
                 break;
             case LogLevel.Info:
-                writeToLogFile(() => {
-                    this.logger.info({ req }, message);
-                });
-                writeToConsole(() => {
-                    console.log(message);
-                });
+                this.logger.info({ req }, message);
                 break;
         }
-    }
-    // Enables/disables logging messages to the console
-    logToConsoleEnabled(logToConsole) {
-        this.logToConsole = logToConsole;
     }
     // Starts the api service
     start() {
@@ -200,33 +172,49 @@ class Server {
     }
     // Initialises the express application and middleware
     configureServer() {
+        const logStreams = [];
         this.app = express();
-        // Add logging if required
-        if (config_1.default.get().log.enabled) {
+        // Enabled logging to stdout if required
+        if (config_1.default.get().log.stdout.enabled) {
+            // Add file log stream
+            logStreams.push({
+                level: config_1.default.get().log.stdout.level,
+                stream: process.stdout
+            });
+        }
+        // Enable logging to file if required
+        if (config_1.default.get().log.file.enabled) {
             try {
                 // Ensure log directory exists
-                const logDirectory = config_1.default.get().log.path.substring(0, config_1.default.get().log.path.lastIndexOf('/'));
+                const logDirectory = config_1.default.get().log.file.path.substring(0, config_1.default.get().log.file.path.lastIndexOf('/'));
                 if (!fs.existsSync(logDirectory)) {
                     mkdirp.sync(logDirectory);
                 }
-                // Initialise bunyan logger
-                this.logger = bunyan.createLogger({
-                    level: config_1.default.get().log.level,
-                    name: 'xBrowserSync_api',
-                    serializers: bunyan.stdSerializers,
-                    streams: [
-                        {
-                            count: config_1.default.get().log.rotatedFilesToKeep,
-                            level: config_1.default.get().log.level,
-                            path: config_1.default.get().log.path,
-                            period: config_1.default.get().log.rotationPeriod,
-                            type: 'rotating-file'
-                        }
-                    ]
+                // Add file log stream
+                logStreams.push({
+                    count: config_1.default.get().log.file.rotatedFilesToKeep,
+                    level: config_1.default.get().log.file.level,
+                    path: config_1.default.get().log.file.path,
+                    period: config_1.default.get().log.file.rotationPeriod,
+                    type: 'rotating-file'
                 });
             }
             catch (err) {
                 console.error(`Failed to initialise log file.`);
+                throw err;
+            }
+        }
+        if (logStreams.length > 0) {
+            try {
+                // Initialise bunyan logger
+                this.logger = bunyan.createLogger({
+                    name: 'xBrowserSync_api',
+                    serializers: bunyan.stdSerializers,
+                    streams: logStreams
+                });
+            }
+            catch (err) {
+                console.error(`Failed to initialise logger.`);
                 throw err;
             }
         }
