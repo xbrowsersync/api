@@ -29,6 +29,8 @@ From v1.1.6, database users are created in the admin database. When upgrading fr
   }
   ```
 
+Config settings for logging has also changed so ensure you update your `config/settings.json` file if you have customised logging settings.
+
 ### <= v1.0.3
 
 If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
@@ -136,11 +138,13 @@ Config Setting | Description | Default Value
 `db.username` | Username of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
 `db.password` | Password of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
 `db.port` | The port to use to connect to mongoDB. | `27017`
-`log.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.path` and the log file is rotated automatically each period set by `log.rotationPeriod`, resulting in files "`log.path`.0", "`log.path`.1", etc. | `true`
-`log.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
-`log.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log`
-`log.rotatedFilesToKeep` | Maximum number of rotated log files to retain. | `5`
-`log.rotationPeriod` | 	The period at which to rotate log files. This is a string of the format "$number$scope" where "$scope" is one of "ms" (milliseconds -- only useful for testing), "h" (hours), "d" (days), "w" (weeks), "m" (months), "y" (years). Or one of the following names can be used "hourly" (means 1h), "daily" (1d), "weekly" (1w), "monthly" (1m), "yearly" (1y). Rotation is done at the start of the scope: top of the hour (h), midnight (d), start of Sunday (w), start of the 1st of the month (m), start of Jan 1st (y). | `1d`
+`log.file.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.file.path` and the log file is rotated automatically each period set by `log.file.rotationPeriod`, resulting in files "`log.file.path`.0", "`log.file.path`.1", etc. | `true`
+`log.file.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
+`log.file.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log`
+`log.file.rotatedFilesToKeep` | Maximum number of rotated log files to retain. | `5`
+`log.file.rotationPeriod` | 	The period at which to rotate log files. This is a string of the format "$number$scope" where "$scope" is one of "ms" (milliseconds -- only useful for testing), "h" (hours), "d" (days), "w" (weeks), "m" (months), "y" (years). Or one of the following names can be used "hourly" (means 1h), "daily" (1d), "weekly" (1w), "monthly" (1m), "yearly" (1y). Rotation is done at the start of the scope: top of the hour (h), midnight (d), start of Sunday (w), start of the 1st of the month (m), start of Jan 1st (y). | `1d`
+`log.stdout.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to stdout. | `true`
+`log.stdout.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
 `maxSyncs` | The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Esers with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable. | `5242`
 `maxSyncSize` | The maximum sync size in bytes. Note this is not equivalent to the size/amount of bookmarks as data is compressed and encrypted client-side before being sent to the service. | `512000` (500kb)
 `server.behindProxy` | Set to `true` if service is behind a proxy, client IP address will be set from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users. | `false`
