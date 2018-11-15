@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import * as mongojs from 'mongojs';
+import * as mongodb from 'mongodb';
 import * as mongoose from 'mongoose';
 
 import Config from './config';
@@ -9,20 +9,22 @@ import { LogLevel } from './server';
 // Handles database interaction
 export default class DB {
   public static idIsValid(id): void {
-    let binary;
+    let binary: mongodb.Binary;
+    let base64Str: string;
 
     if (!id) {
       throw new InvalidSyncIdException();
     }
 
     try {
-      binary = mongojs.Binary(new Buffer(id, 'hex'), mongojs.Binary.SUBTYPE_UUID);
+      binary = new mongodb.Binary(Buffer.from(id, 'hex'), 4);
+      base64Str = binary.buffer.toString('base64');
     }
     catch (err) {
       throw new InvalidSyncIdException();
     }
 
-    if (!binary || !binary.toJSON()) {
+    if (!binary || !base64Str) {
       throw new InvalidSyncIdException();
     }
   }

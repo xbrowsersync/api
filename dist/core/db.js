@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongojs = require("mongojs");
+const mongodb = require("mongodb");
 const mongoose = require("mongoose");
 const config_1 = require("./config");
 const exception_1 = require("./exception");
@@ -20,16 +20,18 @@ class DB {
     }
     static idIsValid(id) {
         let binary;
+        let base64Str;
         if (!id) {
             throw new exception_1.InvalidSyncIdException();
         }
         try {
-            binary = mongojs.Binary(new Buffer(id, 'hex'), mongojs.Binary.SUBTYPE_UUID);
+            binary = new mongodb.Binary(Buffer.from(id, 'hex'), 4);
+            base64Str = binary.buffer.toString('base64');
         }
         catch (err) {
             throw new exception_1.InvalidSyncIdException();
         }
-        if (!binary || !binary.toJSON()) {
+        if (!binary || !base64Str) {
             throw new exception_1.InvalidSyncIdException();
         }
     }

@@ -368,8 +368,8 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
 
     try {
       // Create a new v4 uuid and return as an unbroken string to use for a unique id
-      const bytes: any = uuid.v4(null, new Buffer(16));
-      newId = new Buffer(bytes, 'base64').toString('hex');
+      const bytes: any = uuid.v4(null, Buffer.alloc(16));
+      newId = Buffer.from(bytes, 'base64').toString('hex');
     }
     catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);

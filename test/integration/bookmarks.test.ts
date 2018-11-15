@@ -42,8 +42,8 @@ describe('BookmarksRouter', () => {
   });
 
   afterEach(async () => {
-    await BookmarksModel.remove({}).exec();
-    await NewSyncLogsModel.remove({}).exec();
+    await BookmarksModel.deleteMany({}).exec();
+    await NewSyncLogsModel.deleteMany({}).exec();
 
     await server.stop();
     sandbox.restore();
