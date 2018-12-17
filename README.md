@@ -1,10 +1,10 @@
 # xBrowserSync
 ## API service
 
-[![Build Status](https://travis-ci.org/xBrowserSync/API.svg)](https://travis-ci.org/xBrowserSync/API) [![Dependencies](https://david-dm.org/xBrowserSync/API/status.svg)](https://david-dm.org/xBrowserSync/API) [![Dev Dependencies](https://david-dm.org/xBrowserSync/API/dev-status.svg)](https://david-dm.org/xBrowserSync/API?type=dev) [![GitHub license](https://img.shields.io/github/license/xBrowserSync/API.svg)](https://github.com/xBrowserSync/API/blob/master/LICENSE.md)
+[![Build Status](https://travis-ci.org/xbrowsersync/api.svg)](https://travis-ci.org/xbrowsersync/api) [![Dependencies](https://david-dm.org/xbrowsersync/api/status.svg)](https://david-dm.org/xbrowsersync/api) [![Dev Dependencies](https://david-dm.org/xbrowsersync/api/dev-status.svg)](https://david-dm.org/xbrowsersync/api?type=dev) [![GitHub license](https://img.shields.io/github/license/xbrowsersync/api.svg)](https://github.com/xbrowsersync/api/blob/master/LICENSE.md)
 
-[![GitHub forks](https://img.shields.io/github/forks/xBrowserSync/API.svg?style=social&label=Fork)](https://github.com/xBrowserSync/API/fork)
-[![GitHub stars](https://img.shields.io/github/stars/xBrowserSync/API.svg?style=social&label=Star)](https://github.com/xBrowserSync/API)
+[![GitHub forks](https://img.shields.io/github/forks/xbrowsersync/api.svg?style=social&label=Fork)](https://github.com/xbrowsersync/api/fork)
+[![GitHub stars](https://img.shields.io/github/stars/xbrowsersync/api.svg?style=social&label=Star)](https://github.com/xbrowsersync/api)
 
 xBrowserSync is a free tool for syncing browser data between different browsers and devices, built for privacy and anonymity. For full details, see [www.xbrowsersync.org](https://www.xbrowsersync.org/).
 
@@ -206,4 +206,4 @@ If you're using [VS Code](https://code.visualstudio.com/), you have the followin
 
 ## Issues
 
-If you've found a bug or wish to request a new feature, please submit it [here](https://github.com/xBrowserSync/API/issues/).
+If you've found a bug or wish to request a new feature, please submit it [here](https://github.com/xbrowsersync/api/issues/).
