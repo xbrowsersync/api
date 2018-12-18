@@ -12,58 +12,32 @@ This repository contains the source code for the REST service API that client ap
 
 Once configured, you can begin syncing your browser data to your xBrowserSync service, and if you're feeling generous, [allow others to sync their data to your service](https://www.xbrowsersync.org/#getinvolved) also!
 
-## Prerequisites
+## Running with Docker
+
+The easiest way to get up and running is by using [Docker](https://www.docker.com/) to run the xBrowserSync API as a container. Docker is a popular container management and imaging platform that allows you to quickly work with containers on Linux and Windows.
+
+Once you have installed Docker you can use the [xBrowserSync API Docker image](https://hub.docker.com/r/xbrowsersync/api) to get a production-ready xBrowserSync service up and running with minimal effort (view the [README](https://github.com/xbrowsersync/api-docker/blob/master/README.md) for more information).
+
+## Manual installation
+
+Whilst running in a Docker container is the recommended way to run your xBrowserSync service, you can 
+
+### Prerequisites
 
 - [Node.js](https://nodejs.org/)
-- [mongoDB](https://www.mongodb.com/)
+- [MongoDB](https://www.mongodb.com/)
 
-## Upgrading from an earlier version
+### 1. Clone the xBrowserSync API source repo
 
-### <= v1.1.5
+    $ git clone https://github.com/xbrowsersync/api.git
 
-From v1.1.6, database users are created in the admin database. When upgrading from an earlier version you'll either need to drop the existing users in the xbrowsersync database and recreate them in the admin database, or simply add the following to your `config/settings.json` file:
+### 2. Install and build xBrowserSync API package
 
-  ```
-  "db": {
-    "authSource": "xbrowsersync"
-  }
-  ```
-
-Config settings for logging has also changed so ensure you update your `config/settings.json` file if you have customised logging settings.
-
-### <= v1.0.3
-
-If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
-
-To export existing syncs, run the following command:
-
-  ```
-  mongoexport --db xBrowserSync -c bookmarks --out /path/to/export/file
-  ```
-
-Then to delete the database, run the following commands in the mongo shell:
-
-  ```
-  use xBrowserSync
-  db.dropAllUsers()
-  db.dropDatabase()
-  ```
-
-Once you've upgraded and completed the installation steps below, you can import the syncs by running the following command:
-
-  ```
-  mongoimport --db xbrowsersync -c bookmarks --file /path/to/export/file
-  ```
-
-## Installation
-
-### 1. Install and build xBrowserSync API package
-
-CD into the source directory and install dependencies (use `unsafe-perm` flag if you get any permissions issues whilst trying to install):
+  (Use the `unsafe-perm` flag if you get any permissions issues whilst trying to install):
 
     $ npm install --unsafe-perm
 
-### 2. Configure mongoDB databases
+### 3. Configure MongoDB databases
 
   1. Run the following commands in the mongo shell:
   
@@ -113,7 +87,7 @@ CD into the source directory and install dependencies (use `unsafe-perm` flag if
       db.bookmarks.createIndex( { "lastAccessed": 1 }, { expireAfterSeconds: 21*86400 } )
       ```
 
-### 3. Modify configuration settings
+### 4. Modify configuration settings
 
 The file `config/settings.default.json` contains all of the default configuration settings. User configuration values should be stored in `config/settings.json` and will override the defaults. Should you wish to change any of the configuration settings, copy `settings.default.json` and rename the copy to `settings.json` before changing any values as required. Be sure to remove any settings that have not been changed so that any amendments to the default values in future versions are picked up. For example, a basic user configuration to modify the service status message could look like:
 
@@ -132,12 +106,12 @@ Config Setting | Description | Default Value
 `allowedOrigins` | Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted | `[]` (All origins permitted)
 `dailyNewSyncsLimit` | The maximum number of new syncs that a single IP address can create per day. If this setting is enabled, logs are created in newsynclogs collection to track IP addresses (cleared the following day). Set as `0` to disable. | `3`
 `db.authSource` | The database to use for authentication. | `admin`
-`db.connTimeout` | The connection timeout period to use for mongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
-`db.host` | The mongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1`
-`db.name` | Name of the mongoDB database to use. | `xbrowsersync`
-`db.username` | Username of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
-`db.password` | Password of the account used to access mongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
-`db.port` | The port to use to connect to mongoDB. | `27017`
+`db.connTimeout` | The connection timeout period to use for MongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
+`db.host` | The MongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1`
+`db.name` | Name of the MongoDB database to use. | `xbrowsersync`
+`db.username` | Username of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
+`db.password` | Password of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
+`db.port` | The port to use to connect to MongoDB. | `27017`
 `log.file.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.file.path` and the log file is rotated automatically each period set by `log.file.rotationPeriod`, resulting in files "`log.file.path`.0", "`log.file.path`.1", etc. | `true`
 `log.file.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
 `log.file.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log`
@@ -156,16 +130,16 @@ Config Setting | Description | Default Value
 `status.allowNewSyncs` | Determines whether users will be allowed to create new syncs on this server. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. | `true`
 `status.message` | This message will be displayed in the service status panel of the client app when using this xBrowserSync service. Ideally the message should be 130 characters or less. | (Empty string, no message set)
 `status.online` | If set to true no clients will be able to connect to this service. | `true`
-`tests.db` | Name of the mongoDB database to use for integration tests. | `xbrowsersynctest`
+`tests.db` | Name of the MongoDB database to use for integration tests. | `xbrowsersynctest`
 `tests.port` | Port to use for running tests. | `8081`
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
 `throttle.timeWindow` | Amount of time (in milliseconds) before throttle counter is reset. | `300000` (5 mins)
 
-### 4. Create log folder
+### 5. Create log folder
 
 Ensure that the path set in the `log.path` config value exists, and that the account node will be running as can write to that location.
 
-### 5. Run xBrowserSync service
+### 6. Run xBrowserSync service
 
     $ node dist/api.js
 
@@ -195,6 +169,44 @@ You can then run the integration tests by running the following command:
 
     $ npm run integrationtests
 
+## Upgrading from an earlier version
+
+### <= v1.1.5
+
+From v1.1.6, database users are created in the admin database. When upgrading from an earlier version you'll either need to drop the existing users in the xbrowsersync database and recreate them in the admin database, or simply add the following to your `config/settings.json` file:
+
+  ```
+  "db": {
+    "authSource": "xbrowsersync"
+  }
+  ```
+
+Config settings for logging has also changed so ensure you update your `config/settings.json` file if you have customised logging settings.
+
+### <= v1.0.3
+
+If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
+
+To export existing syncs, run the following command:
+
+  ```
+  mongoexport --db xBrowserSync -c bookmarks --out /path/to/export/file
+  ```
+
+Then to delete the database, run the following commands in the mongo shell:
+
+  ```
+  use xBrowserSync
+  db.dropAllUsers()
+  db.dropDatabase()
+  ```
+
+Once you've upgraded and completed the installation steps below, you can import the syncs by running the following command:
+
+  ```
+  mongoimport --db xbrowsersync -c bookmarks --file /path/to/export/file
+  ```
+
 ## VS Code
 
 If you're using [VS Code](https://code.visualstudio.com/), you have the following launch configurations:
@@ -204,6 +216,8 @@ If you're using [VS Code](https://code.visualstudio.com/), you have the followin
   3. Run unit tests: Will run and debug all tests in `test/unit` folder.
   4. Run integration tests: Will debug all tests in `test/integration` folder.
 
-## Issues
+Note: we recommend [VSCodium](https://github.com/VSCodium/vscodium/) for running VSCode without Microsoft's proprietary binaries and telemetry/tracking. 
 
-If you've found a bug or wish to request a new feature, please submit it [here](https://github.com/xbrowsersync/api/issues/).
+## Issues and feature requests
+
+Please log Docker-related issues in the [api-docker Issues list](https://github.com/xbrowsersync/api-docker/issues), if you have found an issue with the xBrowserSync API itself or wish to request a new feature, do so in the [api Issues list](https://github.com/xbrowsersync/api/issues/).
