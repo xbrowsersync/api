@@ -41,7 +41,7 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
 
   1. Run the following commands in the mongo shell:
   
-      (Replace `[password]` with a cleartext password of your choice)
+      (Replace `[password]` with a cleartext password of your choice; however, do not use any of the following special characters: `: # ? / \ %`, or the application will fail to connect to mongo with the following error: `failed to connect to server [xbrowsersyncdb:27017] on first connect [MongoNetworkError: getaddrinfo ENOTFOUND xbrowsersyncdb xbrowsersyncdb:27017]`)
 
       ```
       use admin
