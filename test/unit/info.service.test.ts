@@ -1,13 +1,15 @@
+// tslint:disable:no-implicit-dependencies
+// tslint:disable:no-unused-expression
+
 import { assert, expect } from 'chai';
-import decache = require('decache');
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
 
 import Config from '../../src/core/config';
+import { ApiStatus } from '../../src/core/server';
 import BookmarksService from '../../src/services/bookmarks.service';
 import InfoService from '../../src/services/info.service';
-import { ApiStatus } from '../../src/core/server';
 
 describe('InfoService', () => {
   let bookmarksService: BookmarksService;
@@ -17,7 +19,7 @@ describe('InfoService', () => {
 
   beforeEach(() => {
     testConfig = Config.get(true);
-    const log = () => { };
+    const log = () => null;
     bookmarksService = new BookmarksService(null, log);
     infoService = new InfoService(bookmarksService as BookmarksService, log);
     sandbox = sinon.createSandbox();

@@ -50,7 +50,7 @@ export default class DB {
     const password = Config.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
     
     // Connect to the host and db name defined in config settings
-    const dbServerUrl = `mongodb://${username}:${password}@${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}?authSource=${Config.get().db.authSource}`;
+    const dbServerUrl = `mongodb://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}?authSource=${Config.get().db.authSource}`;
     mongoose.connect(dbServerUrl, options);
     const dbConn = mongoose.connection;
 

@@ -1,5 +1,7 @@
+// tslint:disable:no-implicit-dependencies
+// tslint:disable:no-unused-expression
+
 import { assert, expect } from 'chai';
-import decache = require('decache');
 import 'mocha';
 import * as sinon from 'sinon';
 

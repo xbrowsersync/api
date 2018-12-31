@@ -1,10 +1,11 @@
+// tslint:disable:no-implicit-dependencies
+// tslint:disable:no-unused-expression
+
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
-import decache = require('decache');
 import 'mocha';
 import * as sinon from 'sinon';
 
-import BookmarksModel from '../../src/models/bookmarks.model';
 import Config from '../../src/core/config';
 import {
   InvalidSyncIdException,
@@ -13,8 +14,9 @@ import {
   RequiredDataNotFoundException,
   SyncDataLimitExceededException
 } from '../../src/core/exception';
-import NewSyncLogsModel from '../../src/models/newSyncLogs.model';
 import Server from '../../src/core/server';
+import BookmarksModel from '../../src/models/bookmarks.model';
+import NewSyncLogsModel from '../../src/models/newSyncLogs.model';
 
 before(() => {
   use(chaiHttp);

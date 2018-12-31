@@ -1,5 +1,7 @@
-import { assert, expect } from 'chai';
-import decache = require('decache');
+// tslint:disable:no-implicit-dependencies
+// tslint:disable:no-unused-expression
+
+import { expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
@@ -17,7 +19,7 @@ describe('NewSyncLogsService', () => {
 
   beforeEach(() => {
     testConfig = Config.get(true);
-    const log = () => { };
+    const log = () => null;
     newSyncLogsService = new NewSyncLogsService(null, log);
     sandbox = sinon.createSandbox();
   });
@@ -57,7 +59,7 @@ describe('NewSyncLogsService', () => {
     sandbox.stub(Config, 'get').returns(testConfig);
     const countStub = sandbox.stub(NewSyncLogsModel, 'estimatedDocumentCount').returns({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
-    });
+    } as any);
 
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(countStub.called).to.be.true;
@@ -72,7 +74,7 @@ describe('NewSyncLogsService', () => {
     sandbox.stub(Config, 'get').returns(testConfig);
     const countStub = sandbox.stub(NewSyncLogsModel, 'estimatedDocumentCount').returns({
       exec: () => Promise.resolve(1)
-    });
+    } as any);
 
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(countStub.called).to.be.true;

@@ -5,7 +5,7 @@ import * as uuid from 'uuid';
 // Interface for new sync log model
 export interface INewSyncLog {
   expiresAt?: Date,
-  ipAddress: string,
+  ipAddress?: string,
   syncCreated?: Date
 }
 

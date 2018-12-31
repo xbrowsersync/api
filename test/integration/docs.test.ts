@@ -1,6 +1,8 @@
+// tslint:disable:no-implicit-dependencies
+// tslint:disable:no-unused-expression
+
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
-import decache = require('decache');
 import 'mocha';
 import * as sinon from 'sinon';
 
