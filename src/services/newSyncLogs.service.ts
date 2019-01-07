@@ -50,7 +50,7 @@ export default class NewSyncLogsService extends BaseService<void> {
 
     // Query the newsynclogs collection for the total number of logs for the given ip address
     try {
-      newSyncsCreated = await NewSyncLogsModel.estimatedDocumentCount({ ipAddress: clientIp }).exec();
+      newSyncsCreated = await NewSyncLogsModel.countDocuments({ ipAddress: clientIp }).exec();
     }
     catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
