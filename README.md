@@ -129,7 +129,7 @@ Config Setting | Description | Default Value
 `server.port` | Port to use for Node.js server for accepting incoming connections. | `8080`
 `status.allowNewSyncs` | Determines whether users will be allowed to create new syncs on this server. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. | `true`
 `status.message` | This message will be displayed in the service status panel of the client app when using this xBrowserSync service. Ideally the message should be 130 characters or less. | (Empty string, no message set)
-`status.online` | If set to true no clients will be able to connect to this service. | `true`
+`status.online` | If set to false no clients will be able to connect to this service. | `true`
 `tests.db` | Name of the MongoDB database to use for integration tests. | `xbrowsersynctest`
 `tests.port` | Port to use for running tests. | `8081`
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
