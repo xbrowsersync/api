@@ -104,7 +104,7 @@ Any changes to the user configuration will require the service to be restarted b
 Config Setting | Description | Default Value
 -------------- | ----------- | -------------
 `allowedOrigins` | Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted | `[]` (All origins permitted)
-`dailyNewSyncsLimit` | The maximum number of new syncs that a single IP address can create per day. If this setting is enabled, logs are created in newsynclogs collection to track IP addresses (cleared the following day). Set as `0` to disable. | `3`
+`dailyNewSyncsLimit` | The maximum number of new syncs that a user can create per day - helps to prevent abuse of the service. If this setting is enabled, IP addresses are added to newsynclogs collection to track usage which is cleared down each day. Set as `0` to disable (allows users to create as many syncs as they want). | `3`
 `db.authSource` | The database to use for authentication. | `admin`
 `db.connTimeout` | The connection timeout period to use for MongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
 `db.host` | The MongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1`
@@ -119,7 +119,7 @@ Config Setting | Description | Default Value
 `log.file.rotationPeriod` | 	The period at which to rotate log files. This is a string of the format "$number$scope" where "$scope" is one of "ms" (milliseconds -- only useful for testing), "h" (hours), "d" (days), "w" (weeks), "m" (months), "y" (years). Or one of the following names can be used "hourly" (means 1h), "daily" (1d), "weekly" (1w), "monthly" (1m), "yearly" (1y). Rotation is done at the start of the scope: top of the hour (h), midnight (d), start of Sunday (w), start of the 1st of the month (m), start of Jan 1st (y). | `1d`
 `log.stdout.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to stdout. | `true`
 `log.stdout.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
-`maxSyncs` | The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Esers with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable. | `5242`
+`maxSyncs` | The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Users with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable. | `5242`
 `maxSyncSize` | The maximum sync size in bytes. Note this is not equivalent to the size/amount of bookmarks as data is compressed and encrypted client-side before being sent to the service. | `512000` (500kb)
 `server.behindProxy` | Set to `true` if service is behind a proxy, client IP address will be set from [X-Forwarded-For](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For) header. Important: Do not set to `true` unless a proxy is present otherwise client IP address can easily be spoofed by malicious users. | `false`
 `server.host` | Host name or IP address to use for Node.js server for accepting incoming connections. | `127.0.0.1`
@@ -127,7 +127,7 @@ Config Setting | Description | Default Value
 `server.https.enabled` | If enabled, the service is started using HTTPS. | `false`
 `server.https.keyPath` | Path to the SSL certificate's private key. Required when HTTPS is enabled. | (Empty string, no path set)
 `server.port` | Port to use for Node.js server for accepting incoming connections. | `8080`
-`status.allowNewSyncs` | Determines whether users will be allowed to create new syncs on this server. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. | `true`
+`status.allowNewSyncs` | Determines whether users will be allowed to create new syncs. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. | `true`
 `status.message` | This message will be displayed in the service status panel of the client app when using this xBrowserSync service. Ideally the message should be 130 characters or less. | (Empty string, no message set)
 `status.online` | If set to false no clients will be able to connect to this service. | `true`
 `tests.db` | Name of the MongoDB database to use for integration tests. | `xbrowsersynctest`
