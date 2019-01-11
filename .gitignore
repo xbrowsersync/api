@@ -1,3 +1,4 @@
+.dockerignore
 *.log
 config/settings.json
 dockerfile
