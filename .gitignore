@@ -1,3 +1,4 @@
 *.log
 config/settings.json
+dockerfile
 node_modules/
