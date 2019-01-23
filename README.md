@@ -109,6 +109,7 @@ Config Setting | Description | Default Value
 `db.connTimeout` | The connection timeout period to use for MongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
 `db.host` | The MongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1`
 `db.name` | Name of the MongoDB database to use. | `xbrowsersync`
+`db.useSRV` | Use MongoDB's [DNS Seedlist Connection Format](https://docs.mongodb.com/manual/reference/connection-string/#dns-seedlist-connection-format) to connect to the database. If set to true, `db.host` should also be set to the relevant DNS hostname. | `false`
 `db.username` | Username of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
 `db.password` | Password of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
 `db.port` | The port to use to connect to MongoDB. | `27017`
