@@ -7,10 +7,10 @@
   "main": "dist/api.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/xBrowserSync/API.git"
+    "url": "https://github.com/xbrowsersync/api.git"
   },
   "bugs": {
-    "url": "https://github.com/xBrowserSync/API/issues"
+    "url": "https://github.com/xbrowsersync/api/issues"
   },
   "dependencies": {
     "bootstrap": "^3.4.0",
