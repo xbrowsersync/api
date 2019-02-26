@@ -81,7 +81,7 @@ class ServiceNotAvailableException extends ExceptionBase {
     constructor(message) {
         super(message || 'The service is currently offline');
         this.name = 'ServiceNotAvailableException';
-        this.status = 405;
+        this.status = 503;
     }
 }
 exports.ServiceNotAvailableException = ServiceNotAvailableException;
