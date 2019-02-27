@@ -31,7 +31,7 @@ class DocsPage {
       updateURL: false
     });
   }
-  private async checkStatus() {
+  private async displayStatusMessage() {
 	const serverMessageEl = document.querySelector('#servermessage');
 	const apiInfo: IGetInfoResponse = await response.json();
       if (apiInfo) {
