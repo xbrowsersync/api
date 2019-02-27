@@ -33,6 +33,10 @@ class DocsPage {
   }
   private async displayStatusMessage() {
 	const serverMessageEl = document.querySelector('#servermessage');
+	const response = await fetch(`${location.pathname}info`);
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
 	const apiInfo: IGetInfoResponse = await response.json();
       if (apiInfo) {
 		serverMessageEl.textContent = apiInfo.message;
