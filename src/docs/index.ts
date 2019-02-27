@@ -22,13 +22,22 @@ class DocsPage {
 
     // Check service status
     this.checkStatus();
+	
+	// Display status.message
+	this.displayStatusMessage();
 
     // Enable smooth scrolling of page links
     const scroll = new SmoothScroll('a[href*="#"]', {
       updateURL: false
     });
   }
-
+  private async checkStatus() {
+	const serverMessageEl = document.querySelector('#servermessage');
+	const apiInfo: IGetInfoResponse = await response.json();
+      if (apiInfo) {
+		serverMessageEl.textContent = apiInfo.message;
+      }
+	}
   private async checkStatus() {
     const versionEl = document.querySelector('#version');
     const currentStatusEl = document.querySelector('#currentstatus');
