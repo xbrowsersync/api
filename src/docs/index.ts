@@ -22,13 +22,26 @@ class DocsPage {
 
     // Check service status
     this.checkStatus();
+	
+	// Display status.message
+	this.displayStatusMessage();
 
     // Enable smooth scrolling of page links
     const scroll = new SmoothScroll('a[href*="#"]', {
       updateURL: false
     });
   }
-
+  private async displayStatusMessage() {
+	const serverMessageEl = document.querySelector('#servermessage');
+	const response = await fetch(`${location.pathname}info`);
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+	const apiInfo: IGetInfoResponse = await response.json();
+      if (apiInfo) {
+		serverMessageEl.textContent = apiInfo.message;
+      }
+	}
   private async checkStatus() {
     const versionEl = document.querySelector('#version');
     const currentStatusEl = document.querySelector('#currentstatus');
