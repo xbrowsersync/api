@@ -7,7 +7,6 @@ import * as helmet from 'helmet';
 import * as http from 'http';
 import * as https from 'https';
 import * as mkdirp from 'mkdirp';
-import * as path from 'path';
 
 import Config from '../core/config';
 import DB from '../core/db';
@@ -92,7 +91,7 @@ export default class Server {
     if (!this.logger) {
       return;
     }
-    
+
     switch (level) {
       case LogLevel.Error:
         this.logger.error({ req, err }, message);
@@ -234,11 +233,14 @@ export default class Server {
       }
     }
 
-    // Set default config for helmet security hardening
+    // Create helmet config for security hardening
     const helmetConfig: helmet.IHelmetConfiguration = {
-      noCache: true
+      contentSecurityPolicy: {
+        directives: { defaultSrc: ["'self'"] }
+      },
+      noCache: true,
+      referrerPolicy: true
     };
-    
     this.app.use(helmet(helmetConfig));
 
     // Add default version to request if not supplied

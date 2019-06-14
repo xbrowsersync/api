@@ -8,7 +8,7 @@
 }
 
 @mixin animation($str) {
-   @include css-prefix(animation, $str);
+  @include css-prefix(animation, $str);
 }
 
 @mixin background-gradient($direction, $startColor, $startColorAmount, $endColor, $endColorAmount) {
@@ -24,20 +24,20 @@
 }
 
 @mixin keyframes($animation-name) {
-   @-webkit-keyframes #{$animation-name}{
+  @-webkit-keyframes #{$animation-name} {
     @content;
   }
   @-moz-keyframes #{$animation-name} {
-     @content;
+    @content;
   }
   @-ms-keyframes #{$animation-name} {
-     @content;
+    @content;
   }
   @-o-keyframes #{$animation-name} {
-     @content;
+    @content;
   }
   @keyframes #{$animation-name} {
-     @content;
+    @content;
   }
 }
 
@@ -69,9 +69,9 @@
 }
 
 @mixin rotate($deg) {
-   @include transform(rotate(#{$deg}deg));
+  @include transform(rotate(#{$deg}deg));
 }
 
 @mixin transform($transforms) {
-   @include css-prefix(transform, $transforms);
+  @include css-prefix(transform, $transforms);
 }

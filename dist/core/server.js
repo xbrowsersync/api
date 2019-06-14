@@ -218,9 +218,13 @@ class Server {
                 throw err;
             }
         }
-        // Set default config for helmet security hardening
+        // Create helmet config for security hardening
         const helmetConfig = {
-            noCache: true
+            contentSecurityPolicy: {
+                directives: { defaultSrc: ["'self'"] }
+            },
+            noCache: true,
+            referrerPolicy: true
         };
         this.app.use(helmet(helmetConfig));
         // Add default version to request if not supplied
