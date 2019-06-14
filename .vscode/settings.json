@@ -1,10 +1,13 @@
 {
-    "typescript.tsdk": "node_modules\\typescript\\lib",
-    "git.ignoreLimitWarning": true,
-    "search.exclude": {
-        "dist": true,
-    },
-    "typescript.tsc.autoDetect": "off",
-    "editor.tabSize": 2,
-    "terminal.integrated.shellArgs.windows": []
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "git.ignoreLimitWarning": true,
+  "search.exclude": {
+    "dist": true,
+  },
+  "terminal.integrated.shellArgs.windows": [],
+  "typescript.tsc.autoDetect": "off",
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

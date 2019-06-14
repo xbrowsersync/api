@@ -13,7 +13,7 @@ class DocsPage {
     // Add support for promises pre-es6
     es6promise.polyfill();
   }
-  
+
   // Initialises the page once DOM is ready
   @autobind
   public async init(): Promise<void> {
@@ -22,30 +22,18 @@ class DocsPage {
 
     // Check service status
     this.checkStatus();
-	
-	// Display status.message
-	this.displayStatusMessage();
 
     // Enable smooth scrolling of page links
     const scroll = new SmoothScroll('a[href*="#"]', {
       updateURL: false
     });
   }
-  private async displayStatusMessage() {
-	const serverMessageEl = document.querySelector('#servermessage');
-	const response = await fetch(`${location.pathname}info`);
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-	const apiInfo: IGetInfoResponse = await response.json();
-      if (apiInfo) {
-		serverMessageEl.textContent = apiInfo.message;
-      }
-	}
+
   private async checkStatus() {
     const versionEl = document.querySelector('#version');
     const currentStatusEl = document.querySelector('#currentstatus');
-    
+    const serverMessageEl = document.querySelector('#servermessage');
+
     // Display current status and version for this xBrowserSync service
     try {
       const response = await fetch(`${location.pathname}info`);
@@ -56,6 +44,12 @@ class DocsPage {
       const apiInfo: IGetInfoResponse = await response.json();
       if (apiInfo) {
         versionEl.textContent = apiInfo.version;
+
+        // If the server has configured a message, display it
+        if (apiInfo.message) {
+          serverMessageEl.innerHTML = this.linkify(apiInfo.message);
+          serverMessageEl.className = 'd-block';
+        }
       }
 
       switch (apiInfo.status) {
@@ -83,7 +77,7 @@ class DocsPage {
   private enableMenu() {
     const toggle = document.querySelector<HTMLButtonElement>('.nav-menu-button');
     const navbar = document.querySelector('nav');
-    
+
     const toggleMenu = () => {
       // Toggle menu display and menu button hide
       if (navbar.classList.contains('open')) {
@@ -110,6 +104,22 @@ class DocsPage {
         toggleMenu();
       });
     });
+  }
+
+  private linkify(text: string): string {
+    const protocolRegex = new RegExp('^\\w+:.*$');
+    const linkRegex = new RegExp('(\\w+://.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]+\\.[a-z]+\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)', 'g');
+
+    // Replace all urls with hyperlinks
+    let linkifiedText = '' + text;
+    linkifiedText.match(linkRegex).forEach((value: string) => {
+      const link = document.createElement('a');
+      link.innerText = value;
+      link.href = protocolRegex.test(value) ? value : `http://${value}`;
+      linkifiedText = linkifiedText.replace(value, link.outerHTML);
+    });
+
+    return linkifiedText;
   }
 }
 

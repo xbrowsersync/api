@@ -1,5 +1,5 @@
-@import 'mixins.scss';
-@import 'variables.scss';
+@import "mixins.scss";
+@import "variables.scss";
 @include keyframes(spin) {
   100% {
     @include rotate(360);
@@ -19,18 +19,18 @@ body,
 head,
 html {
   height: 100%;
+  width: 100%;
 }
 
 body {
   font-family: $font-stack-regular;
-  font-size: $font-size;
   overflow-x: hidden;
   color: $colour-text1;
   display: flex;
   flex-direction: column;
 
   &.noscroll {
-    @media (max-width: $width-small) {
+    @media (max-width: $width-medium) {
       overflow: hidden;
     }
   }
@@ -39,22 +39,17 @@ body {
 h1 {
   @include hide-text;
   background: url("./images/logo.svg") no-repeat;
-  width: 400px;
-  height: 408px;
-  padding: 0;
+  width: 200px;
+  height: 200px;
   margin: auto;
-  @media (max-width: $width-small) {
-    background-size: 300px;
-    width: 300px;
-    height: 305px;
-  }
 }
 
 h2 {
   font-size: 2.2em;
   font-weight: 700;
-  margin: 0 0 30px;
-  @media (max-width: $width-small) {
+  margin: 0;
+
+  @media (max-width: $width-medium) {
     font-size: 2em;
   }
 }
@@ -64,7 +59,8 @@ h3 {
   font-weight: 700;
   margin: 0 0 30px;
   text-align: center;
-  @media (max-width: $width-small) {
+
+  @media (max-width: $width-medium) {
     font-size: 2em;
   }
 }
@@ -89,7 +85,7 @@ p {
 
 a {
   color: $colour-text1;
-  transition: color, ease-in, .2s;
+  transition: color, ease-in, 0.2s;
   cursor: pointer;
   border-bottom: 1px dotted $colour-text1;
 
@@ -114,7 +110,7 @@ nav {
     z-index: 10;
 
     &.open {
-      @media (max-width: $width-small) {
+      @media (max-width: $width-medium) {
         top: 0;
         left: 0;
         position: fixed;
@@ -130,19 +126,9 @@ nav {
           display: block;
 
           &:before {
-            display: table!important;
-            content: " "!important;
+            display: table !important;
+            content: " " !important;
           }
-        }
-
-        .navbar-brand {
-          height: 6em;
-          width: 6em;
-          margin-bottom: 2rem;
-        }
-
-        .navbar-header {
-          display: block;
         }
 
         .navbar-nav > li > a {
@@ -152,55 +138,41 @@ nav {
       }
     }
 
-    .navbar-brand {
-      text-indent: -9999px;
-      display: block;
-      background: url("./images/icon.svg") no-repeat;
-      width: 40px;
-      height: 50px;
-      padding: 0;
-      margin: 0;
-      border-bottom: none;
-      @media (max-width: $width-small) {
-        margin-left: 15px;
-      }
-    }
+    #navbar {
+      .navbar-nav {
+        letter-spacing: 1px;
 
-    .navbar-header {
-      @media (max-width: $width-small) {
-        display: none;
-      }
-    }
-
-    .navbar-nav {
-      letter-spacing: 1px;
-
-      li {
-        a {
-          color: $colour-text1;
-          border-bottom: none!important;
-
-          &:active,
-          &:hover {
-            color: $colour-link-highlight;
-            outline: 0;
-          }
-
-          &:focus {
-            @extend a;
-          }
-
-          &.active {
-            color: $colour-link-highlight;
-            background: transparent;
+        li {
+          a {
+            color: $colour-text1;
+            border-bottom: none !important;
 
             &:active,
-            &:focus,
             &:hover {
+              color: $colour-link-highlight;
+              outline: 0;
+            }
+
+            &:focus {
               @extend a;
+            }
+
+            &.active {
+              color: $colour-link-highlight;
+              background: transparent;
+
+              &:active,
+              &:focus,
+              &:hover {
+                @extend a;
+              }
             }
           }
         }
+      }
+
+      @media (min-width: $width-medium) {
+        justify-content: center;
       }
     }
 
@@ -224,7 +196,7 @@ nav {
 
         &:after,
         &:before {
-          content: '';
+          content: "";
           width: 100%;
           height: 4px;
           background-color: $colour-link-highlight;
@@ -272,7 +244,8 @@ nav {
       border: 0;
       box-shadow: none;
     }
-    @media (max-width: $width-small) {
+
+    @media (max-width: $width-medium) {
       min-height: auto;
       padding: 0;
       margin-bottom: 0;
@@ -288,16 +261,14 @@ pre {
 
 code {
   font-family: $font-stack-code;
-  color: $colour-link-highlight!important;
-  background-color: rgba($colour-link-highlight, 0.1);
-  font-size: .8em;
+  color: $colour-link-highlight !important;
 }
 
 header {
-  margin-top: 70px;
+  padding: 5rem 0;
 
   & > .container > .row {
-    @media (min-width: $width-medium + 1) {
+    @media (min-width: $width-large) {
       display: flex;
 
       .col-lg-7 {
@@ -315,15 +286,9 @@ header {
 
   h2,
   p {
-    @media (max-width: $width-medium) {
+    @media (max-width: $width-large) {
       text-align: center;
     }
-  }
-
-  h2 {
-    line-height: 1.1em;
-    padding-top: 5rem;
-    margin-bottom: 20px;
   }
 
   p {
@@ -333,21 +298,23 @@ header {
     margin-bottom: 10px;
     color: $colour-text2;
   }
-  @media (max-width: $width-small) {
-    margin-top: 0;
-    padding: 5rem;
+
+  .title {
+    margin-top: 2.5rem;
+
+    @media (min-width: $width-medium) {
+      margin-top: 0;
+      align-items: center;
+      display: flex;
+    }
   }
 }
 
 section {
-  padding: 10rem 0;
+  padding: 5rem 0;
 
   & > .container > .panel {
     margin: 0 auto;
-    width: 80rem;
-    @media (max-width: $width-medium) {
-      width: 100%;
-    }
 
     a {
       color: $colour-text2;
@@ -382,7 +349,7 @@ section {
   }
 
   .example {
-    font-size: .9em;
+    font-size: 0.9em;
     margin-bottom: 50px;
 
     p {
@@ -391,21 +358,16 @@ section {
     }
 
     pre {
-      code {
-        font-size: 0.9em;
-      }
-
-      @media (min-width: $width-small + 1) {
+      @media (min-width: $width-medium) {
         margin-left: 25px;
-        font-size: 1.1em;
       }
     }
 
     ul {
       list-style: none;
       padding: 0;
-      
-      @media (min-width: $width-small + 1) {
+
+      @media (min-width: $width-medium) {
         margin-left: 25px;
       }
     }
@@ -416,14 +378,12 @@ section {
     justify-content: space-between;
     margin-bottom: 15px;
 
-    code {
-      background: transparent;
-      font-size: .9em;
-    }
-
     .label {
-      padding: 2px 5px;
+      color: $colour-text1;
       font-size: 65%;
+      font-weight: bold;
+      border-radius: 4px;
+      padding: 2px 5px;
       vertical-align: middle;
 
       &.label-info {
@@ -450,8 +410,9 @@ section {
     border-radius: 30px;
     padding: 30px 35px;
     margin-bottom: 75px;
-    box-shadow: .6875rem 1.3125rem 4.125rem rgba(0, 0, 0, 0.25);
-    @media (max-width: $width-small) {
+    box-shadow: 0.6875rem 1.3125rem 4.125rem rgba(0, 0, 0, 0.25);
+
+    @media (max-width: $width-medium) {
       margin: 0 15px 50px;
     }
 
@@ -469,19 +430,44 @@ section {
     }
   }
 
+  &#serviceinfo {
+    margin-top: -5rem;
+    padding-bottom: 15px;
+  }
+
   &#status {
     .serviceinfo {
+      display: flex;
+      justify-content: space-evenly;
       font-size: 1.2em;
       margin-bottom: 1.5rem;
     }
+
+    #servermessage {
+      font-style: italic;
+      text-align: center;
+      quotes: "\201c""\201d";
+      display: none;
+      margin-bottom: 2.5rem;
+      margin-top: -1rem;
+
+      &:before {
+        content: open-quote;
+      }
+
+      &:after {
+        content: close-quote;
+      }
+    }
   }
-  @media (max-width: $width-small) {
+
+  @media (max-width: $width-medium) {
     padding: 5rem 0;
   }
 }
 
 footer {
-  font-size: .7em;
+  font-size: 0.7em;
   flex-grow: 1;
   background-color: $colour-section1-bg;
   color: $colour-section1-text;
@@ -503,15 +489,16 @@ footer {
     height: 100%;
     background: url("./images/bg.svg");
     background-size: 1100px;
-    opacity: .3;
-    @media (max-width: $width-small) {
+    opacity: 0.3;
+
+    @media (max-width: $width-medium) {
       background-size: 650px;
     }
   }
 }
 
 .btn-outline {
-  transition: background-color .2s, color .2s;
+  transition: background-color 0.2s, color 0.2s;
   transition-timing-function: ease-in;
   color: $colour-text1;
   font-weight: 700;
@@ -529,7 +516,6 @@ footer {
     border: 2px solid $colour-text1;
     outline: 0;
     box-shadow: none;
-
   }
 
   &:active:hover,
@@ -540,11 +526,17 @@ footer {
     border: 2px solid $colour-text1;
     outline: 0;
     box-shadow: none;
-
   }
-  @media (max-width: $width-medium) {
-    font-size: .95em;
+
+  @media (max-width: $width-large) {
+    font-size: 0.95em;
     padding: 8px 15px;
+  }
+}
+
+.container {
+  @media (min-width: $width-xlarge) {
+    max-width: 960px;
   }
 }
 
@@ -552,11 +544,31 @@ footer {
   color: $colour-text2;
   font-size: 1.2em;
   font-weight: 700;
-  box-shadow: none!important;
+  box-shadow: none !important;
   outline: none;
   resize: none;
   @include placeholder {
-    color: rgba($colour-text2, 0.4)!important;
+    color: rgba($colour-text2, 0.4) !important;
+  }
+}
+
+.hamburger {
+  display: inline-block;
+  position: relative;
+  top: -0.2em;
+  height: 0.73em;
+  width: 1em;
+  border-top: 0.15em solid $colour-text1;
+  border-bottom: 0.15em solid $colour-text1;
+  opacity: 0.9;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0.15em;
+    left: 0px;
+    width: 100%;
+    border-top: 0.15em solid $colour-text1;
   }
 }
 
@@ -566,7 +578,8 @@ footer {
   & > img {
     height: 100%;
   }
-  @media (max-width: $width-small) {
+
+  @media (max-width: $width-medium) {
     height: 100px;
     margin-bottom: 0;
   }
@@ -578,8 +591,8 @@ footer {
   z-index: 20;
   top: 4%;
   right: 6%;
-  height: 2em;
-  width: 2em;
+  height: 1.75em;
+  width: 1.75em;
   padding: 0;
   background: rgba($colour-text2, 0.9);
   color: $colour-text1;
@@ -588,7 +601,8 @@ footer {
   font-size: 1.75em;
   line-height: 2.2em;
   outline: none;
-  @media (max-width: $width-small) {
+
+  @media (max-width: $width-medium) {
     display: block;
   }
 }

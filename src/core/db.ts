@@ -41,14 +41,15 @@ export default class DB {
     // Set the db connection options from config settings
     const options: mongoose.ConnectionOptions = {
       connectTimeoutMS: Config.get().db.connTimeout,
-      keepAlive: 1,
+      keepAlive: true,
+      useFindAndModify: false,
       useNewUrlParser: true
     };
 
     // Get db username and password
     const username = Config.get().db.username || process.env.XBROWSERSYNC_DB_USER;
     const password = Config.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
-    
+
     // Connect to the host and db name defined in config settings
     let dbServerUrl = 'mongodb';
     if (Config.get().db.useSRV) {

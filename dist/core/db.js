@@ -47,7 +47,8 @@ class DB {
             // Set the db connection options from config settings
             const options = {
                 connectTimeoutMS: config_1.default.get().db.connTimeout,
-                keepAlive: 1,
+                keepAlive: true,
+                useFindAndModify: false,
                 useNewUrlParser: true
             };
             // Get db username and password
