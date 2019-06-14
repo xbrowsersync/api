@@ -88,7 +88,7 @@
       <div class="panel">
         <h3>Bookmarks</h3>
         <div class="header">
-          <h4>Create Bookmarks</h4>
+          <h4>Create bookmarks</h4>
           <div>
             <span class="label label-warning">Post</span>
             <code>/bookmarks</code>
@@ -121,7 +121,7 @@
         </div>
 
         <div class="header">
-          <h4>Get Bookmarks</h4>
+          <h4>Get bookmarks</h4>
           <div>
             <span class="label label-success">Get</span>
             <code>/bookmarks/{id}</code>
@@ -151,7 +151,7 @@
         </div>
 
         <div class="header">
-          <h4>Update Bookmarks</h4>
+          <h4>Update bookmarks</h4>
           <div>
             <span class="label label-info">Put</span>
             <code>/bookmarks/{id}</code>
@@ -167,11 +167,14 @@
           </ul>
           <p>Post body example:</p>
           <pre><code>{
-    "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09oULX4Xt+ckxswtFNds..."
+    "bookmarks":"DWCx6wR9ggPqPRrhU4O4oLN5P09oULX4Xt+ckxswtFNds...",
+    "lastUpdated":"2016-07-06T12:43:16.866Z",
 }</code></pre>
           <ul>
             <li>
               <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+            <li>
+              <strong>lastUpdated:</strong> Last updated timestamp to check against existing bookmarks.</li>
           </ul>
           <p>Response example:</p>
           <pre><code>{
@@ -184,13 +187,13 @@
         </div>
 
         <div class="header">
-          <h4>Get Last Updated</h4>
+          <h4>Get last updated</h4>
           <div>
             <span class="label label-success">Get</span>
             <code>/bookmarks/{id}/lastUpdated</code>
           </div>
         </div>
-        <p>Retrieves the bookmark sync last updated time stamp corresponding to the provided sync ID.</p>
+        <p>Retrieves the bookmark sync last updated timestamp corresponding to the provided sync ID.</p>
         <div class="example">
           <p>Query params:</p>
           <ul>
@@ -208,7 +211,7 @@
         </div>
 
         <div class="header">
-          <h4>Get Sync Version</h4>
+          <h4>Get sync version</h4>
           <div>
             <span class="label label-success">Get</span>
             <code>/bookmarks/{id}/version</code>
@@ -240,9 +243,9 @@
   <section id="serviceinfo">
     <div class="container">
       <div class="panel">
-        <h3>Service Information</h3>
+        <h3>Service information</h3>
         <div class="header">
-          <h4>Get Service Information</h4>
+          <h4>Get service information</h4>
           <div>
             <span class="label label-success">Get</span>
             <code>/info</code>

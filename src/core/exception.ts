@@ -88,6 +88,14 @@ export class ServiceNotAvailableException extends ExceptionBase {
   }
 }
 
+export class SyncConflictException extends ExceptionBase {
+  constructor(message?: string) {
+    super(message || 'A sync conflict was detected');
+    this.name = 'SyncConflictException';
+    this.status = 409;
+  }
+}
+
 export class SyncDataLimitExceededException extends ExceptionBase {
   constructor(message?: string) {
     super(message || 'Sync data limit exceeded');

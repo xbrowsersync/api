@@ -162,7 +162,7 @@ class BookmarksRouter extends base_router_1.default {
                     throw new exception_1.RequiredDataNotFoundException;
                 }
                 // Call service method to update bookmarks data and return response as json
-                const bookmarksSync = yield this.service.updateBookmarks_v2(id, bookmarksData, req.body.version, req);
+                const bookmarksSync = yield this.service.updateBookmarks_v2(id, bookmarksData, req.body.lastUpdated, req.body.version, req);
                 res.json(bookmarksSync);
             }
             catch (err) {

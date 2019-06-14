@@ -11,7 +11,7 @@ import BookmarksService from '../services/bookmarks.service';
 export default class BookmarksRouter extends BaseRouter<BookmarksService> implements IApiRouter {
   // Initialises the routes for this router implementation
   public initRoutes(): void {
-    this.app.use('/bookmarks', this.router);    
+    this.app.use('/bookmarks', this.router);
     this.createRoute(ApiVerb.post, '/', {
       '~1.0.0': this.createBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys
@@ -55,7 +55,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       if (!syncVersion) {
         throw new RequiredDataNotFoundException;
       }
-      
+
       // Call service method to create new sync and return response as json
       const newSync = await this.service.createBookmarks_v2(req.body.version, req);
       res.json(newSync);
@@ -164,7 +164,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       }
 
       // Call service method to update bookmarks data and return response as json
-      const bookmarksSync = await this.service.updateBookmarks_v2(id, bookmarksData, req.body.version, req);
+      const bookmarksSync = await this.service.updateBookmarks_v2(id, bookmarksData, req.body.lastUpdated, req.body.version, req);
       res.json(bookmarksSync);
     }
     catch (err) {

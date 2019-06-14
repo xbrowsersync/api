@@ -10,7 +10,8 @@ import Config from '../../src/core/config';
 import {
   InvalidSyncIdException,
   NewSyncsForbiddenException,
-  NewSyncsLimitExceededException
+  NewSyncsLimitExceededException,
+  SyncConflictException
 } from '../../src/core/exception';
 import Server from '../../src/core/server';
 import BookmarksModel, { IBookmarksModel } from '../../src/models/bookmarks.model';
@@ -127,7 +128,7 @@ describe('BookmarksService', () => {
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve(null)
     } as any);
-    
+
     try {
       const bookmarksSync = await bookmarksService.getBookmarks(null, req as Request);
     }
@@ -162,7 +163,7 @@ describe('BookmarksService', () => {
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve(null)
     } as any);
-    
+
     try {
       const bookmarksSync = await bookmarksService.getLastUpdated(null, req as Request);
     }
@@ -193,7 +194,7 @@ describe('BookmarksService', () => {
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve(null)
     } as any);
-    
+
     try {
       const bookmarksSync = await bookmarksService.getVersion(null, req as Request);
     }
@@ -261,16 +262,17 @@ describe('BookmarksService', () => {
     expect(isAcceptingNewSyncs).to.be.false;
   });
 
-  it('updateBookmarks: should throw a InvalidSyncIdException if db operation returns null', async () => {
+  it('updateBookmarks: should throw a InvalidSyncIdException if no existing bookmarks found', async () => {
     const req: Partial<Request> = {};
-    const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
+    const findByIdStub = sandbox.stub(BookmarksModel, 'findById').returns({
       exec: () => Promise.resolve(null)
     } as any);
-    
+
     try {
-      const bookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, syncVersionTestVal, req as Request);
+      const bookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, null, syncVersionTestVal, req as Request);
     }
     catch (err) {
+      expect(findByIdStub.called).to.be.true;
       expect(err).to.be.an.instanceOf(InvalidSyncIdException);
       return;
     }
@@ -278,15 +280,41 @@ describe('BookmarksService', () => {
     assert.fail();
   });
 
-  it('updateBookmarks: should return false if total bookmarks syncs is not less than max syncs limit', async () => {
+  it('updateBookmarks: should throw a SyncConflictException if supplied last updated value does not match existing bookmarks', async () => {
     const req: Partial<Request> = {};
+    const findByIdStub = sandbox.stub(BookmarksModel, 'findById').returns({
+      exec: () => Promise.resolve({
+        lastUpdated: createdDateTestVal
+      } as any)
+    } as any);
+
+    try {
+      const bookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, new Date().toISOString(), syncVersionTestVal, req as Request);
+    }
+    catch (err) {
+      expect(findByIdStub.called).to.be.true;
+      expect(err).to.be.an.instanceOf(SyncConflictException);
+      return;
+    }
+
+    assert.fail();
+  });
+
+  it('updateBookmarks: should return updated date in response when updated bookmarks', async () => {
+    const req: Partial<Request> = {};
+    const findByIdStub = sandbox.stub(BookmarksModel, 'findById').returns({
+      exec: () => Promise.resolve({
+        lastUpdated: createdDateTestVal
+      } as any)
+    } as any);
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({
       exec: () => Promise.resolve({
         lastUpdated: createdDateTestVal
       } as any)
     } as any);
 
-    const updatedBookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, syncVersionTestVal, req as Request);
+    const updatedBookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, null, syncVersionTestVal, req as Request);
+    expect(findByIdStub.called).to.be.true;
     expect(findOneAndUpdateStub.called).to.be.true;
     expect(updatedBookmarksSync).to.be.an('object');
     expect(updatedBookmarksSync.lastUpdated).to.equal(createdDateTestVal);

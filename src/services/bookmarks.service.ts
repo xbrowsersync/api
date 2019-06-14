@@ -6,6 +6,7 @@ import {
   InvalidSyncIdException,
   NewSyncsForbiddenException,
   NewSyncsLimitExceededException,
+  SyncConflictException,
   UnspecifiedException
 } from '../core/exception';
 import Server, { LogLevel } from '../core/server';
@@ -95,7 +96,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       throw err;
     }
   }
-  
+
   // Creates an empty sync with the supplied version info
   public async createBookmarks_v2(syncVersion: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
@@ -297,11 +298,11 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks and version data
-  public async updateBookmarks_v2(id: string, bookmarksData: string, syncVersion: string, req: Request): Promise<IUpdateBookmarksResponse> {
+  public async updateBookmarks_v2(id: string, bookmarksData: string, lastUpdated: string, syncVersion: string, req: Request): Promise<IUpdateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
-    // Create update payload depending on whether sync version supplied
+    // Create update payload
     const now = new Date();
     const updatePayload: IBookmarks = {
       bookmarks: bookmarksData,
@@ -313,6 +314,17 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
 
     try {
+      // Get the existing bookmarks using the supplied id
+      const existingBookmarks = await BookmarksModel.findById(id).exec();
+      if (!existingBookmarks) {
+        throw new InvalidSyncIdException();
+      }
+
+      // Check for sync conflicts using the supplied lastUpdated value 
+      if (lastUpdated && lastUpdated !== existingBookmarks.lastUpdated.toISOString()) {
+        throw new SyncConflictException();
+      }
+
       // Update the bookmarks data corresponding to the sync id in the db
       const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
         { _id: id },
@@ -320,15 +332,10 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
         { new: true }
       ).exec();
 
-      if (!updatedBookmarks) {
-        throw new InvalidSyncIdException();
-      }
-
       // Return the last updated date if bookmarks data found and updated
-      const response: IGetLastUpdatedResponse = {};
-      if (updatedBookmarks) {
-        response.lastUpdated = updatedBookmarks.lastUpdated;
-      }
+      const response: IGetLastUpdatedResponse = {
+        lastUpdated: updatedBookmarks.lastUpdated
+      };
 
       return response;
     }
