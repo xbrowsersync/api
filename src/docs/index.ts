@@ -55,22 +55,23 @@ class DocsPage {
       switch (apiInfo.status) {
         case 1:
           currentStatusEl.textContent = 'Online';
-          currentStatusEl.className = 'success';
+          currentStatusEl.className = 'text-success';
           break;
         case 3:
           currentStatusEl.textContent = 'Not accepting new syncs';
-          currentStatusEl.className = 'warning';
+          currentStatusEl.className = 'text-warning';
           break;
         default:
         case 2:
           currentStatusEl.textContent = 'Offline';
-          currentStatusEl.className = 'danger';
+          currentStatusEl.className = 'text-danger';
           break;
       }
     }
     catch (err) {
       currentStatusEl.textContent = 'Offline';
-      currentStatusEl.className = 'danger';
+      currentStatusEl.className = 'text-danger';
+      console.error(err);
     }
   }
 
@@ -112,7 +113,8 @@ class DocsPage {
 
     // Replace all urls with hyperlinks
     let linkifiedText = '' + text;
-    linkifiedText.match(linkRegex).forEach((value: string) => {
+    const matches = linkifiedText.match(linkRegex) || [];
+    matches.forEach((value: string) => {
       const link = document.createElement('a');
       link.innerText = value;
       link.href = protocolRegex.test(value) ? value : `http://${value}`;

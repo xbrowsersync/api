@@ -466,6 +466,20 @@ section {
   }
 }
 
+span {
+  &.text-danger {
+    color: $colour-danger !important;
+  }
+
+  &.text-success {
+    color: $colour-success !important;
+  }
+
+  &.text-warning {
+    color: $colour-warning !important;
+  }
+}
+
 footer {
   font-size: 0.7em;
   flex-grow: 1;
