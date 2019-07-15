@@ -12,6 +12,10 @@ This repository contains the source code for the REST service API that client ap
 
 Once configured, you can begin syncing your browser data to your xBrowserSync service, and if you're feeling generous, [allow others to sync their data to your service](https://www.xbrowsersync.org/#getinvolved) also!
 
+## API documentation
+
+The available API methods are documented on the home page of each xBrowserSync service, respective of the version that service is running. For example, you can view the API documentation for the official xBrowserSync service at [api.xbrowsersync.org](https://api.xbrowsersync.org/).
+
 ## Running with Docker
 
 The easiest way to get up and running is by using [Docker](https://www.docker.com/) to run the xBrowserSync API as a container. Docker is a popular container management and imaging platform that allows you to quickly work with containers on Linux and Windows.
