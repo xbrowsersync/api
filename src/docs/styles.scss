@@ -458,6 +458,10 @@ section {
       &:after {
         content: close-quote;
       }
+
+      & > p {
+        display: inline-block;
+      }
     }
   }
 

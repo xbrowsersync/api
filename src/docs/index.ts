@@ -1,6 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { autobind } from 'core-decorators';
+import * as DOMPurify from 'dompurify';
 import es6promise = require('es6-promise');
+import * as marked from 'marked';
 import * as SmoothScroll from 'smooth-scroll';
 import 'typeface-roboto-condensed';
 import 'whatwg-fetch';
@@ -47,7 +49,7 @@ class DocsPage {
 
         // If the server has configured a message, display it
         if (apiInfo.message) {
-          serverMessageEl.innerHTML = this.linkify(apiInfo.message);
+          serverMessageEl.innerHTML = DOMPurify.sanitize(marked(apiInfo.message));
           serverMessageEl.className = 'd-block';
         }
       }
@@ -105,23 +107,6 @@ class DocsPage {
         toggleMenu();
       });
     });
-  }
-
-  private linkify(text: string): string {
-    const protocolRegex = new RegExp('^\\w+:.*$');
-    const linkRegex = new RegExp('(\\w+://.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]+\\.[a-z]+\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)', 'g');
-
-    // Replace all urls with hyperlinks
-    let linkifiedText = '' + text;
-    const matches = linkifiedText.match(linkRegex) || [];
-    matches.forEach((value: string) => {
-      const link = document.createElement('a');
-      link.innerText = value;
-      link.href = protocolRegex.test(value) ? value : `http://${value}`;
-      linkifiedText = linkifiedText.replace(value, link.outerHTML);
-    });
-
-    return linkifiedText;
   }
 }
 
