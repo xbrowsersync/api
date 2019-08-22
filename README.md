@@ -1,7 +1,7 @@
 # xBrowserSync
 ## API service
 
-[![Build Status](https://travis-ci.org/xbrowsersync/api.svg)](https://travis-ci.org/xbrowsersync/api) [![Dependencies](https://david-dm.org/xbrowsersync/api/status.svg)](https://david-dm.org/xbrowsersync/api) [![Dev Dependencies](https://david-dm.org/xbrowsersync/api/dev-status.svg)](https://david-dm.org/xbrowsersync/api?type=dev) [![GitHub license](https://img.shields.io/github/license/xbrowsersync/api.svg)](https://github.com/xbrowsersync/api/blob/master/LICENSE.md)
+[![Build Status](https://travis-ci.org/xbrowsersync/api.svg)](https://travis-ci.org/xbrowsersync/api) [![Dependencies](https://david-dm.org/xbrowsersync/api/status.svg)](https://david-dm.org/xbrowsersync/api) [![Dev Dependencies](https://david-dm.org/xbrowsersync/api/dev-status.svg)](https://david-dm.org/xbrowsersync/api?type=dev) [![GitHub license](https://img.shields.io/github/license/xbrowsersync/api.svg)](https://github.com/xbrowsersync/api/blob/master/LICENSE.md) [![Liberapay patrons](http://img.shields.io/liberapay/patrons/xbrowsersync.svg?logo=liberapay)](https://liberapay.com/xbrowsersync/donate)
 
 [![GitHub stars](https://img.shields.io/github/stars/xbrowsersync/api.svg?style=social&label=Star)](https://github.com/xbrowsersync/api)
 [![GitHub forks](https://img.shields.io/github/forks/xbrowsersync/api.svg?style=social&label=Fork)](https://github.com/xbrowsersync/api/fork)
