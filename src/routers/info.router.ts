@@ -1,6 +1,5 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
-
 import { ApiVerb } from '../core/server';
 import BaseRouter, { IApiRouter } from '../routers/base.router';
 import InfoService from '../services/info.service';

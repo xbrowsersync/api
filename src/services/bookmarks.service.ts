@@ -1,6 +1,5 @@
 import { Request } from 'express';
 import * as uuid from 'uuid';
-
 import Config from '../core/config';
 import {
   InvalidSyncIdException,

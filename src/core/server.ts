@@ -7,7 +7,6 @@ import * as helmet from 'helmet';
 import * as http from 'http';
 import * as https from 'https';
 import * as mkdirp from 'mkdirp';
-
 import Config from '../core/config';
 import DB from '../core/db';
 import {

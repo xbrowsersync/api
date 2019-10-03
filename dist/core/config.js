@@ -23,7 +23,7 @@ class Config {
         const settings = merge(defaultSettings, userSettings);
         // Get current version number
         const { version } = require('../../package.json');
-        this.config = Object.assign({}, settings, { version });
+        this.config = Object.assign(Object.assign({}, settings), { version });
         return this.config;
     }
 }

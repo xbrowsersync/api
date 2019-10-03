@@ -1,11 +1,7 @@
-// tslint:disable:no-implicit-dependencies
-// tslint:disable:no-unused-expression
-
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-
 import Config from '../../src/core/config';
 import { ApiStatus } from '../../src/core/server';
 import BookmarksService from '../../src/services/bookmarks.service';

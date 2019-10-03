@@ -1,7 +1,6 @@
 import { Request } from 'express';
 import * as mongodb from 'mongodb';
 import * as mongoose from 'mongoose';
-
 import Config from './config';
 import { InvalidSyncIdException } from './exception';
 import { LogLevel } from './server';
@@ -43,7 +42,8 @@ export default class DB {
       connectTimeoutMS: Config.get().db.connTimeout,
       keepAlive: true,
       useFindAndModify: false,
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      useUnifiedTopology: true
     };
 
     // Get db username and password

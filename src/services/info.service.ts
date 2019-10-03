@@ -1,5 +1,4 @@
 import { Request } from 'express';
-
 import Config from '../core/config';
 import { ApiStatus, LogLevel } from '../core/server';
 import BaseService from './base.service';

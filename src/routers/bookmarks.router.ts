@@ -1,6 +1,5 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
-
 import DB from '../core/db';
 import { RequiredDataNotFoundException } from '../core/exception';
 import { ApiVerb } from '../core/server';

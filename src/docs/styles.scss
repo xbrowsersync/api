@@ -1,5 +1,6 @@
 @import "mixins.scss";
 @import "variables.scss";
+
 @include keyframes(spin) {
   100% {
     @include rotate(360);

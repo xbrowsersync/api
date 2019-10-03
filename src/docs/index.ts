@@ -1,21 +1,15 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { autobind } from 'core-decorators';
 import * as DOMPurify from 'dompurify';
-import es6promise = require('es6-promise');
+import 'es6-shim';
 import * as marked from 'marked';
 import * as SmoothScroll from 'smooth-scroll';
 import 'typeface-roboto-condensed';
 import 'whatwg-fetch';
-
 import { IGetInfoResponse } from '../services/info.service';
 
 // API home page and documentation
 class DocsPage {
-  constructor() {
-    // Add support for promises pre-es6
-    es6promise.polyfill();
-  }
-
   // Initialises the page once DOM is ready
   @autobind
   public async init(): Promise<void> {

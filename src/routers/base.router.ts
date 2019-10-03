@@ -1,6 +1,5 @@
 import { autobind } from 'core-decorators';
 import { Application, Router } from 'express';
-
 import { NotImplementedException, UnsupportedVersionException } from '../core/exception';
 import { ApiVerb } from '../core/server';
 
@@ -13,7 +12,7 @@ export interface IApiRouter {
 // Implements the routes that are served by the api 
 export default class BaseRouter<T> implements IApiRouter {
   protected router: Router;
-  private routesVersioning = require('express-routes-versioning')();  
+  private routesVersioning = require('express-routes-versioning')();
 
   constructor(protected app: Application, protected service?: T) {
     // Configure routes

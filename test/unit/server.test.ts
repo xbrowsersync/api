@@ -1,10 +1,6 @@
-// tslint:disable:no-implicit-dependencies
-// tslint:disable:no-unused-expression
-
 import { assert, expect } from 'chai';
 import 'mocha';
 import * as sinon from 'sinon';
-
 import Config from '../../src/core/config';
 import { ServiceNotAvailableException } from '../../src/core/exception';
 import Server from '../../src/core/server';
@@ -17,7 +13,7 @@ describe('Server', () => {
     testConfig = Config.get(true);
     sandbox = sinon.createSandbox();
   });
-  
+
   afterEach(() => {
     sandbox.restore();
   });

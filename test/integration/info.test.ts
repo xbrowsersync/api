@@ -1,11 +1,7 @@
-// tslint:disable:no-implicit-dependencies
-// tslint:disable:no-unused-expression
-
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';
 import * as sinon from 'sinon';
-
 import Config from '../../src/core/config';
 import Server from '../../src/core/server';
 

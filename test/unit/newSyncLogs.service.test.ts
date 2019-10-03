@@ -1,11 +1,7 @@
-// tslint:disable:no-implicit-dependencies
-// tslint:disable:no-unused-expression
-
 import { expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-
 import Config from '../../src/core/config';
 import { ClientIpAddressEmptyException } from '../../src/core/exception';
 import NewSyncLogsModel from '../../src/models/newSyncLogs.model';

@@ -1,5 +1,4 @@
 import { Request } from 'express';
-
 import Config from '../core/config';
 import { ClientIpAddressEmptyException, UnspecifiedException } from '../core/exception';
 import { LogLevel } from '../core/server';

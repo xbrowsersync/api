@@ -1,5 +1,4 @@
 import { Request } from 'express';
-
 import { LogLevel } from '../core/server';
 
 // Base class for data service implementations

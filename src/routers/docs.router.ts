@@ -1,6 +1,5 @@
 import * as express from 'express';
 import * as path from 'path';
-
 import BaseRouter, { IApiRouter } from '../routers/base.router';
 
 // Implementation of routes for API documentation
