@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import Config from '../core/config';
-import { ClientIpAddressEmptyException, UnspecifiedException } from '../core/exception';
+import { UnspecifiedException } from '../core/exception';
 import { LogLevel } from '../core/server';
 import NewSyncLogsModel, { INewSyncLog } from '../models/newSyncLogs.model';
 import BaseService from './base.service';
@@ -12,9 +12,8 @@ export default class NewSyncLogsService extends BaseService<void> {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      const err = new ClientIpAddressEmptyException();
-      this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
-      throw err;
+      this.log(LogLevel.Info, 'Unable to determine client IP address');
+      return null;
     }
 
     // Create new sync log payload
@@ -40,9 +39,8 @@ export default class NewSyncLogsService extends BaseService<void> {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
-      const err = new ClientIpAddressEmptyException();
-      this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
-      throw err;
+      this.log(LogLevel.Info, 'Unable to determine client IP address');
+      return null;
     }
 
     let newSyncsCreated = -1;

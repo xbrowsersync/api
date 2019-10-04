@@ -3,7 +3,6 @@ import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
 import Config from '../../src/core/config';
-import { ClientIpAddressEmptyException } from '../../src/core/exception';
 import NewSyncLogsModel from '../../src/models/newSyncLogs.model';
 import NewSyncLogsService from '../../src/services/newSyncLogs.service';
 
@@ -35,15 +34,11 @@ describe('NewSyncLogsService', () => {
     expect(savedTestLog.ipAddress).to.equal(testClientIPAddress);
   });
 
-  it('createLog: should throw a ClientIpAddressEmptyException if the request IP address could not be ascertained', async () => {
+  it('createLog: should return null if the request IP address could not be ascertained', async () => {
     const req: Partial<Request> = {};
 
-    try {
-      await newSyncLogsService.createLog(req as Request);
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(ClientIpAddressEmptyException);
-    }
+    const response = await newSyncLogsService.createLog(req as Request);
+    expect(response).to.be.null;
   });
 
   it('newSyncsLimitHit: should return true if the request IP address has hit the limit for daily new syncs created', async () => {
@@ -77,14 +72,10 @@ describe('NewSyncLogsService', () => {
     expect(limitHit).to.equal(false);
   });
 
-  it('newSyncsLimitHit: should throw a ClientIpAddressEmptyException if the request IP address could not be ascertained', async () => {
+  it('newSyncsLimitHit: should return null if the request IP address could not be ascertained', async () => {
     const req: Partial<Request> = {};
 
-    try {
-      await newSyncLogsService.newSyncsLimitHit(req as Request);
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(ClientIpAddressEmptyException);
-    }
+    const response = await newSyncLogsService.newSyncsLimitHit(req as Request);
+    expect(response).to.be.null;
   });
 });

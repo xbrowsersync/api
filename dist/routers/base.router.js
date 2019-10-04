@@ -6,13 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core_decorators_1 = require("core-decorators");
-const express_1 = require("express");
-const exception_1 = require("../core/exception");
+var core_decorators_1 = require("core-decorators");
+var express_1 = require("express");
+var exception_1 = require("../core/exception");
 // Base class for router implementations
 // Implements the routes that are served by the api 
-class BaseRouter {
-    constructor(app, service) {
+var BaseRouter = /** @class */ (function () {
+    function BaseRouter(app, service) {
         this.app = app;
         this.service = service;
         this.routesVersioning = require('express-routes-versioning')();
@@ -21,20 +21,21 @@ class BaseRouter {
         this.initRoutes();
     }
     // Initialises the routes for this router implementation
-    initRoutes() {
+    BaseRouter.prototype.initRoutes = function () {
         throw new exception_1.NotImplementedException();
-    }
+    };
     // Adds a new route to this router implementation
-    createRoute(verb, path, versionMappings) {
+    BaseRouter.prototype.createRoute = function (verb, path, versionMappings) {
         this.router[verb](path, this.routesVersioning(versionMappings, this.unsupportedVersion));
-    }
+    };
     // Throws an error for when a requested api version is not supported
-    unsupportedVersion() {
+    BaseRouter.prototype.unsupportedVersion = function () {
         throw new exception_1.UnsupportedVersionException();
-    }
-}
-__decorate([
-    core_decorators_1.autobind
-], BaseRouter.prototype, "createRoute", null);
+    };
+    __decorate([
+        core_decorators_1.autobind
+    ], BaseRouter.prototype, "createRoute", null);
+    return BaseRouter;
+}());
 exports.default = BaseRouter;
 //# sourceMappingURL=base.router.js.map

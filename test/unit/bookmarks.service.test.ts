@@ -10,7 +10,7 @@ import {
   SyncConflictException
 } from '../../src/core/exception';
 import Server from '../../src/core/server';
-import BookmarksModel, { IBookmarksModel } from '../../src/models/bookmarks.model';
+import BookmarksModel from '../../src/models/bookmarks.model';
 import BookmarksService from '../../src/services/bookmarks.service';
 import NewSyncLogsService from '../../src/services/newSyncLogs.service';
 

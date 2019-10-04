@@ -14,25 +14,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const bunyan = require("bunyan");
-const core_decorators_1 = require("core-decorators");
-const cors = require("cors");
-const express = require("express");
-const fs = require("fs");
-const helmet = require("helmet");
-const http = require("http");
-const https = require("https");
-const mkdirp = require("mkdirp");
-const config_1 = require("../core/config");
-const db_1 = require("../core/db");
-const exception_1 = require("../core/exception");
-const bookmarks_router_1 = require("../routers/bookmarks.router");
-const docs_router_1 = require("../routers/docs.router");
-const info_router_1 = require("../routers/info.router");
-const bookmarks_service_1 = require("../services/bookmarks.service");
-const info_service_1 = require("../services/info.service");
-const newSyncLogs_service_1 = require("../services/newSyncLogs.service");
+var bunyan = require("bunyan");
+var core_decorators_1 = require("core-decorators");
+var cors = require("cors");
+var express = require("express");
+var fs = require("fs");
+var helmet = require("helmet");
+var http = require("http");
+var https = require("https");
+var mkdirp = require("mkdirp");
+var config_1 = require("../core/config");
+var db_1 = require("../core/db");
+var exception_1 = require("../core/exception");
+var bookmarks_router_1 = require("../routers/bookmarks.router");
+var docs_router_1 = require("../routers/docs.router");
+var info_router_1 = require("../routers/info.router");
+var bookmarks_service_1 = require("../services/bookmarks.service");
+var info_service_1 = require("../services/info.service");
+var newSyncLogs_service_1 = require("../services/newSyncLogs.service");
 var ApiStatus;
 (function (ApiStatus) {
     ApiStatus[ApiStatus["online"] = 1] = "online";
@@ -54,126 +81,196 @@ var LogLevel;
     LogLevel[LogLevel["Info"] = 1] = "Info";
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
 // Main class for the xBrowserSync api service
-class Server {
-    constructor() {
+var Server = /** @class */ (function () {
+    function Server() {
         this.rateLimit = require('express-rate-limit');
     }
     // Throws an error if the service status is set to offline in config
-    static checkServiceAvailability() {
+    Server.checkServiceAvailability = function () {
         if (!config_1.default.get().status.online) {
             throw new exception_1.ServiceNotAvailableException();
         }
-    }
-    get Application() {
-        return this.app;
-    }
+    };
+    Object.defineProperty(Server.prototype, "Application", {
+        get: function () {
+            return this.app;
+        },
+        enumerable: true,
+        configurable: true
+    });
     // Initialises the xBrowserSync api service when a new instance is created
-    init() {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                this.configureServer();
-                this.prepareDataServices();
-                this.prepareRoutes();
-                this.app.use(this.handleErrors);
-                // Establish database connection
-                yield this.connectToDb();
-            }
-            catch (err) {
-                this.log(LogLevel.Error, `Service failed to start`, null, err);
-                process.exit(1);
-            }
+    Server.prototype.init = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        this.configureServer();
+                        this.prepareDataServices();
+                        this.prepareRoutes();
+                        this.app.use(this.handleErrors);
+                        // Establish database connection
+                        return [4 /*yield*/, this.connectToDb()];
+                    case 1:
+                        // Establish database connection
+                        _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        err_1 = _a.sent();
+                        this.log(LogLevel.Error, "Service failed to start", null, err_1);
+                        process.exit(1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
         });
-    }
+    };
     // Logs messages and errors to console and to file (if enabled)
-    log(level, message, req, err) {
+    Server.prototype.log = function (level, message, req, err) {
         if (!this.logger) {
             return;
         }
         switch (level) {
             case LogLevel.Error:
-                this.logger.error({ req, err }, message);
+                this.logger.error({ req: req, err: err }, message);
                 break;
             case LogLevel.Info:
-                this.logger.info({ req }, message);
+                this.logger.info({ req: req }, message);
                 break;
         }
-    }
+    };
     // Starts the api service
-    start() {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Create https server if enabled in config, otherwise create http server
-            if (config_1.default.get().server.https.enabled) {
-                const options = {
-                    cert: fs.readFileSync(config_1.default.get().server.https.certPath),
-                    key: fs.readFileSync(config_1.default.get().server.https.keyPath)
-                };
-                this.server = https.createServer(options, this.app);
-            }
-            else {
-                this.server = http.createServer(this.app);
-            }
-            this.server.listen(config_1.default.get().server.port);
-            // Wait for server to start before continuing
-            yield new Promise((resolve, reject) => {
-                this.server.on('error', (err) => {
-                    this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
-                    this.server.close(() => __awaiter(this, void 0, void 0, function* () {
-                        yield this.cleanupServer();
-                        process.exit(1);
-                    }));
-                });
-                this.server.on('listening', conn => {
-                    this.log(LogLevel.Info, `Service started on ${config_1.default.get().server.host}:${config_1.default.get().server.port}`);
-                    resolve();
-                });
-            });
-            // Catches ctrl+c event
-            process.on('SIGINT', () => {
-                this.log(LogLevel.Info, `Process terminated by SIGINT`, null, null);
-                this.server.close(() => __awaiter(this, void 0, void 0, function* () {
-                    yield this.cleanupServer();
-                    process.exit(0);
-                }));
-            });
-            // Catches kill pid event
-            process.on('SIGUSR1', () => {
-                this.log(LogLevel.Info, `Process terminated by SIGUSR1`, null, null);
-                this.server.close(() => __awaiter(this, void 0, void 0, function* () {
-                    yield this.cleanupServer();
-                    process.exit(0);
-                }));
-            });
-            // Catches kill pid event
-            process.on('SIGUSR2', () => {
-                this.log(LogLevel.Info, `Process terminated by SIGUSR2`, null, null);
-                this.server.close(() => __awaiter(this, void 0, void 0, function* () {
-                    yield this.cleanupServer();
-                    process.exit(0);
-                }));
+    Server.prototype.start = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var options;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        // Create https server if enabled in config, otherwise create http server
+                        if (config_1.default.get().server.https.enabled) {
+                            options = {
+                                cert: fs.readFileSync(config_1.default.get().server.https.certPath),
+                                key: fs.readFileSync(config_1.default.get().server.https.keyPath)
+                            };
+                            this.server = https.createServer(options, this.app);
+                        }
+                        else {
+                            this.server = http.createServer(this.app);
+                        }
+                        this.server.listen(config_1.default.get().server.port);
+                        // Wait for server to start before continuing
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                _this.server.on('error', function (err) {
+                                    _this.log(LogLevel.Error, "Uncaught exception occurred", null, err);
+                                    _this.server.close(function () { return __awaiter(_this, void 0, void 0, function () {
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0: return [4 /*yield*/, this.cleanupServer()];
+                                                case 1:
+                                                    _a.sent();
+                                                    process.exit(1);
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    }); });
+                                });
+                                _this.server.on('listening', function (conn) {
+                                    _this.log(LogLevel.Info, "Service started on " + config_1.default.get().server.host + ":" + config_1.default.get().server.port);
+                                    resolve();
+                                });
+                            })];
+                    case 1:
+                        // Wait for server to start before continuing
+                        _a.sent();
+                        // Catches ctrl+c event
+                        process.on('SIGINT', function () {
+                            _this.log(LogLevel.Info, "Process terminated by SIGINT", null, null);
+                            _this.server.close(function () { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.cleanupServer()];
+                                        case 1:
+                                            _a.sent();
+                                            process.exit(0);
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); });
+                        });
+                        // Catches kill pid event
+                        process.on('SIGUSR1', function () {
+                            _this.log(LogLevel.Info, "Process terminated by SIGUSR1", null, null);
+                            _this.server.close(function () { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.cleanupServer()];
+                                        case 1:
+                                            _a.sent();
+                                            process.exit(0);
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); });
+                        });
+                        // Catches kill pid event
+                        process.on('SIGUSR2', function () {
+                            _this.log(LogLevel.Info, "Process terminated by SIGUSR2", null, null);
+                            _this.server.close(function () { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.cleanupServer()];
+                                        case 1:
+                                            _a.sent();
+                                            process.exit(0);
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); });
+                        });
+                        return [2 /*return*/];
+                }
             });
         });
-    }
+    };
     // Stops the api service
-    stop() {
-        return new Promise(resolve => {
-            this.server.close(() => __awaiter(this, void 0, void 0, function* () {
-                yield this.cleanupServer();
-                resolve();
-            }));
+    Server.prototype.stop = function () {
+        var _this = this;
+        return new Promise(function (resolve) {
+            _this.server.close(function () { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, this.cleanupServer()];
+                        case 1:
+                            _a.sent();
+                            resolve();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
         });
-    }
+    };
     // Cleans up server connections when stopping the service
-    cleanupServer() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.log(LogLevel.Info, `Service shutting down`);
-            yield this.db.closeConnection();
-            this.server.removeAllListeners();
-            process.removeAllListeners();
+    Server.prototype.cleanupServer = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.log(LogLevel.Info, "Service shutting down");
+                        return [4 /*yield*/, this.db.closeConnection()];
+                    case 1:
+                        _a.sent();
+                        this.server.removeAllListeners();
+                        process.removeAllListeners();
+                        return [2 /*return*/];
+                }
+            });
         });
-    }
+    };
     // Initialises the express application and middleware
-    configureServer() {
-        const logStreams = [];
+    Server.prototype.configureServer = function () {
+        var logStreams = [];
         this.app = express();
         // Enabled logging to stdout if required
         if (config_1.default.get().log.stdout.enabled) {
@@ -187,7 +284,7 @@ class Server {
         if (config_1.default.get().log.file.enabled) {
             try {
                 // Ensure log directory exists
-                const logDirectory = config_1.default.get().log.file.path.substring(0, config_1.default.get().log.file.path.lastIndexOf('/'));
+                var logDirectory = config_1.default.get().log.file.path.substring(0, config_1.default.get().log.file.path.lastIndexOf('/'));
                 if (!fs.existsSync(logDirectory)) {
                     mkdirp.sync(logDirectory);
                 }
@@ -201,7 +298,7 @@ class Server {
                 });
             }
             catch (err) {
-                console.error(`Failed to initialise log file.`);
+                console.error("Failed to initialise log file.");
                 throw err;
             }
         }
@@ -215,12 +312,12 @@ class Server {
                 });
             }
             catch (err) {
-                console.error(`Failed to initialise logger.`);
+                console.error("Failed to initialise logger.");
                 throw err;
             }
         }
         // Create helmet config for security hardening
-        const helmetConfig = {
+        var helmetConfig = {
             contentSecurityPolicy: {
                 directives: { defaultSrc: ["'self'"] }
             },
@@ -229,7 +326,7 @@ class Server {
         };
         this.app.use(helmet(helmetConfig));
         // Add default version to request if not supplied
-        this.app.use((req, res, next) => {
+        this.app.use(function (req, res, next) {
             req.version = req.headers['accept-version'] || config_1.default.get().version;
             next();
         });
@@ -242,13 +339,13 @@ class Server {
             limit: config_1.default.get().maxSyncSize || 512000
         }));
         // Enable support for CORS
-        const corsOptions = config_1.default.get().allowedOrigins.length > 0 && {
-            origin: (origin, callback) => {
+        var corsOptions = config_1.default.get().allowedOrigins.length > 0 && {
+            origin: function (origin, callback) {
                 if (config_1.default.get().allowedOrigins.indexOf(origin) !== -1) {
                     callback(null, true);
                 }
                 else {
-                    const err = new exception_1.OriginNotPermittedException();
+                    var err = new exception_1.OriginNotPermittedException();
                     callback(err);
                 }
             }
@@ -259,25 +356,33 @@ class Server {
         if (config_1.default.get().throttle.maxRequests > 0) {
             this.app.use(new this.rateLimit({
                 delayMs: 0,
-                handler: (req, res, next) => {
+                handler: function (req, res, next) {
                     next(new exception_1.RequestThrottledException());
                 },
                 max: config_1.default.get().throttle.maxRequests,
                 windowMs: config_1.default.get().throttle.timeWindow
             }));
         }
-    }
+    };
     // Initialises and connects to mongodb
-    connectToDb() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.db = new db_1.default(this.log);
-            yield this.db.openConnection();
+    Server.prototype.connectToDb = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.db = new db_1.default(this.log);
+                        return [4 /*yield*/, this.db.openConnection()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
-    }
+    };
     // Handles and logs api errors
-    handleErrors(err, req, res, next) {
+    Server.prototype.handleErrors = function (err, req, res, next) {
         if (err) {
-            let responseObj;
+            var responseObj = void 0;
             // Determine the response value based on the error thrown
             switch (true) {
                 // If the error is one of our exceptions get the reponse object to return to the client
@@ -297,35 +402,36 @@ class Server {
             res.status(err.status || 500);
             res.json(responseObj);
         }
-    }
+    };
     // Initialise data services
-    prepareDataServices() {
+    Server.prototype.prepareDataServices = function () {
         this.newSyncLogsService = new newSyncLogs_service_1.default(null, this.log);
         this.bookmarksService = new bookmarks_service_1.default(this.newSyncLogsService, this.log);
         this.infoService = new info_service_1.default(this.bookmarksService, this.log);
-    }
+    };
     // Configures api routing
-    prepareRoutes() {
-        const router = express.Router();
+    Server.prototype.prepareRoutes = function () {
+        var router = express.Router();
         this.app.use('/', router);
         // Configure docs routing
-        const docsRouter = new docs_router_1.default(this.app);
+        var docsRouter = new docs_router_1.default(this.app);
         // Configure bookmarks routing
-        const bookmarksRouter = new bookmarks_router_1.default(this.app, this.bookmarksService);
+        var bookmarksRouter = new bookmarks_router_1.default(this.app, this.bookmarksService);
         // Configure info routing
-        const infoRouter = new info_router_1.default(this.app, this.infoService);
+        var infoRouter = new info_router_1.default(this.app, this.infoService);
         // Handle all other routes with 404 error
-        this.app.use((req, res, next) => {
-            const err = new exception_1.NotImplementedException();
+        this.app.use(function (req, res, next) {
+            var err = new exception_1.NotImplementedException();
             next(err);
         });
-    }
-}
-__decorate([
-    core_decorators_1.autobind
-], Server.prototype, "log", null);
-__decorate([
-    core_decorators_1.autobind
-], Server.prototype, "start", null);
+    };
+    __decorate([
+        core_decorators_1.autobind
+    ], Server.prototype, "log", null);
+    __decorate([
+        core_decorators_1.autobind
+    ], Server.prototype, "start", null);
+    return Server;
+}());
 exports.default = Server;
 //# sourceMappingURL=server.js.map

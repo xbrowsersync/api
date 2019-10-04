@@ -45,14 +45,15 @@
     "@types/express-rate-limit": "^3.3.3",
     "@types/helmet": "0.0.44",
     "@types/mocha": "^5.2.7",
-    "@types/mongodb": "^3.3.4",
-    "@types/mongoose": "^5.5.18",
+    "@types/mongodb": "^3.3.5",
+    "@types/mongoose": "^5.5.19",
     "@types/node": "^10.14.19",
     "@types/sinon": "^7.5.0",
     "@types/uuid": "^3.4.5",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "copy-webpack-plugin": "^5.0.4",
+    "cross-env": "^6.0.3",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
     "html-loader": "^0.5.5",
@@ -85,7 +86,7 @@
     "builddocs": "echo Building docs... & webpack --config webpack.config.js",
     "buildcomplete": "echo Done!",
     "test": "npm run unittests",
-    "unittests": "echo Running unit tests... & mocha --require ts-node/register test/unit/*.test.ts",
-    "integrationtests": "echo Running integration tests... & mocha --require ts-node/register test/integration/*.test.ts"
+    "unittests": "echo Running unit tests... & cross-env TS_NODE_COMPILER_OPTIONS=\"{\\\"target\\\": \\\"es2015\\\"}\" mocha --require ts-node/register test/unit/*.test.ts",
+    "integrationtests": "echo Running integration tests... & cross-env TS_NODE_COMPILER_OPTIONS=\"{\\\"target\\\": \\\"es2015\\\"}\" mocha --require ts-node/register test/integration/*.test.ts"
   }
 }
