@@ -10,8 +10,8 @@
 </head>
 
 <body id="home" class="index">
-  <div class="bg-main">
-    <div class="bg-main-img"></div>
+  <div class="background">
+    <div class="background-img"></div>
   </div>
 
   <button type="button" class="nav-menu-button">
@@ -56,17 +56,17 @@
   <section id="status" class="dark">
     <div class="container">
       <div class="row">
-        <div class="serviceinfo col-lg-8 offset-lg-2">
-          <span>
-            <strong>Status:</strong>
-            <span id="currentstatus"></span>
-          </span>
-          <span>
-            <strong>Version:</strong>
-            <span id="version"></span>
-          </span>
-        </div>
-        <div class="col-lg-8 offset-lg-2">
+        <div class="serviceinfo offline">
+          <div class="status">
+            <span>
+              <strong>Status:</strong>
+              <span id="currentstatus"></span>
+            </span>
+            <span class="version">
+              <strong>Version:</strong>
+              <span id="version"></span>
+            </span>
+          </div>
           <div id="servermessage"></div>
         </div>
       </div>

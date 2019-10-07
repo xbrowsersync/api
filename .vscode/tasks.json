@@ -5,9 +5,8 @@
   "tasks": [
     {
       "type": "npm",
+      "label": "build",
       "script": "build",
-      "identifier": "build",
-      "label": "Build API",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -21,6 +20,38 @@
       "problemMatcher": [
         "$tsc"
       ]
+    },
+    {
+      "type": "npm",
+      "label": "serve",
+      "script": "serve",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^([^\\s].*)\\((\\d+|\\,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+          "file": 1,
+          "location": 2,
+          "severity": 3,
+          "code": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Compiled",
+        }
+      }
+    },
+    {
+      "label": "endTask",
+      "type": "process",
+      "command": "${command:workbench.action.tasks.terminate}"
     }
   ]
 }

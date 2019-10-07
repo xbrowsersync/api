@@ -20,12 +20,13 @@
       "name": "Debug docs",
       "type": "chrome",
       "request": "launch",
-      "url": "http://127.0.0.1:8080",
+      "url": "http://127.0.0.1:9000",
       "webRoot": "${workspaceFolder}/dist/docs",
+      "preLaunchTask": "serve",
+      "postDebugTask": "endTask",
       "sourceMaps": true,
-      "smartStep": true,
       "sourceMapPathOverrides": {
-        "webpack:///./src/docs/*": "${workspaceFolder}/src/docs/*"
+        "webpack:///./src/docs/index.ts": "${workspaceFolder}/src/docs/index.ts"
       },
       "runtimeArgs": [
         "--remote-debugging-port=9222",
@@ -37,7 +38,11 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-      "args": ["-r", "ts-node/register", "test/unit/*.test.ts"],
+      "args": [
+        "-r",
+        "ts-node/register",
+        "test/unit/*.test.ts"
+      ],
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",
       "sourceMaps": true,
@@ -48,7 +53,11 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-      "args": ["-r", "ts-node/register", "test/integration/*.test.ts"],
+      "args": [
+        "-r",
+        "ts-node/register",
+        "test/integration/*.test.ts"
+      ],
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",
       "sourceMaps": true,

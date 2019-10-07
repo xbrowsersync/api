@@ -26,6 +26,7 @@ class DocsPage {
   }
 
   private async checkStatus() {
+    const serviceInfoEl = document.querySelector('.serviceinfo');
     const versionEl = document.querySelector('#version');
     const currentStatusEl = document.querySelector('#currentstatus');
     const serverMessageEl = document.querySelector('#servermessage');
@@ -37,6 +38,9 @@ class DocsPage {
         throw new Error(response.statusText);
       }
 
+      // Display service info block
+      serviceInfoEl.classList.remove('offline');
+
       const apiInfo: IGetInfoResponse = await response.json();
       if (apiInfo) {
         versionEl.textContent = apiInfo.version;
@@ -44,7 +48,6 @@ class DocsPage {
         // If the server has configured a message, display it
         if (apiInfo.message) {
           serverMessageEl.innerHTML = DOMPurify.sanitize(marked(apiInfo.message));
-          serverMessageEl.className = 'd-block';
         }
       }
 

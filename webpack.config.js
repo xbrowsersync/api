@@ -71,6 +71,11 @@ module.exports = {
       filename: 'styles.css',
     }),
   ],
+  devServer: {
+    contentBase: Path.join(__dirname, 'dist'),
+    compress: true,
+    port: 9000
+  },
   devtool: 'source-map',
   stats: 'errors-only'
 };
