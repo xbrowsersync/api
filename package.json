@@ -28,7 +28,7 @@
     "mkdirp": "^0.5.1",
     "moment": "^2.24.0",
     "mongodb": "^3.3.2",
-    "mongoose": "^5.7.3",
+    "mongoose": "^5.7.5",
     "mongoose-uuid2": "^2.3.0",
     "saslprep": "^1.0.3",
     "smooth-scroll": "^16.1.0",
