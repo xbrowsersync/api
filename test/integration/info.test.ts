@@ -1,3 +1,5 @@
+// tslint:disable:no-unused-expression
+
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';

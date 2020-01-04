@@ -1,15 +1,10 @@
+// tslint:disable:no-unused-expression
+
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';
 import * as sinon from 'sinon';
 import Config from '../../src/core/config';
-import {
-  InvalidSyncIdException,
-  NewSyncsForbiddenException,
-  NewSyncsLimitExceededException,
-  RequiredDataNotFoundException,
-  SyncDataLimitExceededException
-} from '../../src/core/exception';
 import Server from '../../src/core/server';
 import BookmarksModel from '../../src/models/bookmarks.model';
 import NewSyncLogsModel from '../../src/models/newSyncLogs.model';
@@ -47,7 +42,7 @@ describe('BookmarksRouter', () => {
     sandbox.restore();
   });
 
-  it('POST /bookmarks should return a NewSyncsForbiddenException error code if new syncs are not allowed', async () => {
+  it('POST /bookmarks should return a 405 status code if new syncs are not allowed', async () => {
     testConfig.status.allowNewSyncs = false;
     sandbox.stub(Config, 'get').returns(testConfig);
     const data = {
@@ -60,15 +55,13 @@ describe('BookmarksRouter', () => {
         .set('content-type', 'application/json')
         .send(data)
         .end((err, res) => {
-          expect(res).to.have.status((new NewSyncsForbiddenException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(405);
           resolve();
         });
     });
   });
 
-  it('POST /bookmarks should return a NewSyncsLimitExceededException error code if daily syncs limit exceeded', async () => {
+  it('POST /bookmarks should return a 406 status code if daily syncs limit exceeded', async () => {
     testConfig.dailyNewSyncsLimit = 1;
     sandbox.stub(Config, 'get').returns(testConfig);
     const data = {
@@ -92,15 +85,36 @@ describe('BookmarksRouter', () => {
         .set('content-type', 'application/json')
         .send(data)
         .end((err, res) => {
-          expect(res).to.have.status((new NewSyncsLimitExceededException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(406);
           resolve();
         });
     });
   });
 
-  it('POST /bookmarks should return a 200 code and bookmarks sync data', async () => {
+  it('POST /bookmarks should return a 503 status code if service offline', async () => {
+    await server.stop();
+    testConfig.status.online = false;
+    sandbox.stub(Config, 'get').returns(testConfig);
+    server = new Server();
+    await server.init();
+    await server.start();
+    const data = {
+      version: syncVersionTestVal
+    };
+
+    await new Promise((resolve) => {
+      request(server.Application)
+        .post('/bookmarks')
+        .set('content-type', 'application/json')
+        .send(data)
+        .end((err, res) => {
+          expect(res).to.have.status(503);
+          resolve();
+        });
+    });
+  });
+
+  it('POST /bookmarks should return a 200 status code code and bookmarks sync data', async () => {
     testConfig.dailyNewSyncsLimit = 0;
     sandbox.stub(Config, 'get').returns(testConfig);
 
@@ -121,7 +135,7 @@ describe('BookmarksRouter', () => {
     });
   });
 
-  it('PUT /bookmarks/:id should return a SyncDataLimitExceededException error code when bookmarks data size exceeds server limit', async () => {
+  it('PUT /bookmarks/:id should return a 413 status code when bookmarks data size exceeds server limit', async () => {
     await server.stop();
     testConfig.maxSyncSize = 1;
     sandbox.stub(Config, 'get').returns(testConfig);
@@ -135,15 +149,13 @@ describe('BookmarksRouter', () => {
         .set('content-type', 'application/json')
         .send({ bookmarks: bookmarksDataTestVal })
         .end((err, res) => {
-          expect(res).to.have.status((new SyncDataLimitExceededException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(413);
           resolve();
         });
     });
   });
 
-  it('PUT /bookmarks/:id should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+  it('PUT /bookmarks/:id should return a 401 status code if sync id is invalid', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
@@ -151,15 +163,13 @@ describe('BookmarksRouter', () => {
         .put(`/bookmarks/invalidid`)
         .set('content-type', 'application/json')
         .end((err, res) => {
-          expect(res).to.have.status((new InvalidSyncIdException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(401);
           resolve();
         });
     });
   });
 
-  it('PUT /bookmarks/:id should return a RequiredDataNotFoundException error code if bookmarks data not provided', async () => {
+  it('PUT /bookmarks/:id should return a 400 status code if bookmarks data not provided', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
@@ -167,16 +177,13 @@ describe('BookmarksRouter', () => {
         .put(`/bookmarks/${syncIdTestVal}`)
         .set('content-type', 'application/json')
         .end((err, res) => {
-          expect(res).to.have.status((new RequiredDataNotFoundException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(400);
           resolve();
         });
     });
   });
 
-  it('PUT /bookmarks/:id should return a 200 code and last updated date for the provided sync id', async () => {
-    testConfig.dailyNewSyncsLimit = 0;
+  it('PUT /bookmarks/:id should return a 200 status code and last updated date for the provided sync id', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     // Create a new sync
@@ -206,22 +213,59 @@ describe('BookmarksRouter', () => {
     });
   });
 
-  it('GET /bookmarks/:id should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+  it('PUT /bookmarks/:id should return a 409 status code when incorrect lastUpdated value provided', async () => {
+    sandbox.stub(Config, 'get').returns(testConfig);
+
+    // Create a new sync
+    const id = await new Promise((resolve) => {
+      request(server.Application)
+        .post(`/bookmarks`)
+        .set('content-type', 'application/json')
+        .send({ version: syncVersionTestVal })
+        .end((err, res) => {
+          resolve(res.body.id);
+        });
+    });
+
+    await new Promise((resolve) => {
+      request(server.Application)
+        .put(`/bookmarks/${id}`)
+        .set('content-type', 'application/json')
+        .send({ bookmarks: bookmarksDataTestVal })
+        .end((err, res) => {
+          resolve();
+        });
+    });
+
+    await new Promise((resolve) => {
+      request(server.Application)
+        .put(`/bookmarks/${id}`)
+        .set('content-type', 'application/json')
+        .send({
+          bookmarks: bookmarksDataTestVal,
+          lastUpdated: '1970-01-01T00:00:00.000Z'
+        })
+        .end((err, res) => {
+          expect(res).to.have.status(409);
+          resolve();
+        });
+    });
+  });
+
+  it('GET /bookmarks/:id should return a 401 status code if sync id is invalid', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
       request(server.Application)
         .get(`/bookmarks/invalidid`)
         .end((err, res) => {
-          expect(res).to.have.status((new InvalidSyncIdException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(401);
           resolve();
         });
     });
   });
 
-  it('GET /bookmarks/:id should return a 200 code and existing bookmarks data for the provided sync id', async () => {
+  it('GET /bookmarks/:id should return a 200 status code and existing bookmarks data for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
     sandbox.stub(Config, 'get').returns(testConfig);
 
@@ -264,22 +308,20 @@ describe('BookmarksRouter', () => {
     });
   });
 
-  it('GET /bookmarks/:id/lastUpdated should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+  it('GET /bookmarks/:id/lastUpdated should return a 401 status code if sync id is invalid', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
       request(server.Application)
         .get(`/bookmarks/invalidid/lastUpdated`)
         .end((err, res) => {
-          expect(res).to.have.status((new InvalidSyncIdException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(401);
           resolve();
         });
     });
   });
 
-  it('GET /bookmarks/:id/lastUpdated should return a 200 code and last updated date for the provided sync id', async () => {
+  it('GET /bookmarks/:id/lastUpdated should return a 200 status code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
     sandbox.stub(Config, 'get').returns(testConfig);
 
@@ -308,22 +350,20 @@ describe('BookmarksRouter', () => {
     });
   });
 
-  it('GET /bookmarks/:id/version should return a InvalidSyncIdException error code if sync id is invalid', async () => {
+  it('GET /bookmarks/:id/version should return a 401 status code if sync id is invalid', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
       request(server.Application)
         .get(`/bookmarks/invalidid/version`)
         .end((err, res) => {
-          expect(res).to.have.status((new InvalidSyncIdException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(401);
           resolve();
         });
     });
   });
 
-  it('GET /bookmarks/:id/version should return a 200 code and last updated date for the provided sync id', async () => {
+  it('GET /bookmarks/:id/version should return a 200 status code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
     sandbox.stub(Config, 'get').returns(testConfig);
 

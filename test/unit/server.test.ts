@@ -1,3 +1,5 @@
+// tslint:disable:no-unused-expression
+
 import { assert, expect } from 'chai';
 import 'mocha';
 import * as sinon from 'sinon';

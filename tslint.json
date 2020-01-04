@@ -3,6 +3,10 @@
     "ban-comma-operator": false,
     "max-classes-per-file": false,
     "no-console": false,
+    "no-implicit-dependencies": [
+      true,
+      "dev"
+    ],
     "no-submodule-imports": false
   },
   "extends": [

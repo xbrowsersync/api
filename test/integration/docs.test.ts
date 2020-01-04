@@ -1,3 +1,5 @@
+// tslint:disable:no-unused-expression
+
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';
@@ -32,7 +34,7 @@ describe('Docs', () => {
     sandbox.restore();
   });
 
-  it('GET /: Should return a 200 code', async () => {
+  it('GET /: Should return a 200 status code', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {

@@ -1,14 +1,10 @@
+// tslint:disable:no-unused-expression
+
 import { expect, request, use } from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';
 import * as sinon from 'sinon';
 import Config from '../../src/core/config';
-import {
-  NotImplementedException,
-  OriginNotPermittedException,
-  RequestThrottledException,
-  UnsupportedVersionException
-} from '../../src/core/exception';
 import Server from '../../src/core/server';
 
 before(() => {
@@ -44,7 +40,22 @@ describe('Server', () => {
     sandbox.restore();
   });
 
-  it('Should return a NotImplementedException error code for an invalid route', async () => {
+  it('Should return an 500 status code when generic error occurs', async () => {
+    sandbox.stub(Config, 'get').throwsException();
+
+    await new Promise((resolve) => {
+      request(server.Application)
+        .get('/info')
+        .set('content-type', 'application/json')
+        .set('accept-version', '0.0.0')
+        .end((err, res) => {
+          expect(res.status).to.equal(412);
+          resolve();
+        });
+    });
+  });
+
+  it('Should return a 404 status code for an invalid route', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
@@ -52,15 +63,13 @@ describe('Server', () => {
         .get('/bookmarks')
         .set('content-type', 'application/json')
         .end((err, res) => {
-          expect(res).to.have.status((new NotImplementedException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(404);
           resolve();
         });
     });
   });
 
-  it('Should return an OriginNotPermittedException error code when requested api version is not supported', async () => {
+  it('Should return a 500 status code when requested api version is not supported', async () => {
     await server.stop();
     testConfig.allowedOrigins = ['http://test.com'];
     sandbox.stub(Config, 'get').returns(testConfig);
@@ -73,15 +82,13 @@ describe('Server', () => {
         .get('/info')
         .set('content-type', 'application/json')
         .end((err, res) => {
-          expect(res).to.have.status((new OriginNotPermittedException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(500);
           resolve();
         });
     });
   });
 
-  it('Should return a RequestThrottledException error code when request throttling is triggered', async () => {
+  it('Should return a 429 status code when request throttling is triggered', async () => {
     await server.stop();
     testConfig.throttle.maxRequests = 1;
     sandbox.stub(Config, 'get').returns(testConfig);
@@ -103,15 +110,13 @@ describe('Server', () => {
         .get('/info')
         .set('content-type', 'application/json')
         .end((err, res) => {
-          expect(res).to.have.status((new RequestThrottledException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res).to.have.status(429);
           resolve();
         });
     });
   });
 
-  it('Should return an UnsupportedVersionException error code when requested api version is not supported', async () => {
+  it('Should return an 412 status code when requested api version is not supported', async () => {
     sandbox.stub(Config, 'get').returns(testConfig);
 
     await new Promise((resolve) => {
@@ -120,9 +125,7 @@ describe('Server', () => {
         .set('content-type', 'application/json')
         .set('accept-version', '0.0.0')
         .end((err, res) => {
-          expect(res).to.have.status((new UnsupportedVersionException()).status);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
+          expect(res.status).to.equal(412);
           resolve();
         });
     });

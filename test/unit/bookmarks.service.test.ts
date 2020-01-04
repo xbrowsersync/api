@@ -1,3 +1,5 @@
+// tslint:disable:no-unused-expression
+
 import { assert, expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
@@ -98,7 +100,6 @@ describe('BookmarksService', () => {
     const createLogStub = sandbox.stub(newSyncLogsService, 'createLog').returns(Promise.resolve({}));
 
     const newBookmarksSync = await bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request);
-    // tslint:disable-next-line:no-unused-expression
     expect(createLogStub.called).to.be.true;
   });
 
