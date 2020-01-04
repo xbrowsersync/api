@@ -17,9 +17,7 @@ export interface IBookmarksModel extends IBookmarks, mongoose.Document {
 
 // Implements a mongoose schema and model to connect data service methods to MongoDB collection
 export default (() => {
-  require('mongoose-uuid2')(mongoose);
   const types: any = mongoose.Types;
-  const UUID = types.UUID;
 
   // Create bookmarks schema to store bookmarks sync data
   // Store IDs as binary uuid v4 and disable default id properties
@@ -28,7 +26,7 @@ export default (() => {
     {
       _id: {
         default: uuid.v4,
-        type: UUID
+        type: String
       },
       bookmarks: String,
       lastAccessed: {

@@ -4,16 +4,14 @@ var mongoose = require("mongoose");
 var uuid = require("uuid");
 // Implements a mongoose schema and model to connect data service methods to MongoDB collection
 exports.default = (function () {
-    require('mongoose-uuid2')(mongoose);
     var types = mongoose.Types;
-    var UUID = types.UUID;
     // Create bookmarks schema to store bookmarks sync data
     // Store IDs as binary uuid v4 and disable default id properties
     // No concurrent updates so disable version keys
     var bookmarksSchema = new mongoose.Schema({
         _id: {
             default: uuid.v4,
-            type: UUID
+            type: String
         },
         bookmarks: String,
         lastAccessed: {
