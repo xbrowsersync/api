@@ -29,6 +29,7 @@
     "moment": "^2.24.0",
     "mongodb": "^3.4.1",
     "mongoose": "^5.8.4",
+    "mongoose-uuid2": "^2.3.0",
     "saslprep": "^1.0.3",
     "smooth-scroll": "^16.1.0",
     "typeface-roboto-condensed": "0.0.75",
