@@ -1,5 +1,6 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
+import Config from '../core/config';
 import DB from '../core/db';
 import { RequiredDataNotFoundException } from '../core/exception';
 import { ApiVerb } from '../core/server';
@@ -10,7 +11,7 @@ import BookmarksService from '../services/bookmarks.service';
 export default class BookmarksRouter extends BaseRouter<BookmarksService> implements IApiRouter {
   // Initialises the routes for this router implementation
   public initRoutes(): void {
-    this.app.use('/bookmarks', this.router);
+    this.app.use(`${Config.get().server.relativePath}bookmarks`, this.router);
     this.createRoute(ApiVerb.post, '/', {
       '~1.0.0': this.createBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys

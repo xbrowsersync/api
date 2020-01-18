@@ -123,7 +123,9 @@ class Server {
                     }));
                 });
                 this.server.on('listening', conn => {
-                    this.log(LogLevel.Info, `Service started on ${config_1.default.get().server.host}:${config_1.default.get().server.port}`);
+                    const protocol = config_1.default.get().server.https.enabled ? 'https' : 'http';
+                    const url = `${protocol}://${config_1.default.get().server.host}:${config_1.default.get().server.port}${config_1.default.get().server.relativePath}`;
+                    this.log(LogLevel.Info, `Service started at ${url}`);
                     resolve();
                 });
             });
@@ -307,7 +309,7 @@ class Server {
     // Configures api routing
     prepareRoutes() {
         const router = express.Router();
-        this.app.use('/', router);
+        this.app.use(config_1.default.get().server.relativePath, router);
         // Configure docs routing
         const docsRouter = new docs_router_1.default(this.app);
         // Configure bookmarks routing

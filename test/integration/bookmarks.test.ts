@@ -51,7 +51,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .post('/bookmarks')
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send(data)
         .end((err, res) => {
@@ -70,7 +70,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .post('/bookmarks')
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send(data)
         .end((err, res) => {
@@ -81,7 +81,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .post('/bookmarks')
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send(data)
         .end((err, res) => {
@@ -104,7 +104,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .post('/bookmarks')
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send(data)
         .end((err, res) => {
@@ -120,7 +120,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .post('/bookmarks')
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send({ version: syncVersionTestVal })
         .end((err, res) => {
@@ -145,7 +145,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/${syncIdTestVal}`)
+        .put(`${Config.get().server.relativePath}bookmarks/${syncIdTestVal}`)
         .set('content-type', 'application/json')
         .send({ bookmarks: bookmarksDataTestVal })
         .end((err, res) => {
@@ -160,7 +160,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/invalidid`)
+        .put(`${Config.get().server.relativePath}bookmarks/invalidid`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(401);
@@ -174,7 +174,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/${syncIdTestVal}`)
+        .put(`${Config.get().server.relativePath}bookmarks/${syncIdTestVal}`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(400);
@@ -189,7 +189,7 @@ describe('BookmarksRouter', () => {
     // Create a new sync
     const id = await new Promise((resolve) => {
       request(server.Application)
-        .post(`/bookmarks`)
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send({ version: syncVersionTestVal })
         .end((err, res) => {
@@ -200,7 +200,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/${id}`)
+        .put(`${Config.get().server.relativePath}bookmarks/${id}`)
         .set('content-type', 'application/json')
         .send({ bookmarks: bookmarksDataTestVal })
         .end((err, res) => {
@@ -219,7 +219,7 @@ describe('BookmarksRouter', () => {
     // Create a new sync
     const id = await new Promise((resolve) => {
       request(server.Application)
-        .post(`/bookmarks`)
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send({ version: syncVersionTestVal })
         .end((err, res) => {
@@ -229,7 +229,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/${id}`)
+        .put(`${Config.get().server.relativePath}bookmarks/${id}`)
         .set('content-type', 'application/json')
         .send({ bookmarks: bookmarksDataTestVal })
         .end((err, res) => {
@@ -239,7 +239,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/${id}`)
+        .put(`${Config.get().server.relativePath}bookmarks/${id}`)
         .set('content-type', 'application/json')
         .send({
           bookmarks: bookmarksDataTestVal,
@@ -257,7 +257,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get(`/bookmarks/invalidid`)
+        .get(`${Config.get().server.relativePath}bookmarks/invalidid`)
         .end((err, res) => {
           expect(res).to.have.status(401);
           resolve();
@@ -272,7 +272,7 @@ describe('BookmarksRouter', () => {
     // Create a new sync
     const id = await new Promise((resolve) => {
       request(server.Application)
-        .post(`/bookmarks`)
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send({ version: syncVersionTestVal })
         .end((err, res) => {
@@ -284,7 +284,7 @@ describe('BookmarksRouter', () => {
     // Create update the synced bookmarks
     await new Promise((resolve) => {
       request(server.Application)
-        .put(`/bookmarks/${id}`)
+        .put(`${Config.get().server.relativePath}bookmarks/${id}`)
         .set('content-type', 'application/json')
         .send({ bookmarks: bookmarksDataTestVal })
         .end((err, res) => {
@@ -295,7 +295,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get(`/bookmarks/${id}`)
+        .get(`${Config.get().server.relativePath}bookmarks/${id}`)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
@@ -313,7 +313,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get(`/bookmarks/invalidid/lastUpdated`)
+        .get(`${Config.get().server.relativePath}bookmarks/invalidid/lastUpdated`)
         .end((err, res) => {
           expect(res).to.have.status(401);
           resolve();
@@ -328,7 +328,7 @@ describe('BookmarksRouter', () => {
     // Create a new sync
     const id = await new Promise((resolve) => {
       request(server.Application)
-        .post(`/bookmarks`)
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send({ version: syncVersionTestVal })
         .end((err, res) => {
@@ -339,7 +339,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get(`/bookmarks/${id}/lastUpdated`)
+        .get(`${Config.get().server.relativePath}bookmarks/${id}/lastUpdated`)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
@@ -355,7 +355,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get(`/bookmarks/invalidid/version`)
+        .get(`${Config.get().server.relativePath}bookmarks/invalidid/version`)
         .end((err, res) => {
           expect(res).to.have.status(401);
           resolve();
@@ -370,7 +370,7 @@ describe('BookmarksRouter', () => {
     // Create a new sync
     const id = await new Promise((resolve) => {
       request(server.Application)
-        .post(`/bookmarks`)
+        .post(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .send({ version: syncVersionTestVal })
         .end((err, res) => {
@@ -381,7 +381,7 @@ describe('BookmarksRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get(`/bookmarks/${id}/version`)
+        .get(`${Config.get().server.relativePath}bookmarks/${id}/version`)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;

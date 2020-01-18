@@ -6,7 +6,7 @@
     "connTimeout": 30000,
     "host": "127.0.0.1",
     "name": "xbrowsersync",
-    "useSRV" : false,
+    "useSRV": false,
     "username": "",
     "password": "",
     "port": 27017
@@ -34,7 +34,8 @@
       "enabled": false,
       "keyPath": ""
     },
-    "port": 8080
+    "port": 8080,
+    "relativePath": "/"
   },
   "status": {
     "allowNewSyncs": true,

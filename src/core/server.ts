@@ -128,7 +128,9 @@ export default class Server {
       });
 
       this.server.on('listening', conn => {
-        this.log(LogLevel.Info, `Service started on ${Config.get().server.host}:${Config.get().server.port}`);
+        const protocol = Config.get().server.https.enabled ? 'https' : 'http';
+        const url = `${protocol}://${Config.get().server.host}:${Config.get().server.port}${Config.get().server.relativePath}`;
+        this.log(LogLevel.Info, `Service started at ${url}`);
         resolve();
       });
     });
@@ -329,7 +331,7 @@ export default class Server {
   // Configures api routing
   private prepareRoutes(): void {
     const router = express.Router();
-    this.app.use('/', router);
+    this.app.use(Config.get().server.relativePath, router);
 
     // Configure docs routing
     const docsRouter = new DocsRouter(this.app);

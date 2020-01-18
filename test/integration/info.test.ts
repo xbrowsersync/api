@@ -39,7 +39,7 @@ describe('InfoRouter', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/info')
+        .get(`${Config.get().server.relativePath}info`)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;

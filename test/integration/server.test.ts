@@ -6,6 +6,7 @@ import 'mocha';
 import * as sinon from 'sinon';
 import Config from '../../src/core/config';
 import Server from '../../src/core/server';
+import InfoService from '../../src/services/info.service';
 
 before(() => {
   use(chaiHttp);
@@ -41,11 +42,12 @@ describe('Server', () => {
   });
 
   it('Should return an 500 status code when generic error occurs', async () => {
-    sandbox.stub(Config, 'get').throwsException();
+    sandbox.stub(Config, 'get').returns(testConfig);
+    sandbox.stub(InfoService.prototype, 'getInfo').throwsException();
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/info')
+        .get(`${Config.get().server.relativePath}info`)
         .set('content-type', 'application/json')
         .set('accept-version', '0.0.0')
         .end((err, res) => {
@@ -60,7 +62,7 @@ describe('Server', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/bookmarks')
+        .get(`${Config.get().server.relativePath}bookmarks`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(404);
@@ -79,7 +81,7 @@ describe('Server', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/info')
+        .get(`${Config.get().server.relativePath}info`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(500);
@@ -98,7 +100,7 @@ describe('Server', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/info')
+        .get(`${Config.get().server.relativePath}info`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           resolve();
@@ -107,7 +109,7 @@ describe('Server', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/info')
+        .get(`${Config.get().server.relativePath}info`)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(429);
@@ -121,7 +123,7 @@ describe('Server', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/info')
+        .get(`${Config.get().server.relativePath}info`)
         .set('content-type', 'application/json')
         .set('accept-version', '0.0.0')
         .end((err, res) => {

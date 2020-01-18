@@ -39,7 +39,7 @@ describe('Docs', () => {
 
     await new Promise((resolve) => {
       request(server.Application)
-        .get('/')
+        .get(Config.get().server.relativePath)
         .set('content-type', 'application/json')
         .end((err, res) => {
           expect(res).to.have.status(200);
