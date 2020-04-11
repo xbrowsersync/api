@@ -6,6 +6,7 @@ import { RequiredDataNotFoundException } from '../core/exception';
 import { ApiVerb } from '../core/server';
 import BaseRouter, { IApiRouter } from '../routers/base.router';
 import BookmarksService from '../services/bookmarks.service';
+import * as Uuid from '../core/uuid';
 
 // Implementation of routes for bookmarks operations
 export default class BookmarksRouter extends BaseRouter<BookmarksService> implements IApiRouter {
@@ -107,7 +108,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
     const id = req.params.id;
 
     // Check id is valid
-    DB.idIsValid(id);
+    const binary = Uuid.convertUuidStringToBinary(id);
 
     return id;
   }

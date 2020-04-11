@@ -1,33 +1,10 @@
 import { Request } from 'express';
-import * as mongodb from 'mongodb';
 import * as mongoose from 'mongoose';
 import Config from './config';
-import { InvalidSyncIdException } from './exception';
 import { LogLevel } from './server';
 
 // Handles database interaction
 export default class DB {
-  public static idIsValid(id): void {
-    let binary: mongodb.Binary;
-    let base64Str: string;
-
-    if (!id) {
-      throw new InvalidSyncIdException();
-    }
-
-    try {
-      binary = new mongodb.Binary(Buffer.from(id, 'hex'), 4);
-      base64Str = binary.buffer.toString('base64');
-    }
-    catch (err) {
-      throw new InvalidSyncIdException();
-    }
-
-    if (!binary || !base64Str) {
-      throw new InvalidSyncIdException();
-    }
-  }
-
   constructor(private log: (level: LogLevel, message: string, req?: Request, err?: Error) => void) { }
 
   // Closes the database connection

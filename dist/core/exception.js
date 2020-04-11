@@ -13,14 +13,13 @@ class ExceptionBase extends Error {
     }
 }
 exports.ExceptionBase = ExceptionBase;
-class RequiredDataNotFoundException extends ExceptionBase {
+class InvalidArgumentException extends Error {
     constructor(message) {
-        super(message || 'Unable to find required data');
-        this.name = 'RequiredDataNotFoundException';
-        this.status = 400; // Bad Request
+        super(message || 'Supplied argument has incorrect type');
+        this.name = 'InvalidArgumentException';
     }
 }
-exports.RequiredDataNotFoundException = RequiredDataNotFoundException;
+exports.InvalidArgumentException = InvalidArgumentException;
 class InvalidSyncIdException extends ExceptionBase {
     constructor(message) {
         super(message || 'Invalid sync ID');
@@ -29,14 +28,14 @@ class InvalidSyncIdException extends ExceptionBase {
     }
 }
 exports.InvalidSyncIdException = InvalidSyncIdException;
-class NotImplementedException extends ExceptionBase {
+class RequiredDataNotFoundException extends ExceptionBase {
     constructor(message) {
-        super(message || 'The requested route has not been implemented');
-        this.name = 'NotImplementedException';
-        this.status = 404; // Not Found
+        super(message || 'Unable to find required data');
+        this.name = 'RequiredDataNotFoundException';
+        this.status = 400; // Bad Request
     }
 }
-exports.NotImplementedException = NotImplementedException;
+exports.RequiredDataNotFoundException = RequiredDataNotFoundException;
 class NewSyncsForbiddenException extends ExceptionBase {
     constructor(message) {
         super(message || 'The service is not accepting new syncs');
@@ -53,6 +52,14 @@ class NewSyncsLimitExceededException extends ExceptionBase {
     }
 }
 exports.NewSyncsLimitExceededException = NewSyncsLimitExceededException;
+class NotImplementedException extends ExceptionBase {
+    constructor(message) {
+        super(message || 'The requested route has not been implemented');
+        this.name = 'NotImplementedException';
+        this.status = 404; // Not Found
+    }
+}
+exports.NotImplementedException = NotImplementedException;
 class SyncConflictException extends ExceptionBase {
     constructor(message) {
         super(message || 'A sync conflict was detected');

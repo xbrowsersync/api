@@ -103,23 +103,6 @@ describe('BookmarksService', () => {
     expect(createLogStub.called).to.be.true;
   });
 
-  it('createBookmarks: should return a new sync ID', async () => {
-    const req: Partial<Request> = {};
-    sandbox.stub(BookmarksService.prototype, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
-    sandbox.stub(newSyncLogsService, 'newSyncsLimitHit').returns(Promise.resolve(false));
-    sandbox.stub(BookmarksModel.prototype, 'save').returns(Promise.resolve({
-      lastUpdated: createdDateTestVal,
-      version: syncVersionTestVal
-    }));
-    sandbox.stub(newSyncLogsService, 'createLog').returns(Promise.resolve({}));
-
-    const newBookmarksSync = await bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request);
-    expect(newBookmarksSync).to.be.an('object');
-    expect(newBookmarksSync.id).to.be.a('string').and.to.not.be.empty;
-    expect(newBookmarksSync.version).to.be.a('string').and.to.equal(syncVersionTestVal);
-    expect(newBookmarksSync.lastUpdated).to.equal(createdDateTestVal);
-  });
-
   it('getBookmarks: should throw a InvalidSyncIdException db operation returns null', async () => {
     const req: Partial<Request> = {};
     const findOneAndUpdateStub = sandbox.stub(BookmarksModel, 'findOneAndUpdate').returns({

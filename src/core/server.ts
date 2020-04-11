@@ -24,6 +24,7 @@ import InfoRouter from '../routers/info.router';
 import BookmarksService from '../services/bookmarks.service';
 import InfoService from '../services/info.service';
 import NewSyncLogsService from '../services/newSyncLogs.service';
+import * as noCache from 'nocache';
 
 export enum ApiStatus {
   online = 1,
@@ -239,10 +240,10 @@ export default class Server {
       contentSecurityPolicy: {
         directives: { defaultSrc: ["'self'"] }
       },
-      noCache: true,
       referrerPolicy: true
     };
     this.app.use(helmet(helmetConfig));
+    this.app.use(noCache());
 
     // Add default version to request if not supplied
     this.app.use((req: any, res: express.Response, next: express.NextFunction) => {

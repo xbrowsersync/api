@@ -17,10 +17,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const config_1 = require("../core/config");
-const db_1 = require("../core/db");
 const exception_1 = require("../core/exception");
 const server_1 = require("../core/server");
 const base_router_1 = require("../routers/base.router");
+const Uuid = require("../core/uuid");
 // Implementation of routes for bookmarks operations
 class BookmarksRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
@@ -114,7 +114,7 @@ class BookmarksRouter extends base_router_1.default {
     getSyncId(req) {
         const id = req.params.id;
         // Check id is valid
-        db_1.default.idIsValid(id);
+        const binary = Uuid.convertUuidStringToBinary(id);
         return id;
     }
     // Retrieves sync version for a given sync ID

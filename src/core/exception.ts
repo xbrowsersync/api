@@ -16,11 +16,10 @@ export class ExceptionBase extends Error {
   }
 }
 
-export class RequiredDataNotFoundException extends ExceptionBase {
+export class InvalidArgumentException extends Error {
   constructor(message?: string) {
-    super(message || 'Unable to find required data');
-    this.name = 'RequiredDataNotFoundException';
-    this.status = 400; // Bad Request
+    super(message || 'Supplied argument has incorrect type');
+    this.name = 'InvalidArgumentException';
   }
 }
 
@@ -32,11 +31,11 @@ export class InvalidSyncIdException extends ExceptionBase {
   }
 }
 
-export class NotImplementedException extends ExceptionBase {
+export class RequiredDataNotFoundException extends ExceptionBase {
   constructor(message?: string) {
-    super(message || 'The requested route has not been implemented');
-    this.name = 'NotImplementedException';
-    this.status = 404; // Not Found
+    super(message || 'Unable to find required data');
+    this.name = 'RequiredDataNotFoundException';
+    this.status = 400; // Bad Request
   }
 }
 
@@ -53,6 +52,14 @@ export class NewSyncsLimitExceededException extends ExceptionBase {
     super(message || 'Client has exceeded the daily new syncs limit');
     this.name = 'NewSyncsLimitExceededException';
     this.status = 406; // Not Acceptable
+  }
+}
+
+export class NotImplementedException extends ExceptionBase {
+  constructor(message?: string) {
+    super(message || 'The requested route has not been implemented');
+    this.name = 'NotImplementedException';
+    this.status = 404; // Not Found
   }
 }
 

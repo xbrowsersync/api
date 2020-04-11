@@ -1,5 +1,6 @@
+import * as Uuid from '../core/uuid';
 import * as mongoose from 'mongoose';
-import * as uuid from 'uuid';
+import { Binary } from 'mongodb';
 
 // Interface for bookmarks model
 export interface IBookmarks {
@@ -17,26 +18,30 @@ export interface IBookmarksModel extends IBookmarks, mongoose.Document {
 
 // Implements a mongoose schema and model to connect data service methods to MongoDB collection
 export default (() => {
-  require('mongoose-uuid2')(mongoose);
-  const types: any = mongoose.Types;
-  const UUID = types.UUID;
-
   // Create bookmarks schema to store bookmarks sync data
   // Store IDs as binary uuid v4 and disable default id properties
   // No concurrent updates so disable version keys
   const bookmarksSchema = new mongoose.Schema(
     {
       _id: {
-        default: uuid.v4,
-        type: UUID
+        type: mongoose.Schema.Types.Buffer,
+        get: Uuid.convertBytesToUuidString,
+        set: (idValue: string | Binary) => {
+          if (idValue instanceof Binary) {
+            return idValue;
+          }
+
+          return Uuid.convertUuidStringToBinary(idValue as string);
+        },
+        default: () => Uuid.generate()
       },
       bookmarks: String,
       lastAccessed: {
-        default: () => new Date(),
+        default: Date,
         type: Date
       },
       lastUpdated: {
-        default: () => new Date(),
+        default: Date,
         type: Date
       },
       version: String

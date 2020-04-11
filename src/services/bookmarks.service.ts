@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import * as uuid from 'uuid';
+import * as Uuid from '../core/uuid';
 import Config from '../core/config';
 import {
   InvalidSyncIdException,
@@ -64,12 +65,8 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
 
     try {
-      // Get a new sync id
-      const id = this.newSyncId();
-
       // Create new bookmarks payload
       const newBookmarks: IBookmarks = {
-        _id: id,
         bookmarks: bookmarksData
       };
       const bookmarksModel = new BookmarksModel(newBookmarks);
@@ -85,7 +82,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
 
       // Return the response data
       const returnObj: ICreateBookmarksResponse = {
-        id,
+        id: savedBookmarks._id,
         lastUpdated: savedBookmarks.lastUpdated
       };
       return returnObj;
@@ -116,12 +113,8 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
 
     try {
-      // Get a new sync id
-      const id = this.newSyncId();
-
       // Create new bookmarks payload
       const newBookmarks: IBookmarks = {
-        _id: id,
         version: syncVersion
       };
       const bookmarksModel = new BookmarksModel(newBookmarks);
@@ -137,7 +130,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
 
       // Return the response data
       const returnObj: ICreateBookmarksResponse = {
-        id,
+        id: savedBookmarks._id,
         lastUpdated: savedBookmarks.lastUpdated,
         version: savedBookmarks.version
       };
@@ -366,22 +359,5 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
 
     return bookmarksCount;
-  }
-
-  // Generates a new 32 char id string
-  private newSyncId(): string {
-    let newId: string;
-
-    try {
-      // Create a new v4 uuid and return as an unbroken string to use for a unique id
-      const bytes: any = uuid.v4(null, Buffer.alloc(16));
-      newId = Buffer.from(bytes, 'base64').toString('hex');
-    }
-    catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
-      throw err;
-    }
-
-    return newId;
   }
 }

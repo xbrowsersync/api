@@ -33,6 +33,7 @@ const info_router_1 = require("../routers/info.router");
 const bookmarks_service_1 = require("../services/bookmarks.service");
 const info_service_1 = require("../services/info.service");
 const newSyncLogs_service_1 = require("../services/newSyncLogs.service");
+const noCache = require("nocache");
 var ApiStatus;
 (function (ApiStatus) {
     ApiStatus[ApiStatus["online"] = 1] = "online";
@@ -226,10 +227,10 @@ class Server {
             contentSecurityPolicy: {
                 directives: { defaultSrc: ["'self'"] }
             },
-            noCache: true,
             referrerPolicy: true
         };
         this.app.use(helmet(helmetConfig));
+        this.app.use(noCache());
         // Add default version to request if not supplied
         this.app.use((req, res, next) => {
             req.version = req.headers['accept-version'] || config_1.default.get().version;

@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const uuid = require("uuid");
 const config_1 = require("../core/config");
 const exception_1 = require("../core/exception");
 const server_1 = require("../core/server");
@@ -35,11 +34,8 @@ class BookmarksService extends base_service_1.default {
                 }
             }
             try {
-                // Get a new sync id
-                const id = this.newSyncId();
                 // Create new bookmarks payload
                 const newBookmarks = {
-                    _id: id,
                     bookmarks: bookmarksData
                 };
                 const bookmarksModel = new bookmarks_model_1.default(newBookmarks);
@@ -52,7 +48,7 @@ class BookmarksService extends base_service_1.default {
                 this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
                 // Return the response data
                 const returnObj = {
-                    id,
+                    id: savedBookmarks._id,
                     lastUpdated: savedBookmarks.lastUpdated
                 };
                 return returnObj;
@@ -81,11 +77,8 @@ class BookmarksService extends base_service_1.default {
                 }
             }
             try {
-                // Get a new sync id
-                const id = this.newSyncId();
                 // Create new bookmarks payload
                 const newBookmarks = {
-                    _id: id,
                     version: syncVersion
                 };
                 const bookmarksModel = new bookmarks_model_1.default(newBookmarks);
@@ -98,7 +91,7 @@ class BookmarksService extends base_service_1.default {
                 this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
                 // Return the response data
                 const returnObj = {
-                    id,
+                    id: savedBookmarks._id,
                     lastUpdated: savedBookmarks.lastUpdated,
                     version: savedBookmarks.version
                 };
@@ -292,20 +285,6 @@ class BookmarksService extends base_service_1.default {
             }
             return bookmarksCount;
         });
-    }
-    // Generates a new 32 char id string
-    newSyncId() {
-        let newId;
-        try {
-            // Create a new v4 uuid and return as an unbroken string to use for a unique id
-            const bytes = uuid.v4(null, Buffer.alloc(16));
-            newId = Buffer.from(bytes, 'base64').toString('hex');
-        }
-        catch (err) {
-            this.log(server_1.LogLevel.Error, 'Exception occurred in BookmarksService.newSyncId', null, err);
-            throw err;
-        }
-        return newId;
     }
 }
 exports.default = BookmarksService;
