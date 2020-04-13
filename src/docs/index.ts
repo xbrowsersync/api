@@ -1,3 +1,5 @@
+// tslint:disable:no-unused-expression
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { autobind } from 'core-decorators';
 import * as DOMPurify from 'dompurify';
@@ -7,6 +9,7 @@ import * as SmoothScroll from 'smooth-scroll';
 import 'typeface-roboto-condensed';
 import 'whatwg-fetch';
 import { IGetInfoResponse } from '../services/info.service';
+import * as Location from '../core/location';
 
 // API home page and documentation
 class DocsPage {
@@ -16,11 +19,14 @@ class DocsPage {
     // Enable resonsive menu
     this.enableMenu();
 
+    // Update list of country names where necessary
+    Location.setCountryNames();
+
     // Check service status
     this.checkStatus();
 
     // Enable smooth scrolling of page links
-    const scroll = new SmoothScroll('a[href*="#"]', {
+    new SmoothScroll('a[href*="#"]', {
       updateURL: false
     });
   }
@@ -30,6 +36,7 @@ class DocsPage {
     const versionEl = document.querySelector('#version');
     const currentStatusEl = document.querySelector('#currentstatus');
     const serverMessageEl = document.querySelector('#servermessage');
+    const locationEl = document.querySelector('#location');
 
     // Display current status and version for this xBrowserSync service
     try {
@@ -44,6 +51,12 @@ class DocsPage {
       const apiInfo: IGetInfoResponse = await response.json();
       if (apiInfo) {
         versionEl.textContent = apiInfo.version;
+
+        // If the server has configured a location, display it
+        if (apiInfo.location) {
+          locationEl.querySelector('span').innerText = Location.getCountryNameFromLocationCode(apiInfo.location);
+          locationEl.classList.add('d-block');
+        }
 
         // If the server has configured a message, display it
         if (apiInfo.message) {

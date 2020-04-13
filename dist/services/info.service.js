@@ -17,8 +17,11 @@ class InfoService extends base_service_1.default {
     // Returns information describing the xBrowserSync service
     getInfo(req) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Convert location code to uppercase if set
+            const location = config_1.default.get().location && config_1.default.get().location.toUpperCase();
             // Create response object from config settings
             const serviceInfo = {
+                location,
                 maxSyncSize: config_1.default.get().maxSyncSize,
                 message: this.stripScriptsFromHtml(config_1.default.get().status.message),
                 status: server_1.ApiStatus.offline,

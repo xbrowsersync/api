@@ -117,6 +117,7 @@ Config Setting | Description | Default Value
 `db.username` | Username of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
 `db.password` | Password of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
 `db.port` | The port to use to connect to MongoDB. | `27017`
+`location` | The geographic location of the service, determined by an ISO 3166-1-alpha-2 code. Helps users determine if the service is geographically suitable for them when exposing the service to the public. | `gb`
 `log.file.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.file.path` and the log file is rotated automatically each period set by `log.file.rotationPeriod`, resulting in files "`log.file.path`.0", "`log.file.path`.1", etc. | `true`
 `log.file.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
 `log.file.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log`

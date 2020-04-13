@@ -364,10 +364,23 @@ section {
       }
 
       .status {
-        text-align: center;
+        display: flex;
+        justify-content: space-evenly;
 
-        .version {
-          margin-left: 1rem;
+        & > span {
+          display: block;
+          text-align: center;
+          min-width: 8rem;
+          line-height: 1.4rem;
+        }
+
+        #location {
+          display: none;
+        }
+
+        @media (max-width: 768px) {
+          display: block;
+          margin-bottom: 1rem;
         }
       }
     }

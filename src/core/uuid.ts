@@ -44,7 +44,7 @@ export function convertUuidStringToBinary(uuidString: string): Binary {
   return binary;
 }
 
-export function generate(): Binary {
+export function generateRandomUuid(): Binary {
   const buffer = uuid.v4(null, Buffer.alloc(16));
   return new mongoose.Types.Buffer(buffer).toObject(0x04);
 }

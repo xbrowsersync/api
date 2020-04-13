@@ -25,6 +25,7 @@ import BookmarksService from '../services/bookmarks.service';
 import InfoService from '../services/info.service';
 import NewSyncLogsService from '../services/newSyncLogs.service';
 import * as noCache from 'nocache';
+import * as Location from './location';
 
 export enum ApiStatus {
   online = 1,
@@ -105,6 +106,12 @@ export default class Server {
   // Starts the api service
   @autobind
   public async start(): Promise<void> {
+    // Check if location is valid before starting
+    if (!Location.validateLocationCode(Config.get().location)) {
+      this.log(LogLevel.Error, `Location is not a valid country code, exiting`);
+      process.exit(1);
+    }
+
     // Create https server if enabled in config, otherwise create http server
     if (Config.get().server.https.enabled) {
       const options: https.ServerOptions = {

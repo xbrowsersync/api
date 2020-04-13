@@ -17,6 +17,7 @@
     "bunyan": "^1.8.12",
     "core-decorators": "^0.20.0",
     "cors": "^2.8.5",
+    "country-list": "^2.2.0",
     "deepmerge": "^4.2.2",
     "dompurify": "^2.0.8",
     "es6-shim": "^0.35.5",
@@ -84,7 +85,7 @@
   },
   "scripts": {
     "build": "npm run tslint && npm run compilesrc && npm run builddocs && npm run buildcomplete",
-    "compilesrc": "echo Compiling source files... & tsc --pretty",
+    "compilesrc": "echo Building API... & tsc --pretty",
     "tslint": "echo Running tslint... & tslint --project . -t stylish",
     "builddocs": "echo Building docs... & webpack --config webpack.config.js",
     "buildcomplete": "echo Done!",

@@ -72,6 +72,14 @@
   @include transform(rotate(#{$deg}deg));
 }
 
+@mixin text-overflow-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: normal;
+  white-space: nowrap;
+}
+
 @mixin transform($transforms) {
   @include css-prefix(transform, $transforms);
 }

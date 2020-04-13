@@ -28,6 +28,16 @@ describe('InfoService', () => {
     sandbox.restore();
   });
 
+  it('getInfo: should return location config value', async () => {
+    const req: Partial<Request> = {};
+    const location = 'gb';
+    testConfig.location = location;
+    sandbox.stub(Config, 'get').returns(testConfig);
+
+    const response = await infoService.getInfo(req as Request);
+    expect(response.location).to.equal(location.toUpperCase());
+  });
+
   it('getInfo: should return max sync size config value', async () => {
     const req: Partial<Request> = {};
     const maxSyncSizeTestVal = 1;

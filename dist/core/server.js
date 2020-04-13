@@ -34,6 +34,7 @@ const bookmarks_service_1 = require("../services/bookmarks.service");
 const info_service_1 = require("../services/info.service");
 const newSyncLogs_service_1 = require("../services/newSyncLogs.service");
 const noCache = require("nocache");
+const Location = require("./location");
 var ApiStatus;
 (function (ApiStatus) {
     ApiStatus[ApiStatus["online"] = 1] = "online";
@@ -102,6 +103,11 @@ class Server {
     // Starts the api service
     start() {
         return __awaiter(this, void 0, void 0, function* () {
+            // Check if location is valid before starting
+            if (!Location.validateLocationCode(config_1.default.get().location)) {
+                this.log(LogLevel.Error, `Location is not a valid country code, exiting`);
+                process.exit(1);
+            }
             // Create https server if enabled in config, otherwise create http server
             if (config_1.default.get().server.https.enabled) {
                 const options = {

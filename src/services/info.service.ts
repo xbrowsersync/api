@@ -6,6 +6,7 @@ import BookmarksService from './bookmarks.service';
 
 // Interface for get info operation response object
 export interface IGetInfoResponse {
+  location: string,
   maxSyncSize: number,
   message: string,
   status: number,
@@ -16,8 +17,12 @@ export interface IGetInfoResponse {
 export default class InfoService extends BaseService<BookmarksService> {
   // Returns information describing the xBrowserSync service
   public async getInfo(req: Request): Promise<IGetInfoResponse> {
+    // Convert location code to uppercase if set
+    const location = Config.get().location && (Config.get().location as string).toUpperCase();
+
     // Create response object from config settings
     const serviceInfo: IGetInfoResponse = {
+      location,
       maxSyncSize: Config.get().maxSyncSize,
       message: this.stripScriptsFromHtml(Config.get().status.message),
       status: ApiStatus.offline,

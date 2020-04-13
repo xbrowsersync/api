@@ -11,6 +11,7 @@
     "password": "",
     "port": 27017
   },
+  "location": "",
   "log": {
     "file": {
       "enabled": true,

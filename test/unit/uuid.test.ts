@@ -87,13 +87,13 @@ describe('UUID', () => {
     assert.fail();
   });
 
-  it('generate: should return a binary UUID with 16 bytes', () => {
-    const binary = Uuid.generate();
+  it('generateRandomUuid: should return a binary UUID with 16 bytes', () => {
+    const binary = Uuid.generateRandomUuid();
     expect(binary.buffer.length).to.equal(16);
   });
 
-  it('generate: should return a version 4 binary UUID', () => {
-    const binary = Uuid.generate();
+  it('generateRandomUuid: should return a version 4 binary UUID', () => {
+    const binary = Uuid.generateRandomUuid();
     expect(binary.sub_type).to.equal(4);
   });
 });

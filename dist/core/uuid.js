@@ -38,9 +38,9 @@ function convertUuidStringToBinary(uuidString) {
     return binary;
 }
 exports.convertUuidStringToBinary = convertUuidStringToBinary;
-function generate() {
+function generateRandomUuid() {
     const buffer = uuid.v4(null, Buffer.alloc(16));
     return new mongoose.Types.Buffer(buffer).toObject(0x04);
 }
-exports.generate = generate;
+exports.generateRandomUuid = generateRandomUuid;
 //# sourceMappingURL=uuid.js.map

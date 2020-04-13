@@ -33,7 +33,7 @@ export default (() => {
 
           return Uuid.convertUuidStringToBinary(idValue as string);
         },
-        default: () => Uuid.generate()
+        default: () => Uuid.generateRandomUuid()
       },
       bookmarks: String,
       lastAccessed: {
