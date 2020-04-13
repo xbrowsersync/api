@@ -16,8 +16,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
-const config_1 = require("../core/config");
-const server_1 = require("../core/server");
+const config_1 = require("../config");
+const server_1 = require("../server");
 const base_router_1 = require("../routers/base.router");
 // Implementation of routes for service info operations
 class InfoRouter extends base_router_1.default {

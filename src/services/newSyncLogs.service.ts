@@ -1,7 +1,7 @@
 import { Request } from 'express';
-import Config from '../core/config';
-import { UnspecifiedException } from '../core/exception';
-import { LogLevel } from '../core/server';
+import Config from '../config';
+import { UnspecifiedException } from '../exception';
+import { LogLevel } from '../server';
 import NewSyncLogsModel, { INewSyncLog } from '../models/newSyncLogs.model';
 import BaseService from './base.service';
 

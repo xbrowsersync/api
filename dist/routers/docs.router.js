@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const path = require("path");
-const config_1 = require("../core/config");
+const config_1 = require("../config");
 const base_router_1 = require("../routers/base.router");
 // Implementation of routes for API documentation
 class DocsRouter extends base_router_1.default {

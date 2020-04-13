@@ -137,7 +137,7 @@ Config Setting | Description | Default Value
 `status.allowNewSyncs` | Determines whether users will be allowed to create new syncs. Note: if this setting is set to false, users who have already synced to this service and have a sync ID will still able to get and update their syncs. | `true`
 `status.message` | This message will be displayed in the service status panel of the client app when using this xBrowserSync service. Ideally the message should be 130 characters or less. Supports [markdown](https://guides.github.com/features/mastering-markdown/) formatting. | (Empty string, no message set)
 `status.online` | If set to false no clients will be able to connect to this service. | `true`
-`tests.db` | Name of the MongoDB database to use for integration tests. | `xbrowsersynctest`
+`tests.db` | Name of the MongoDB database to use for e2e tests. | `xbrowsersynctest`
 `tests.port` | Port to use for running tests. | `8081`
 `throttle.maxRequests` | Max number of connections during `throttle.timeWindow` milliseconds before sending a 429 response. Set as `0` to disable. | `1000`
 `throttle.timeWindow` | Amount of time (in milliseconds) before throttle counter is reset. | `300000` (5 mins)
@@ -158,12 +158,11 @@ If you've made code changes you can run a fresh build with the command:
 
 ## Testing
 
-To run unit tests, run either of the following commands:
+To run unit/integration tests, run the following command:
 
     $ npm run test
-    $ npm run unittests
 
-To run integration tests, you will need to create the test database first. Run the following commands in the mongo shell:
+To run end to end tests, you will need to create the test database first. Run the following commands in the mongo shell:
 
   (Replace `[dbname]` with your xBrowserSync database name and `[password]` with the xBrowserSync database user account password)
 
@@ -172,9 +171,9 @@ To run integration tests, you will need to create the test database first. Run t
   db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: ["readWrite"] })
   ```
 
-You can then run the integration tests by running the following command:
+You can then run the end to end tests by running the following command:
 
-    $ npm run integrationtests
+    $ npm run e2etests
 
 ## Upgrading from an earlier version
 
@@ -220,8 +219,8 @@ If you're using [VS Code](https://code.visualstudio.com/), you have the followin
 
   1. Debug API: Will compile and debug the main API service.
   2. Debug docs: Will launch API home page in chrome and attach to debugger for debugging docs issues. 
-  3. Run unit tests: Will run and debug all tests in `test/unit` folder.
-  4. Run integration tests: Will debug all tests in `test/integration` folder.
+  3. Run unit/integration tests: Will debug tests in `*.spec.ts` files in `src` folder.
+  4. Run e2e tests: Will debug tests in `test/e2e` folder.
 
 Note: we recommend [VSCodium](https://github.com/VSCodium/vscodium/) for running VSCode without Microsoft's proprietary binaries and telemetry/tracking. 
 

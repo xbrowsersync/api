@@ -4,9 +4,9 @@ import { expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-import Config from '../../src/core/config';
-import NewSyncLogsModel from '../../src/models/newSyncLogs.model';
-import NewSyncLogsService from '../../src/services/newSyncLogs.service';
+import Config from '../../src/config';
+import NewSyncLogsModel from '../models/newSyncLogs.model';
+import NewSyncLogsService from './newSyncLogs.service';
 
 describe('NewSyncLogsService', () => {
   const testClientIPAddress = '123.456.789.0';

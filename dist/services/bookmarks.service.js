@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../core/config");
-const exception_1 = require("../core/exception");
-const server_1 = require("../core/server");
+const config_1 = require("../config");
+const exception_1 = require("../exception");
+const server_1 = require("../server");
 const bookmarks_model_1 = require("../models/bookmarks.model");
 const base_service_1 = require("./base.service");
 // Implementation of data service for bookmarks operations

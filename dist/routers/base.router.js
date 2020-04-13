@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const express_1 = require("express");
-const exception_1 = require("../core/exception");
+const exception_1 = require("../exception");
 // Base class for router implementations
 // Implements the routes that are served by the api 
 class BaseRouter {

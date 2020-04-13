@@ -12,10 +12,5 @@
   "extends": [
     "tslint:latest",
     "tslint-config-prettier"
-  ],
-  "linterOptions": {
-    "exclude": [
-      "test/*.ts"
-    ]
-  }
+  ]
 }

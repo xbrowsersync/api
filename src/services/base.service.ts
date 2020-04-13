@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { LogLevel } from '../core/server';
+import { LogLevel } from '../server';
 
 // Base class for data service implementations
 // Implements the functionality executed when calling a route

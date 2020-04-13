@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Uuid = require("../core/uuid");
+const Uuid = require("../uuid");
 const mongoose = require("mongoose");
 const mongodb_1 = require("mongodb");
 // Implements a mongoose schema and model to connect data service methods to MongoDB collection

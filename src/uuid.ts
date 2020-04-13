@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import * as uuid from 'uuid';
 import * as uuidParse from 'uuid-parse';
 import { Binary } from 'mongodb';
-import { InvalidArgumentException } from './exception';
+import { InvalidArgumentException, InvalidSyncIdException } from './exception';
 
 export function convertBytesToUuidString(bytes: Buffer): string {
   if (!bytes) {
@@ -38,7 +38,7 @@ export function convertUuidStringToBinary(uuidString: string): Binary {
     }
   }
   catch (err) {
-    throw new InvalidArgumentException('Argument is not a valid UUID string');
+    throw new InvalidSyncIdException('Argument is not a valid UUID string');
   }
 
   return binary;

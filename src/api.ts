@@ -1,4 +1,4 @@
-import Server from './core/server';
+import Server from './server';
 
 // Entry point into server
 const server = new Server();

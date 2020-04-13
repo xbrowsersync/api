@@ -34,14 +34,14 @@
       ]
     },
     {
-      "name": "Run unit tests",
+      "name": "Run unit/integration tests",
       "type": "node",
       "request": "launch",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "args": [
         "-r",
         "ts-node/register",
-        "test/unit/*.test.ts"
+        "src/**/*.spec.ts"
       ],
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",
@@ -49,14 +49,14 @@
       "smartStep": true
     },
     {
-      "name": "Run integration tests",
+      "name": "Run e2e tests",
       "type": "node",
       "request": "launch",
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "args": [
         "-r",
         "ts-node/register",
-        "test/integration/*.test.ts"
+        "test/e2e/*.ts"
       ],
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",

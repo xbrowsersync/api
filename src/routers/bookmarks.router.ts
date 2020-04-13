@@ -1,12 +1,12 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
-import Config from '../core/config';
-import DB from '../core/db';
-import { RequiredDataNotFoundException } from '../core/exception';
-import { ApiVerb } from '../core/server';
+import Config from '../config';
+import DB from '../db';
+import { RequiredDataNotFoundException } from '../exception';
+import { ApiVerb } from '../server';
 import BaseRouter, { IApiRouter } from '../routers/base.router';
 import BookmarksService from '../services/bookmarks.service';
-import * as Uuid from '../core/uuid';
+import * as Uuid from '../uuid';
 
 // Implementation of routes for bookmarks operations
 export default class BookmarksRouter extends BaseRouter<BookmarksService> implements IApiRouter {

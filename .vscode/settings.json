@@ -4,7 +4,7 @@
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
   "git.ignoreLimitWarning": true,
-  "mochaExplorer.files": "test/**/*.test.ts",
+  "mochaExplorer.files": "src/**/*.spec.ts",
   "mochaExplorer.require": "ts-node/register",
   "search.exclude": {
     "dist": true,

@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as path from 'path';
-import Config from '../core/config';
+import Config from '../config';
 import BaseRouter, { IApiRouter } from '../routers/base.router';
 
 // Implementation of routes for API documentation

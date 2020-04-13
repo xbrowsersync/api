@@ -89,9 +89,8 @@
     "tslint": "echo Running tslint... & tslint --project . -t stylish",
     "builddocs": "echo Building docs... & webpack --config webpack.config.js",
     "buildcomplete": "echo Done!",
-    "test": "npm run unittests",
-    "unittests": "echo Running unit tests... & cross-env TS_NODE_COMPILER_OPTIONS=\"{\\\"target\\\": \\\"es2015\\\"}\" mocha --require ts-node/register test/unit/*.test.ts",
-    "integrationtests": "echo Running integration tests... & cross-env TS_NODE_COMPILER_OPTIONS=\"{\\\"target\\\": \\\"es2015\\\"}\" mocha --require ts-node/register test/integration/*.test.ts",
+    "test": "echo Running unit/integration tests... & cross-env TS_NODE_COMPILER_OPTIONS=\"{\\\"target\\\": \\\"es2015\\\"}\" mocha --require ts-node/register src/**/*.spec.ts",
+    "e2etests": "echo Running e2e tests... & cross-env TS_NODE_COMPILER_OPTIONS=\"{\\\"target\\\": \\\"es2015\\\"}\" mocha --require ts-node/register test/e2e/*.ts",
     "serve": "npm run builddocs && webpack-dev-server"
   }
 }

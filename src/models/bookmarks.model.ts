@@ -1,4 +1,4 @@
-import * as Uuid from '../core/uuid';
+import * as Uuid from '../uuid';
 import * as mongoose from 'mongoose';
 import { Binary } from 'mongodb';
 

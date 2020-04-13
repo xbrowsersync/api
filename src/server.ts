@@ -7,8 +7,8 @@ import * as helmet from 'helmet';
 import * as http from 'http';
 import * as https from 'https';
 import * as mkdirp from 'mkdirp';
-import Config from '../core/config';
-import DB from '../core/db';
+import Config from './config';
+import DB from './db';
 import {
   ExceptionBase,
   NotImplementedException,
@@ -17,13 +17,13 @@ import {
   ServiceNotAvailableException,
   SyncDataLimitExceededException,
   UnspecifiedException
-} from '../core/exception';
-import BookmarksRouter from '../routers/bookmarks.router';
-import DocsRouter from '../routers/docs.router';
-import InfoRouter from '../routers/info.router';
-import BookmarksService from '../services/bookmarks.service';
-import InfoService from '../services/info.service';
-import NewSyncLogsService from '../services/newSyncLogs.service';
+} from './exception';
+import BookmarksRouter from './routers/bookmarks.router';
+import DocsRouter from './routers/docs.router';
+import InfoRouter from './routers/info.router';
+import BookmarksService from './services/bookmarks.service';
+import InfoService from './services/info.service';
+import NewSyncLogsService from './services/newSyncLogs.service';
 import * as noCache from 'nocache';
 import * as Location from './location';
 

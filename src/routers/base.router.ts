@@ -1,7 +1,7 @@
 import { autobind } from 'core-decorators';
 import { Application, Router } from 'express';
-import { NotImplementedException, UnsupportedVersionException } from '../core/exception';
-import { ApiVerb } from '../core/server';
+import { NotImplementedException, UnsupportedVersionException } from '../exception';
+import { ApiVerb } from '../server';
 
 // Interface for router implementations
 export interface IApiRouter {

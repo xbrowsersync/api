@@ -1,9 +1,9 @@
 // tslint:disable:no-unused-expression
 
-import * as Uuid from '../../src/core/uuid';
+import * as Uuid from './uuid';
 import { assert, expect } from 'chai';
 import 'mocha';
-import { InvalidArgumentException } from '../../src/core/exception';
+import { InvalidArgumentException, InvalidSyncIdException } from './exception';
 
 describe('UUID', () => {
   const testBytes = [52, 78, 238, 253, 60, 131, 78, 102, 155, 226, 241, 12, 69, 188, 89, 110];
@@ -75,12 +75,12 @@ describe('UUID', () => {
     assert.fail();
   });
 
-  it('convertUuidStringToBinary: should throw InvalidArgumentException if supplied param is not a valid UUID string', () => {
+  it('convertUuidStringToBinary: should throw InvalidSyncIdException if supplied param is not a valid UUID string', () => {
     try {
       const binary = Uuid.convertUuidStringToBinary('Not a valid UUID string');
     }
     catch (err) {
-      expect(err).to.be.an.instanceOf(InvalidArgumentException);
+      expect(err).to.be.an.instanceOf(InvalidSyncIdException);
       return;
     }
 

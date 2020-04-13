@@ -4,10 +4,10 @@ import { expect } from 'chai';
 import { Request } from 'express';
 import 'mocha';
 import * as sinon from 'sinon';
-import Config from '../../src/core/config';
-import { ApiStatus } from '../../src/core/server';
-import BookmarksService from '../../src/services/bookmarks.service';
-import InfoService from '../../src/services/info.service';
+import Config from '../config';
+import { ApiStatus } from '../server';
+import BookmarksService from './bookmarks.service';
+import InfoService from './info.service';
 
 describe('InfoService', () => {
   let bookmarksService: BookmarksService;

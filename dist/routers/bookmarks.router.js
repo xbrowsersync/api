@@ -16,11 +16,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
-const config_1 = require("../core/config");
-const exception_1 = require("../core/exception");
-const server_1 = require("../core/server");
+const config_1 = require("../config");
+const exception_1 = require("../exception");
+const server_1 = require("../server");
 const base_router_1 = require("../routers/base.router");
-const Uuid = require("../core/uuid");
+const Uuid = require("../uuid");
 // Implementation of routes for bookmarks operations
 class BookmarksRouter extends base_router_1.default {
     // Initialises the routes for this router implementation

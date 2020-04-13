@@ -2,7 +2,7 @@
 
 import { assert, expect } from 'chai';
 import 'mocha';
-import * as Location from '../../src/core/location';
+import * as Location from './location';
 
 describe('Location', () => {
   const invalidLocationCode = 'AA';

@@ -1,15 +1,15 @@
 import { Request } from 'express';
 import * as uuid from 'uuid';
-import * as Uuid from '../core/uuid';
-import Config from '../core/config';
+import * as Uuid from '../uuid';
+import Config from '../config';
 import {
   InvalidSyncIdException,
   NewSyncsForbiddenException,
   NewSyncsLimitExceededException,
   SyncConflictException,
   UnspecifiedException
-} from '../core/exception';
-import Server, { LogLevel } from '../core/server';
+} from '../exception';
+import Server, { LogLevel } from '../server';
 import BookmarksModel, { IBookmarks } from '../models/bookmarks.model';
 import NewSyncLogsService from '../services/newSyncLogs.service';
 import BaseService from './base.service';

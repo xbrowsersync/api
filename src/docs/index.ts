@@ -9,7 +9,7 @@ import * as SmoothScroll from 'smooth-scroll';
 import 'typeface-roboto-condensed';
 import 'whatwg-fetch';
 import { IGetInfoResponse } from '../services/info.service';
-import * as Location from '../core/location';
+import * as Location from '../location';
 
 // API home page and documentation
 class DocsPage {
