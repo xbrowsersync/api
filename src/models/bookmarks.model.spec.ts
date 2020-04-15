@@ -1,7 +1,6 @@
 // tslint:disable:no-unused-expression
 
-import { assert, expect } from 'chai';
-import 'mocha';
+import 'jest';
 import * as moment from 'moment';
 import BookmarksModel, { IBookmarks } from './bookmarks.model';
 import * as Uuid from '../../src/uuid';
@@ -18,9 +17,9 @@ describe('BookmarksModel', () => {
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
     const binary = Uuid.convertUuidStringToBinary(bookmarksModel._id);
-    expect(bookmarksModel.id).to.not.be.null;
-    expect(binary.buffer.length).to.equal(16);
-    expect(binary.sub_type).to.equal(4);
+    expect(bookmarksModel.id).not.toBeNull();
+    expect(binary.buffer.length).toBe(16);
+    expect(binary.sub_type).toBe(4);
   });
 
   it('bookmarksSchema: should default lastAccessed value to now', () => {
@@ -28,8 +27,8 @@ describe('BookmarksModel', () => {
       bookmarks: bookmarksDataTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.lastAccessed).to.not.be.null;
-    expect(bookmarksModel.lastAccessed.getTime()).to.be.closeTo(new Date().getTime(), 1e3);
+    expect(bookmarksModel.lastAccessed).not.toBeNull();
+    expect(bookmarksModel.lastAccessed.getTime()).toBeCloseTo(new Date().getTime(), -4);
   });
 
   it('bookmarksSchema: should default lastUpdated value to now', () => {
@@ -37,8 +36,8 @@ describe('BookmarksModel', () => {
       bookmarks: bookmarksDataTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.lastUpdated).to.not.be.null;
-    expect(bookmarksModel.lastUpdated.getTime()).to.be.closeTo(new Date().getTime(), 1e3);
+    expect(bookmarksModel.lastUpdated).not.toBeNull();
+    expect(bookmarksModel.lastUpdated.getTime()).toBeCloseTo(new Date().getTime(), -4);
   });
 
   it('bookmarksSchema: should set bookmarks to provided value', () => {
@@ -46,7 +45,7 @@ describe('BookmarksModel', () => {
       bookmarks: bookmarksDataTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.bookmarks).to.equal(bookmarksDataTestVal);
+    expect(bookmarksModel.bookmarks).toEqual(bookmarksDataTestVal);
   });
 
   it('bookmarksSchema: should set lastAccessed to provided value', () => {
@@ -54,7 +53,7 @@ describe('BookmarksModel', () => {
       lastAccessed: lastAccessedTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.lastAccessed).to.equal(lastAccessedTestVal);
+    expect(bookmarksModel.lastAccessed).toEqual(lastAccessedTestVal);
   });
 
   it('bookmarksSchema: should set lastUpdated to provided value', () => {
@@ -62,7 +61,7 @@ describe('BookmarksModel', () => {
       lastUpdated: lastUpdatedTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.lastUpdated).to.equal(lastUpdatedTestVal);
+    expect(bookmarksModel.lastUpdated).toEqual(lastUpdatedTestVal);
   });
 
   it('bookmarksSchema: should set version to provided value', () => {
@@ -70,6 +69,6 @@ describe('BookmarksModel', () => {
       version: versionTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.version).to.equal(versionTestVal);
+    expect(bookmarksModel.version).toEqual(versionTestVal);
   });
 });

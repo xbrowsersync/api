@@ -1,9 +1,7 @@
 // tslint:disable:no-unused-expression
 
-import { expect } from 'chai';
+import 'jest';
 import { Request } from 'express';
-import 'mocha';
-import * as sinon from 'sinon';
 import Config from '../config';
 import { ApiStatus } from '../server';
 import BookmarksService from './bookmarks.service';
@@ -12,87 +10,86 @@ import InfoService from './info.service';
 describe('InfoService', () => {
   let bookmarksService: BookmarksService;
   let infoService: InfoService;
-  let sandbox: sinon.SinonSandbox;
   let testConfig: any;
+  let isAcceptingNewSyncsSpy: any;
 
   beforeEach(() => {
     testConfig = Config.get(true);
     const log = () => null;
     bookmarksService = new BookmarksService(null, log);
     infoService = new InfoService(bookmarksService as BookmarksService, log);
-    sandbox = sinon.createSandbox();
-    sandbox.stub(bookmarksService, 'isAcceptingNewSyncs').returns(Promise.resolve(true));
+    isAcceptingNewSyncsSpy = jest.spyOn(bookmarksService, 'isAcceptingNewSyncs').mockResolvedValue(true);
   });
 
   afterEach(() => {
-    sandbox.restore();
+    isAcceptingNewSyncsSpy.mockRestore();
   });
 
   it('getInfo: should return location config value', async () => {
     const req: Partial<Request> = {};
     const location = 'gb';
     testConfig.location = location;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.location).to.equal(location.toUpperCase());
+    expect(response.location).toEqual(location.toUpperCase());
+    spy.mockRestore();
   });
 
   it('getInfo: should return max sync size config value', async () => {
     const req: Partial<Request> = {};
     const maxSyncSizeTestVal = 1;
     testConfig.maxSyncSize = maxSyncSizeTestVal;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.maxSyncSize).to.equal(maxSyncSizeTestVal);
+    expect(response.maxSyncSize).toEqual(maxSyncSizeTestVal);
+    spy.mockRestore();
   });
 
   it('getInfo: should return message config value', async () => {
     const req: Partial<Request> = {};
     const messageTestVal = 'Test API message';
     testConfig.status.message = messageTestVal;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.message).to.equal(messageTestVal);
+    expect(response.message).toEqual(messageTestVal);
+    spy.mockRestore();
   });
 
   it('getInfo: should strip script tags from message config value', async () => {
     const req: Partial<Request> = {};
     const messageTestVal = `<script>alert('test');</script>`;
     testConfig.status.message = messageTestVal;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.message).to.equal('');
+    expect(response.message).toEqual('');
+    spy.mockRestore();
   });
 
   it('getInfo: should return correct API status when online', async () => {
     const req: Partial<Request> = {};
     testConfig.status.online = true;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.status).to.equal(ApiStatus.online);
+    expect(response.status).toEqual(ApiStatus.online);
+    spy.mockRestore();
   });
 
   it('getInfo: should return correct API status when offline', async () => {
     const req: Partial<Request> = {};
     testConfig.status.online = false;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.status).to.equal(ApiStatus.offline);
+    expect(response.status).toEqual(ApiStatus.offline);
+    spy.mockRestore();
   });
 
   it('getInfo: should return version config value', async () => {
     const req: Partial<Request> = {};
     const versionTestVal = '0.0.0';
     testConfig.version = versionTestVal;
-    sandbox.stub(Config, 'get').returns(testConfig);
-
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     const response = await infoService.getInfo(req as Request);
-    expect(response.version).to.equal(versionTestVal);
+    expect(response.version).toEqual(versionTestVal);
+    spy.mockRestore();
   });
 });

@@ -37,11 +37,11 @@
       "name": "Run unit/integration tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "args": [
-        "-r",
-        "ts-node/register",
-        "src/**/*.spec.ts"
+        "-i",
+        "--config",
+        "jestconfig.unit.json"
       ],
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",
@@ -52,11 +52,11 @@
       "name": "Run e2e tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+      "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "args": [
-        "-r",
-        "ts-node/register",
-        "test/e2e/*.ts"
+        "-i",
+        "--config",
+        "jestconfig.e2e.json"
       ],
       "cwd": "${workspaceRoot}",
       "protocol": "inspector",

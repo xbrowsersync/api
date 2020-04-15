@@ -1,18 +1,11 @@
 // tslint:disable:no-unused-expression
 
-import { expect, request, use } from 'chai';
-import chaiHttp = require('chai-http');
-import 'mocha';
-import * as sinon from 'sinon';
+import 'jest';
+import * as request from 'supertest';
 import Config from '../../src/config';
-import Server from '../../src/server';
-
-before(() => {
-  use(chaiHttp);
-});
+import Server, { ApiStatus } from '../../src/server';
 
 describe('InfoRouter', () => {
-  let sandbox: sinon.SinonSandbox;
   let server: Server;
   let testConfig: any;
 
@@ -22,8 +15,6 @@ describe('InfoRouter', () => {
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
-    sandbox = sinon.createSandbox();
-
     server = new Server();
     await server.init();
     await server.start();
@@ -31,21 +22,15 @@ describe('InfoRouter', () => {
 
   afterEach(async () => {
     await server.stop();
-    sandbox.restore();
   });
 
   it('GET info: should return api status info', async () => {
-    sandbox.stub(Config, 'get').returns(testConfig);
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}info`)
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res).to.be.json;
-          expect(res.body).to.be.an('object');
-          resolve();
-        });
-    });
+    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    const response = await request(server.Application)
+      .get(`${Config.get().server.relativePath}info`);
+    expect(response.status).toBe(200);
+    expect(typeof response.body).toBe('object');
+    expect(response.body.status).toEqual(ApiStatus.online);
+    getSpy.mockRestore();
   });
 });

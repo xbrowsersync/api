@@ -1,9 +1,8 @@
 // tslint:disable:no-unused-expression
 
-import * as Uuid from './uuid';
-import { assert, expect } from 'chai';
-import 'mocha';
+import 'jest';
 import { InvalidArgumentException, InvalidSyncIdException } from './exception';
+import * as Uuid from './uuid';
 
 describe('UUID', () => {
   const testBytes = [52, 78, 238, 253, 60, 131, 78, 102, 155, 226, 241, 12, 69, 188, 89, 110];
@@ -12,88 +11,64 @@ describe('UUID', () => {
   it('convertBytesToUuidString: should return a UUID from a given set of bytes', () => {
     const buffer = Buffer.from(testBytes);
     const uuid = Uuid.convertBytesToUuidString(buffer);
-    expect(uuid).to.be.a('string');
-    expect(uuid).to.not.be.empty
-    expect(uuid).to.equal(testUuid);
+    expect(typeof uuid).toBe('string');
+    expect(uuid).not.toBeFalsy();
+    expect(uuid).toEqual(testUuid);
   });
 
   it('convertBytesToUuidString: should return null if supplied param is null', () => {
     const uuid = Uuid.convertBytesToUuidString(null);
-    expect(uuid).to.be.null;
+    expect(uuid).toBeNull();
   });
 
   it('convertBytesToUuidString: should throw InvalidArgumentException if supplied param is not a byte array', () => {
-    try {
+    expect(() => {
       const uuid = Uuid.convertBytesToUuidString('Not a byte array' as any);
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(InvalidArgumentException);
-      return;
-    }
-
-    assert.fail();
+    }).toThrow(InvalidArgumentException);
   });
 
   it('convertBytesToUuidString: should throw InvalidArgumentException if supplied byte array is wrong size', () => {
-    try {
+    expect(() => {
       const buffer = Buffer.from(testBytes.concat(testBytes));
       const uuid = Uuid.convertBytesToUuidString(buffer);
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(InvalidArgumentException);
-      return;
-    }
-
-    assert.fail();
+    }).toThrow(InvalidArgumentException);
   });
 
   it('convertUuidStringToBinary: should return a binary UUID from a given UUID string', () => {
     const binary = Uuid.convertUuidStringToBinary(testUuid);
-    expect(binary).to.not.be.null;
-    expect(binary.buffer).to.eql(Buffer.from(testBytes));
+    expect(binary).not.toBeNull();
+    expect(binary.buffer).toEqual(Buffer.from(testBytes));
   });
 
   it('convertUuidStringToBinary: should return a version 4 binary UUID', () => {
     const binary = Uuid.convertUuidStringToBinary(testUuid);
-    expect(binary.sub_type).to.equal(4);
+    expect(binary.sub_type).toBe(4);
   });
 
   it('convertUuidStringToBinary: should return null if supplied param is null', () => {
     const binary = Uuid.convertUuidStringToBinary(null);
-    expect(binary).to.be.null;
+    expect(binary).toBeNull();
   });
 
   it('convertUuidStringToBinary: should throw InvalidArgumentException if supplied param is not a string', () => {
-    try {
+    expect(() => {
       const binary = Uuid.convertUuidStringToBinary(1 as any);
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(InvalidArgumentException);
-      return;
-    }
-
-    assert.fail();
+    }).toThrow(InvalidArgumentException);
   });
 
   it('convertUuidStringToBinary: should throw InvalidSyncIdException if supplied param is not a valid UUID string', () => {
-    try {
+    expect(() => {
       const binary = Uuid.convertUuidStringToBinary('Not a valid UUID string');
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(InvalidSyncIdException);
-      return;
-    }
-
-    assert.fail();
+    }).toThrow(InvalidSyncIdException)
   });
 
   it('generateRandomUuid: should return a binary UUID with 16 bytes', () => {
     const binary = Uuid.generateRandomUuid();
-    expect(binary.buffer.length).to.equal(16);
+    expect(binary.buffer.length).toBe(16);
   });
 
   it('generateRandomUuid: should return a version 4 binary UUID', () => {
     const binary = Uuid.generateRandomUuid();
-    expect(binary.sub_type).to.equal(4);
+    expect(binary.sub_type).toBe(4);
   });
 });

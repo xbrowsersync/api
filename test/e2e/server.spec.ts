@@ -1,25 +1,13 @@
+// tslint:disable:no-empty
 // tslint:disable:no-unused-expression
 
-import { expect, request, use } from 'chai';
-import chaiHttp = require('chai-http');
-import 'mocha';
-import * as sinon from 'sinon';
+import 'jest';
+import * as request from 'supertest';
 import Config from '../../src/config';
 import Server from '../../src/server';
 import InfoService from '../../src/services/info.service';
 
-before(() => {
-  use(chaiHttp);
-});
-
-after(() => {
-  setTimeout(() => {
-    process.exit(0);
-  }, 100);
-});
-
 describe('Server', () => {
-  let sandbox: sinon.SinonSandbox;
   let server: Server;
   let testConfig: any;
 
@@ -29,8 +17,6 @@ describe('Server', () => {
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
-    sandbox = sinon.createSandbox();
-
     server = new Server();
     await server.init();
     await server.start();
@@ -38,98 +24,68 @@ describe('Server', () => {
 
   afterEach(async () => {
     await server.stop();
-    sandbox.restore();
   });
 
   it('Should return an 500 status code when generic error occurs', async () => {
-    sandbox.stub(Config, 'get').returns(testConfig);
-    sandbox.stub(InfoService.prototype, 'getInfo').throwsException();
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}info`)
-        .set('content-type', 'application/json')
-        .set('accept-version', '0.0.0')
-        .end((err, res) => {
-          expect(res.status).to.equal(412);
-          resolve();
-        });
+    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    const getInfoSpy = jest.spyOn(InfoService.prototype, 'getInfo').mockImplementation(() => {
+      throw new Error();
     });
+    const response = await request(server.Application)
+      .get(`${Config.get().server.relativePath}info`)
+      .set('content-type', 'application/json');
+    expect(response.status).toBe(500);
+    getSpy.mockRestore();
+    getInfoSpy.mockRestore();
   });
 
   it('Should return a 404 status code for an invalid route', async () => {
-    sandbox.stub(Config, 'get').returns(testConfig);
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}bookmarks`)
-        .set('content-type', 'application/json')
-        .end((err, res) => {
-          expect(res).to.have.status(404);
-          resolve();
-        });
-    });
+    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    const response = await request(server.Application)
+      .get(`${Config.get().server.relativePath}bookmarks`)
+      .set('content-type', 'application/json');
+    expect(response.status).toBe(404);
+    getSpy.mockRestore();
   });
 
   it('Should return a 500 status code when requested api version is not supported', async () => {
     await server.stop();
     testConfig.allowedOrigins = ['http://test.com'];
-    sandbox.stub(Config, 'get').returns(testConfig);
+    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     server = new Server();
     await server.init();
     await server.start();
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}info`)
-        .set('content-type', 'application/json')
-        .end((err, res) => {
-          expect(res).to.have.status(500);
-          resolve();
-        });
-    });
+    const response = await request(server.Application)
+      .get(`${Config.get().server.relativePath}info`)
+      .set('content-type', 'application/json');
+    expect(response.status).toBe(500);
+    getSpy.mockRestore();
   });
 
   it('Should return a 429 status code when request throttling is triggered', async () => {
     await server.stop();
     testConfig.throttle.maxRequests = 1;
-    sandbox.stub(Config, 'get').returns(testConfig);
+    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
     server = new Server();
     await server.init();
     await server.start();
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}info`)
-        .set('content-type', 'application/json')
-        .end((err, res) => {
-          resolve();
-        });
-    });
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}info`)
-        .set('content-type', 'application/json')
-        .end((err, res) => {
-          expect(res).to.have.status(429);
-          resolve();
-        });
-    });
+    await request(server.Application)
+      .get(`${Config.get().server.relativePath}info`)
+      .set('content-type', 'application/json');
+    const response = await request(server.Application)
+      .get(`${Config.get().server.relativePath}info`)
+      .set('content-type', 'application/json');
+    expect(response.status).toBe(429);
+    getSpy.mockRestore();
   });
 
   it('Should return an 412 status code when requested api version is not supported', async () => {
-    sandbox.stub(Config, 'get').returns(testConfig);
-
-    await new Promise((resolve) => {
-      request(server.Application)
-        .get(`${Config.get().server.relativePath}info`)
-        .set('content-type', 'application/json')
-        .set('accept-version', '0.0.0')
-        .end((err, res) => {
-          expect(res.status).to.equal(412);
-          resolve();
-        });
-    });
+    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    const response = await request(server.Application)
+      .get(`${Config.get().server.relativePath}info`)
+      .set('content-type', 'application/json')
+      .set('accept-version', '0.0.0');
+    expect(response.status).toBe(412);
+    getSpy.mockRestore();
   });
 });

@@ -1,50 +1,36 @@
 // tslint:disable:no-unused-expression
 
-import { assert, expect } from 'chai';
-import 'mocha';
-import * as sinon from 'sinon';
+import 'jest';
 import Config from './config';
 import { ServiceNotAvailableException } from './exception';
 import Server from './server';
 
 describe('Server', () => {
-  let sandbox: sinon.SinonSandbox;
   let testConfig: any;
 
   beforeEach(() => {
     testConfig = Config.get(true);
-    sandbox = sinon.createSandbox();
   });
 
-  afterEach(() => {
-    sandbox.restore();
-  });
-
-  it('checkServiceAvailability: should not throw an error when status set as online in config settings', done => {
+  it('checkServiceAvailability: should not throw an error when status set as online in config settings', () => {
     testConfig.status.online = true;
-    sandbox.stub(Config, 'get').returns(testConfig);
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
 
-    try {
+    expect(() => {
       Server.checkServiceAvailability();
-    }
-    catch (err) {
-      assert.fail();
-    }
+    }).not.toThrowError();
 
-    done();
+    spy.mockRestore();
   });
 
-  it('checkServiceAvailability: should throw a ServiceNotAvailableException when status set as offline in config settings', done => {
+  it('checkServiceAvailability: should throw a ServiceNotAvailableException when status set as offline in config settings', () => {
     testConfig.status.online = false;
-    sandbox.stub(Config, 'get').returns(testConfig);
+    const spy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
 
-    try {
+    expect(() => {
       Server.checkServiceAvailability();
-    }
-    catch (err) {
-      expect(err).to.be.an.instanceOf(ServiceNotAvailableException);
-    }
+    }).toThrow(ServiceNotAvailableException);
 
-    done();
+    spy.mockRestore();
   });
 });
