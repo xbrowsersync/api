@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../config");
+const Config = require("../config");
 const exception_1 = require("../exception");
 const server_1 = require("../server");
 const bookmarks_model_1 = require("../models/bookmarks.model");
@@ -27,7 +27,7 @@ class BookmarksService extends base_service_1.default {
                 throw new exception_1.NewSyncsForbiddenException();
             }
             // Check if daily new syncs limit has been hit if config value enabled
-            if (config_1.default.get().dailyNewSyncsLimit > 0) {
+            if (Config.getConfig().dailyNewSyncsLimit > 0) {
                 const newSyncsLimitHit = yield this.service.newSyncsLimitHit(req);
                 if (newSyncsLimitHit) {
                     throw new exception_1.NewSyncsLimitExceededException();
@@ -42,7 +42,7 @@ class BookmarksService extends base_service_1.default {
                 // Commit the bookmarks payload to the db
                 const savedBookmarks = yield bookmarksModel.save();
                 // Add to logs
-                if (config_1.default.get().dailyNewSyncsLimit > 0) {
+                if (Config.getConfig().dailyNewSyncsLimit > 0) {
                     yield this.service.createLog(req);
                 }
                 this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
@@ -70,7 +70,7 @@ class BookmarksService extends base_service_1.default {
                 throw new exception_1.NewSyncsForbiddenException();
             }
             // Check if daily new syncs limit has been hit if config value enabled
-            if (config_1.default.get().dailyNewSyncsLimit > 0) {
+            if (Config.getConfig().dailyNewSyncsLimit > 0) {
                 const newSyncsLimitHit = yield this.service.newSyncsLimitHit(req);
                 if (newSyncsLimitHit) {
                     throw new exception_1.NewSyncsLimitExceededException();
@@ -85,7 +85,7 @@ class BookmarksService extends base_service_1.default {
                 // Commit the bookmarks payload to the db
                 const savedBookmarks = yield bookmarksModel.save();
                 // Add to logs
-                if (config_1.default.get().dailyNewSyncsLimit > 0) {
+                if (Config.getConfig().dailyNewSyncsLimit > 0) {
                     yield this.service.createLog(req);
                 }
                 this.log(server_1.LogLevel.Info, 'New bookmarks sync created', req);
@@ -187,16 +187,16 @@ class BookmarksService extends base_service_1.default {
     isAcceptingNewSyncs() {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if allowNewSyncs config value enabled
-            if (!config_1.default.get().status.allowNewSyncs) {
+            if (!Config.getConfig().status.allowNewSyncs) {
                 return false;
             }
             // Check if maxSyncs config value disabled
-            if (config_1.default.get().maxSyncs === 0) {
+            if (Config.getConfig().maxSyncs === 0) {
                 return true;
             }
             // Check if total syncs have reached limit set in config  
             const bookmarksCount = yield this.getBookmarksCount();
-            return bookmarksCount < config_1.default.get().maxSyncs;
+            return bookmarksCount < Config.getConfig().maxSyncs;
         });
     }
     // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../config");
+const Config = require("../config");
 const exception_1 = require("../exception");
 const server_1 = require("../server");
 const newSyncLogs_model_1 = require("../models/newSyncLogs.model");
@@ -66,7 +66,7 @@ class NewSyncLogsService extends base_service_1.default {
                 throw err;
             }
             // Check returned count against config setting
-            return newSyncsCreated >= config_1.default.get().dailyNewSyncsLimit;
+            return newSyncsCreated >= Config.getConfig().dailyNewSyncsLimit;
         });
     }
     // Extracts the client's ip address from a given request

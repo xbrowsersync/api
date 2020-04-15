@@ -1,6 +1,6 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
-import Config from '../config';
+import * as Config from '../config';
 import { ApiVerb } from '../server';
 import BaseRouter, { IApiRouter } from '../routers/base.router';
 import InfoService from '../services/info.service';
@@ -9,7 +9,7 @@ import InfoService from '../services/info.service';
 export default class InfoRouter extends BaseRouter<InfoService> implements IApiRouter {
   // Initialises the routes for this router implementation
   public initRoutes(): void {
-    this.app.use(`${Config.get().server.relativePath}info`, this.router);
+    this.app.use(`${Config.getConfig().server.relativePath}info`, this.router);
     this.createRoute(ApiVerb.get, '/', { '^1.0.0': this.getInfo });
   }
 

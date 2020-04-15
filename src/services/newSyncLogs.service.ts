@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import Config from '../config';
+import * as Config from '../config';
 import { UnspecifiedException } from '../exception';
 import { LogLevel } from '../server';
 import NewSyncLogsModel, { INewSyncLog } from '../models/newSyncLogs.model';
@@ -62,7 +62,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     }
 
     // Check returned count against config setting
-    return newSyncsCreated >= Config.get().dailyNewSyncsLimit;
+    return newSyncsCreated >= Config.getConfig().dailyNewSyncsLimit;
   }
 
   // Extracts the client's ip address from a given request

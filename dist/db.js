@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
-const config_1 = require("./config");
+const Config = require("./config");
 const server_1 = require("./server");
 // Handles database interaction
 class DB {
@@ -28,23 +28,23 @@ class DB {
         return __awaiter(this, void 0, void 0, function* () {
             // Set the db connection options from config settings
             const options = {
-                connectTimeoutMS: config_1.default.get().db.connTimeout,
+                connectTimeoutMS: Config.getConfig().db.connTimeout,
                 keepAlive: true,
                 useFindAndModify: false,
                 useNewUrlParser: true,
                 useUnifiedTopology: true
             };
             // Get db username and password
-            const username = config_1.default.get().db.username || process.env.XBROWSERSYNC_DB_USER;
-            const password = config_1.default.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
+            const username = Config.getConfig().db.username || process.env.XBROWSERSYNC_DB_USER;
+            const password = Config.getConfig().db.password || process.env.XBROWSERSYNC_DB_PWD;
             // Connect to the host and db name defined in config settings
             let dbServerUrl = 'mongodb';
-            if (config_1.default.get().db.useSRV) {
-                dbServerUrl += `+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${config_1.default.get().db.host}/${config_1.default.get().db.name}`;
-                dbServerUrl += (config_1.default.get().db.authSource) ? `?authSource=${config_1.default.get().db.authSource}` : '';
+            if (Config.getConfig().db.useSRV) {
+                dbServerUrl += `+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.getConfig().db.host}/${Config.getConfig().db.name}`;
+                dbServerUrl += (Config.getConfig().db.authSource) ? `?authSource=${Config.getConfig().db.authSource}` : '';
             }
             else {
-                dbServerUrl += `://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${config_1.default.get().db.host}:${config_1.default.get().db.port}/${config_1.default.get().db.name}?authSource=${config_1.default.get().db.authSource}`;
+                dbServerUrl += `://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.getConfig().db.host}:${Config.getConfig().db.port}/${Config.getConfig().db.name}?authSource=${Config.getConfig().db.authSource}`;
             }
             mongoose.connect(dbServerUrl, options);
             const dbConn = mongoose.connection;

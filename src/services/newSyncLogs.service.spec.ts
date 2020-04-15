@@ -2,7 +2,7 @@
 
 import 'jest';
 import { Request } from 'express';
-import Config from '../../src/config';
+import * as Config from '../../src/config';
 import NewSyncLogsModel from '../models/newSyncLogs.model';
 import NewSyncLogsService from './newSyncLogs.service';
 
@@ -12,20 +12,23 @@ describe('NewSyncLogsService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = Config.get(true);
+    testConfig = Config.getConfig(true);
     const log = () => null;
     newSyncLogsService = new NewSyncLogsService(null, log);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('createLog: should create a new sync log using the request IP address', async () => {
     const req: Partial<Request> = {
       ip: testClientIPAddress
     };
-    const spy = jest.spyOn(NewSyncLogsModel.prototype, 'save').mockResolvedValue(null);
+    const saveMock = jest.spyOn(NewSyncLogsModel.prototype, 'save').mockResolvedValue(null);
     const savedTestLog = await newSyncLogsService.createLog(req as Request);
-    expect(spy).toBeCalled();
+    expect(saveMock).toBeCalled();
     expect(savedTestLog.ipAddress).toEqual(testClientIPAddress);
-    spy.mockRestore();
   });
 
   it('createLog: should return null if the request IP address could not be ascertained', async () => {
@@ -40,15 +43,13 @@ describe('NewSyncLogsService', () => {
     };
     const dailyNewSyncsLimitTestVal = 1;
     testConfig.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
-    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
     const countDocumentsSpy = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
     } as any);
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(countDocumentsSpy).toBeCalled();
     expect(limitHit).toBe(true);
-    getSpy.mockRestore();
-    countDocumentsSpy.mockRestore();
   });
 
   it('newSyncsLimitHit: should return false if the request IP address has not hit the limit for daily new syncs created', async () => {
@@ -56,15 +57,13 @@ describe('NewSyncLogsService', () => {
       ip: testClientIPAddress
     };
     testConfig.dailyNewSyncsLimit = 3;
-    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
-    const countDocumentsSpy = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
+    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    const countDocumentsMock = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
       exec: () => Promise.resolve(1)
     } as any);
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
-    expect(countDocumentsSpy).toBeCalled();
+    expect(countDocumentsMock).toBeCalled();
     expect(limitHit).toBe(false);
-    getSpy.mockRestore();
-    countDocumentsSpy.mockRestore();
   });
 
   it('newSyncsLimitHit: should return null if the request IP address could not be ascertained', async () => {

@@ -16,7 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
-const config_1 = require("../config");
+const Config = require("../config");
 const exception_1 = require("../exception");
 const server_1 = require("../server");
 const base_router_1 = require("../routers/base.router");
@@ -25,7 +25,7 @@ const Uuid = require("../uuid");
 class BookmarksRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
-        this.app.use(`${config_1.default.get().server.relativePath}bookmarks`, this.router);
+        this.app.use(`${Config.getConfig().server.relativePath}bookmarks`, this.router);
         this.createRoute(server_1.ApiVerb.post, '/', {
             '~1.0.0': this.createBookmarks_v1,
             // tslint:disable-next-line:object-literal-sort-keys

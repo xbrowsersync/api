@@ -24,7 +24,7 @@ const helmet = require("helmet");
 const http = require("http");
 const https = require("https");
 const mkdirp = require("mkdirp");
-const config_1 = require("./config");
+const Config = require("./config");
 const db_1 = require("./db");
 const exception_1 = require("./exception");
 const bookmarks_router_1 = require("./routers/bookmarks.router");
@@ -62,7 +62,7 @@ class Server {
     }
     // Throws an error if the service status is set to offline in config
     static checkServiceAvailability() {
-        if (!config_1.default.get().status.online) {
+        if (!Config.getConfig().status.online) {
             throw new exception_1.ServiceNotAvailableException();
         }
     }
@@ -104,22 +104,22 @@ class Server {
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if location is valid before starting
-            if (!Location.validateLocationCode(config_1.default.get().location)) {
+            if (!Location.validateLocationCode(Config.getConfig().location)) {
                 this.log(LogLevel.Error, `Location is not a valid country code, exiting`);
                 process.exit(1);
             }
             // Create https server if enabled in config, otherwise create http server
-            if (config_1.default.get().server.https.enabled) {
+            if (Config.getConfig().server.https.enabled) {
                 const options = {
-                    cert: fs.readFileSync(config_1.default.get().server.https.certPath),
-                    key: fs.readFileSync(config_1.default.get().server.https.keyPath)
+                    cert: fs.readFileSync(Config.getConfig().server.https.certPath),
+                    key: fs.readFileSync(Config.getConfig().server.https.keyPath)
                 };
                 this.server = https.createServer(options, this.app);
             }
             else {
                 this.server = http.createServer(this.app);
             }
-            this.server.listen(config_1.default.get().server.port);
+            this.server.listen(Config.getConfig().server.port);
             // Wait for server to start before continuing
             yield new Promise((resolve, reject) => {
                 this.server.on('error', (err) => {
@@ -130,8 +130,8 @@ class Server {
                     }));
                 });
                 this.server.on('listening', conn => {
-                    const protocol = config_1.default.get().server.https.enabled ? 'https' : 'http';
-                    const url = `${protocol}://${config_1.default.get().server.host}:${config_1.default.get().server.port}${config_1.default.get().server.relativePath}`;
+                    const protocol = Config.getConfig().server.https.enabled ? 'https' : 'http';
+                    const url = `${protocol}://${Config.getConfig().server.host}:${Config.getConfig().server.port}${Config.getConfig().server.relativePath}`;
                     this.log(LogLevel.Info, `Service started at ${url}`);
                     resolve();
                 });
@@ -185,27 +185,27 @@ class Server {
         const logStreams = [];
         this.app = express();
         // Enabled logging to stdout if required
-        if (config_1.default.get().log.stdout.enabled) {
+        if (Config.getConfig().log.stdout.enabled) {
             // Add file log stream
             logStreams.push({
-                level: config_1.default.get().log.stdout.level,
+                level: Config.getConfig().log.stdout.level,
                 stream: process.stdout
             });
         }
         // Enable logging to file if required
-        if (config_1.default.get().log.file.enabled) {
+        if (Config.getConfig().log.file.enabled) {
             try {
                 // Ensure log directory exists
-                const logDirectory = config_1.default.get().log.file.path.substring(0, config_1.default.get().log.file.path.lastIndexOf('/'));
+                const logDirectory = Config.getConfig().log.file.path.substring(0, Config.getConfig().log.file.path.lastIndexOf('/'));
                 if (!fs.existsSync(logDirectory)) {
                     mkdirp.sync(logDirectory);
                 }
                 // Add file log stream
                 logStreams.push({
-                    count: config_1.default.get().log.file.rotatedFilesToKeep,
-                    level: config_1.default.get().log.file.level,
-                    path: config_1.default.get().log.file.path,
-                    period: config_1.default.get().log.file.rotationPeriod,
+                    count: Config.getConfig().log.file.rotatedFilesToKeep,
+                    level: Config.getConfig().log.file.level,
+                    path: Config.getConfig().log.file.path,
+                    period: Config.getConfig().log.file.rotationPeriod,
                     type: 'rotating-file'
                 });
             }
@@ -239,21 +239,21 @@ class Server {
         this.app.use(noCache());
         // Add default version to request if not supplied
         this.app.use((req, res, next) => {
-            req.version = req.headers['accept-version'] || config_1.default.get().version;
+            req.version = req.headers['accept-version'] || Config.getConfig().version;
             next();
         });
         // If behind proxy use 'X-Forwarded-For' header for client ip address
-        if (config_1.default.get().server.behindProxy) {
+        if (Config.getConfig().server.behindProxy) {
             this.app.enable('trust proxy');
         }
         // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
         this.app.use(express.json({
-            limit: config_1.default.get().maxSyncSize || 512000
+            limit: Config.getConfig().maxSyncSize || 512000
         }));
         // Enable support for CORS
-        const corsOptions = config_1.default.get().allowedOrigins.length > 0 && {
+        const corsOptions = Config.getConfig().allowedOrigins.length > 0 && {
             origin: (origin, callback) => {
-                if (config_1.default.get().allowedOrigins.indexOf(origin) !== -1) {
+                if (Config.getConfig().allowedOrigins.indexOf(origin) !== -1) {
                     callback(null, true);
                 }
                 else {
@@ -265,14 +265,14 @@ class Server {
         this.app.use(cors(corsOptions));
         this.app.options('*', cors(corsOptions));
         // Add thottling if enabled
-        if (config_1.default.get().throttle.maxRequests > 0) {
+        if (Config.getConfig().throttle.maxRequests > 0) {
             this.app.use(new this.rateLimit({
                 delayMs: 0,
                 handler: (req, res, next) => {
                     next(new exception_1.RequestThrottledException());
                 },
-                max: config_1.default.get().throttle.maxRequests,
-                windowMs: config_1.default.get().throttle.timeWindow
+                max: Config.getConfig().throttle.maxRequests,
+                windowMs: Config.getConfig().throttle.timeWindow
             }));
         }
     }
@@ -316,7 +316,7 @@ class Server {
     // Configures api routing
     prepareRoutes() {
         const router = express.Router();
-        this.app.use(config_1.default.get().server.relativePath, router);
+        this.app.use(Config.getConfig().server.relativePath, router);
         // Configure docs routing
         const docsRouter = new docs_router_1.default(this.app);
         // Configure bookmarks routing

@@ -2,53 +2,107 @@ import * as merge from 'deepmerge';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export default class Config {
-  public static get(force?: boolean): any {
-    if (this.config && !force) {
-      return this.config;
+export interface IConfigSettings {
+  allowedOrigins?: string[],
+  dailyNewSyncsLimit?: number,
+  db?: {
+    authSource?: string,
+    connTimeout?: number,
+    host?: string,
+    name?: string,
+    useSRV?: boolean,
+    username?: string,
+    password?: string,
+    port?: number
+  },
+  location?: string,
+  log?: {
+    file?: {
+      enabled?: boolean,
+      level?: string,
+      path?: string,
+      rotatedFilesToKeep?: number,
+      rotationPeriod?: string
+    },
+    stdout?: {
+      enabled?: boolean,
+      level?: string
     }
+  },
+  maxSyncs?: number,
+  maxSyncSize?: number,
+  server?: {
+    behindProxy?: boolean,
+    host?: string,
+    https?: {
+      certPath?: string,
+      enabled?: boolean,
+      keyPath?: string
+    },
+    port?: number,
+    relativePath?: string
+  },
+  status?: {
+    allowNewSyncs?: boolean,
+    message?: string,
+    online?: boolean
+  },
+  tests?: {
+    db?: string,
+    port?: number
+  },
+  throttle?: {
+    maxRequests?: number,
+    timeWindow?: number
+  },
+  version?: string
+}
 
-    // Get full path to config folder
-    const pathToConfig = path.join(__dirname, '../config');
+let config: IConfigSettings;
 
-    // Get default settings values
-    const defaultSettings = this.getDefaultSettings(pathToConfig);
-
-    // Get user settings values if present
-    const userSettings = this.getUserSettings(pathToConfig);
-
-    // Merge default and user settings
-    const settings: any = merge(defaultSettings, userSettings);
-
-    // Get current version number
-    const version = this.getPackageVersion();
-
-    this.config = {
-      ...settings,
-      version
-    };
-
-    return this.config;
+export const getConfig = (force?: boolean): IConfigSettings => {
+  if (config && !force) {
+    return config;
   }
 
-  private static getDefaultSettings(pathToConfig: string): any {
-    const pathToSettings = path.join(pathToConfig, 'settings.default.json');
-    return require(pathToSettings);
-  }
+  // Get full path to config folder
+  const pathToConfig = path.join(__dirname, '../config');
 
-  public static getPackageVersion(): any {
-    const packageJson = require('../package.json');
-    return packageJson.version;
-  }
+  // Get default settings values
+  const defaultSettings = getDefaultSettings(pathToConfig);
 
-  public static getUserSettings(pathToConfig: string): any {
-    const pathToUserSettings = path.join(pathToConfig, 'settings.json');
-    let userSettings = {};
-    if (fs.existsSync(pathToUserSettings)) {
-      userSettings = require(pathToUserSettings);
-    }
-    return userSettings;
-  }
+  // Get user settings values if present
+  const userSettings = getUserSettings(pathToConfig);
 
-  private static config: any;
+  // Merge default and user settings
+  const settings: any = merge(defaultSettings, userSettings);
+
+  // Get current version number
+  const version = getPackageVersion();
+
+  config = {
+    ...settings,
+    version
+  };
+
+  return config;
+}
+
+const getDefaultSettings = (pathToConfig: string): IConfigSettings => {
+  const pathToSettings = path.join(pathToConfig, 'settings.default.json');
+  return require(pathToSettings);
+}
+
+export const getPackageVersion = (): string => {
+  const packageJson = require('../package.json');
+  return packageJson.version;
+}
+
+export const getUserSettings = (pathToConfig: string): IConfigSettings => {
+  const pathToUserSettings = path.join(pathToConfig, 'settings.json');
+  let userSettings: IConfigSettings = {};
+  if (fs.existsSync(pathToUserSettings)) {
+    userSettings = require(pathToUserSettings);
+  }
+  return userSettings;
 }

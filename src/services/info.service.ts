@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import Config from '../config';
+import * as Config from '../config';
 import { ApiStatus, LogLevel } from '../server';
 import BaseService from './base.service';
 import BookmarksService from './bookmarks.service';
@@ -18,18 +18,18 @@ export default class InfoService extends BaseService<BookmarksService> {
   // Returns information describing the xBrowserSync service
   public async getInfo(req: Request): Promise<IGetInfoResponse> {
     // Convert location code to uppercase if set
-    const location = Config.get().location && (Config.get().location as string).toUpperCase();
+    const location = Config.getConfig().location && (Config.getConfig().location as string).toUpperCase();
 
     // Create response object from config settings
     const serviceInfo: IGetInfoResponse = {
       location,
-      maxSyncSize: Config.get().maxSyncSize,
-      message: this.stripScriptsFromHtml(Config.get().status.message),
+      maxSyncSize: Config.getConfig().maxSyncSize,
+      message: this.stripScriptsFromHtml(Config.getConfig().status.message),
       status: ApiStatus.offline,
-      version: Config.get().version
+      version: Config.getConfig().version
     };
 
-    if (Config.get().status.online) {
+    if (Config.getConfig().status.online) {
       try {
         // Call service method to check if accepting new syncs
         const acceptingNewSyncs = await this.service.isAcceptingNewSyncs();

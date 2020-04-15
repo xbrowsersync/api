@@ -2,7 +2,7 @@
 
 import 'jest';
 import * as request from 'supertest';
-import Config from '../../src/config';
+import * as Config from '../../src/config';
 import Server, { ApiStatus } from '../../src/server';
 
 describe('InfoRouter', () => {
@@ -10,7 +10,7 @@ describe('InfoRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = Config.get(true);
+    testConfig = Config.getConfig(true);
     testConfig.log.file.enabled = false;
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
@@ -21,16 +21,16 @@ describe('InfoRouter', () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     await server.stop();
   });
 
   it('GET info: should return api status info', async () => {
-    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.get().server.relativePath}info`);
+      .get(`${Config.getConfig().server.relativePath}info`);
     expect(response.status).toBe(200);
     expect(typeof response.body).toBe('object');
     expect(response.body.status).toEqual(ApiStatus.online);
-    getSpy.mockRestore();
   });
 });

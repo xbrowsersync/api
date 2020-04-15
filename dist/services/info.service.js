@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("../config");
+const Config = require("../config");
 const server_1 = require("../server");
 const base_service_1 = require("./base.service");
 // Implementation of data service for service info operations
@@ -18,16 +18,16 @@ class InfoService extends base_service_1.default {
     getInfo(req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Convert location code to uppercase if set
-            const location = config_1.default.get().location && config_1.default.get().location.toUpperCase();
+            const location = Config.getConfig().location && Config.getConfig().location.toUpperCase();
             // Create response object from config settings
             const serviceInfo = {
                 location,
-                maxSyncSize: config_1.default.get().maxSyncSize,
-                message: this.stripScriptsFromHtml(config_1.default.get().status.message),
+                maxSyncSize: Config.getConfig().maxSyncSize,
+                message: this.stripScriptsFromHtml(Config.getConfig().status.message),
                 status: server_1.ApiStatus.offline,
-                version: config_1.default.get().version
+                version: Config.getConfig().version
             };
-            if (config_1.default.get().status.online) {
+            if (Config.getConfig().status.online) {
                 try {
                     // Call service method to check if accepting new syncs
                     const acceptingNewSyncs = yield this.service.isAcceptingNewSyncs();

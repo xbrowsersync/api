@@ -2,7 +2,7 @@
 
 import 'jest';
 import * as request from 'supertest';
-import Config from '../../src/config';
+import * as Config from '../../src/config';
 import Server from '../../src/server';
 
 describe('Docs', () => {
@@ -10,7 +10,7 @@ describe('Docs', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = Config.get(true);
+    testConfig = Config.getConfig(true);
     testConfig.log.file.enabled = false;
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
@@ -21,22 +21,21 @@ describe('Docs', () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     await server.stop();
   });
 
   it('GET /: Should return a 200 status code', async () => {
-    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(Config.get().server.relativePath);
+      .get(Config.getConfig().server.relativePath);
     expect(response.status).toBe(200);
-    getSpy.mockRestore();
   });
 
   it('GET /: Should return HTML content', async () => {
-    const getSpy = jest.spyOn(Config, 'get').mockReturnValue(testConfig);
+    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(Config.get().server.relativePath);
+      .get(Config.getConfig().server.relativePath);
     expect(response.type).toBe('text/html');
-    getSpy.mockRestore();
   });
 });
