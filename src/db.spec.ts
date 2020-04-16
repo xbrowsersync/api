@@ -237,7 +237,7 @@ describe('DB', () => {
 
   it('disconnect: should call mongoose.disconnect', async () => {
     const disconnectMock = jest.spyOn(mongoose, 'disconnect');
-    await DB.disconnect();
+    DB.disconnect();
     expect(disconnectMock).toBeCalled();
   });
 });
