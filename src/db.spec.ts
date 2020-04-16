@@ -17,7 +17,7 @@ describe('DB', () => {
 
   it('connect: should call mongoose.connect', async () => {
     const connectMock = jest.spyOn(mongoose, 'connect');
-    await DB.connect();
+    DB.connect();
     expect(connectMock).toBeCalled();
   });
 
