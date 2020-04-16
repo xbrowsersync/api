@@ -7,7 +7,8 @@
       true,
       "dev"
     ],
-    "no-submodule-imports": false
+    "no-submodule-imports": false,
+    "no-unused-expression": false
   },
   "extends": [
     "tslint:latest",

@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import { Request } from 'express';
 import * as Config from '../config';
@@ -13,7 +11,7 @@ describe('InfoService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
     const log = () => null;
     bookmarksService = new BookmarksService(null, log);
     infoService = new InfoService(bookmarksService as BookmarksService, log);
@@ -28,7 +26,7 @@ describe('InfoService', () => {
     const req: Partial<Request> = {};
     const location = 'gb';
     testConfig.location = location;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.location).toEqual(location.toUpperCase());
   });
@@ -37,7 +35,7 @@ describe('InfoService', () => {
     const req: Partial<Request> = {};
     const maxSyncSizeTestVal = 1;
     testConfig.maxSyncSize = maxSyncSizeTestVal;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.maxSyncSize).toEqual(maxSyncSizeTestVal);
   });
@@ -46,7 +44,7 @@ describe('InfoService', () => {
     const req: Partial<Request> = {};
     const messageTestVal = 'Test API message';
     testConfig.status.message = messageTestVal;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.message).toEqual(messageTestVal);
   });
@@ -55,7 +53,7 @@ describe('InfoService', () => {
     const req: Partial<Request> = {};
     const messageTestVal = `<script>alert('test');</script>`;
     testConfig.status.message = messageTestVal;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.message).toEqual('');
   });
@@ -63,7 +61,7 @@ describe('InfoService', () => {
   it('getInfo: should return correct API status when online', async () => {
     const req: Partial<Request> = {};
     testConfig.status.online = true;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.status).toEqual(ApiStatus.online);
   });
@@ -71,7 +69,7 @@ describe('InfoService', () => {
   it('getInfo: should return correct API status when offline', async () => {
     const req: Partial<Request> = {};
     testConfig.status.online = false;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.status).toEqual(ApiStatus.offline);
   });
@@ -80,7 +78,7 @@ describe('InfoService', () => {
     const req: Partial<Request> = {};
     const versionTestVal = '0.0.0';
     testConfig.version = versionTestVal;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
     expect(response.version).toEqual(versionTestVal);
   });

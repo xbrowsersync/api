@@ -66,7 +66,7 @@ class NewSyncLogsService extends base_service_1.default {
                 throw err;
             }
             // Check returned count against config setting
-            return newSyncsCreated >= Config.getConfig().dailyNewSyncsLimit;
+            return newSyncsCreated >= Config.get().dailyNewSyncsLimit;
         });
     }
     // Extracts the client's ip address from a given request

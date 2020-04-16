@@ -7,6 +7,6 @@ import BaseRouter, { IApiRouter } from '../routers/base.router';
 export default class DocsRouter extends BaseRouter<void> implements IApiRouter {
   // Initialises the routes for this router implementation
   public initRoutes(): void {
-    this.app.use(Config.getConfig().server.relativePath, express.static(path.join(__dirname, '../docs')));
+    this.app.use(Config.get().server.relativePath, express.static(path.join(__dirname, '../docs')));
   }
 }

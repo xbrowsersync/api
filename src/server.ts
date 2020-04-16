@@ -8,7 +8,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as mkdirp from 'mkdirp';
 import * as Config from './config';
-import DB from './db';
+import * as DB from './db';
 import {
   ExceptionBase,
   NotImplementedException,
@@ -51,14 +51,13 @@ export enum LogLevel {
 export default class Server {
   // Throws an error if the service status is set to offline in config
   public static checkServiceAvailability(): void {
-    if (!Config.getConfig().status.online) {
+    if (!Config.get().status.online) {
       throw new ServiceNotAvailableException();
     }
   }
 
   private app: express.Application;
   private bookmarksService: BookmarksService;
-  private db: DB;
   private infoService: InfoService;
   private logger: bunyan;
   private newSyncLogsService: NewSyncLogsService;
@@ -78,7 +77,7 @@ export default class Server {
       this.app.use(this.handleErrors);
 
       // Establish database connection
-      await this.connectToDb();
+      await DB.connect(this.log);
     }
     catch (err) {
       this.log(LogLevel.Error, `Service failed to start`, null, err);
@@ -107,23 +106,23 @@ export default class Server {
   @autobind
   public async start(): Promise<void> {
     // Check if location is valid before starting
-    if (!Location.validateLocationCode(Config.getConfig().location)) {
+    if (!Location.validateLocationCode(Config.get().location)) {
       this.log(LogLevel.Error, `Location is not a valid country code, exiting`);
       process.exit(1);
     }
 
     // Create https server if enabled in config, otherwise create http server
-    if (Config.getConfig().server.https.enabled) {
+    if (Config.get().server.https.enabled) {
       const options: https.ServerOptions = {
-        cert: fs.readFileSync(Config.getConfig().server.https.certPath),
-        key: fs.readFileSync(Config.getConfig().server.https.keyPath)
+        cert: fs.readFileSync(Config.get().server.https.certPath),
+        key: fs.readFileSync(Config.get().server.https.keyPath)
       };
       this.server = https.createServer(options, this.app);
     }
     else {
       this.server = http.createServer(this.app);
     }
-    this.server.listen(Config.getConfig().server.port);
+    this.server.listen(Config.get().server.port);
 
     // Wait for server to start before continuing
     await new Promise((resolve, reject) => {
@@ -136,8 +135,8 @@ export default class Server {
       });
 
       this.server.on('listening', conn => {
-        const protocol = Config.getConfig().server.https.enabled ? 'https' : 'http';
-        const url = `${protocol}://${Config.getConfig().server.host}:${Config.getConfig().server.port}${Config.getConfig().server.relativePath}`;
+        const protocol = Config.get().server.https.enabled ? 'https' : 'http';
+        const url = `${protocol}://${Config.get().server.host}:${Config.get().server.port}${Config.get().server.relativePath}`;
         this.log(LogLevel.Info, `Service started at ${url}`);
         resolve();
       });
@@ -184,7 +183,7 @@ export default class Server {
   // Cleans up server connections when stopping the service
   private async cleanupServer(): Promise<void> {
     this.log(LogLevel.Info, `Service shutting down`);
-    await this.db.closeConnection();
+    await DB.disconnect();
     this.server.removeAllListeners();
     process.removeAllListeners();
   }
@@ -195,29 +194,29 @@ export default class Server {
     this.app = express();
 
     // Enabled logging to stdout if required
-    if (Config.getConfig().log.stdout.enabled) {
+    if (Config.get().log.stdout.enabled) {
       // Add file log stream
       logStreams.push({
-        level: Config.getConfig().log.stdout.level,
+        level: Config.get().log.stdout.level,
         stream: process.stdout
       });
     }
 
     // Enable logging to file if required
-    if (Config.getConfig().log.file.enabled) {
+    if (Config.get().log.file.enabled) {
       try {
         // Ensure log directory exists
-        const logDirectory = Config.getConfig().log.file.path.substring(0, Config.getConfig().log.file.path.lastIndexOf('/'));
+        const logDirectory = Config.get().log.file.path.substring(0, Config.get().log.file.path.lastIndexOf('/'));
         if (!fs.existsSync(logDirectory)) {
           mkdirp.sync(logDirectory);
         }
 
         // Add file log stream
         logStreams.push({
-          count: Config.getConfig().log.file.rotatedFilesToKeep,
-          level: Config.getConfig().log.file.level,
-          path: Config.getConfig().log.file.path,
-          period: Config.getConfig().log.file.rotationPeriod,
+          count: Config.get().log.file.rotatedFilesToKeep,
+          level: Config.get().log.file.level,
+          path: Config.get().log.file.path,
+          period: Config.get().log.file.rotationPeriod,
           type: 'rotating-file'
         });
       }
@@ -254,25 +253,25 @@ export default class Server {
 
     // Add default version to request if not supplied
     this.app.use((req: any, res: express.Response, next: express.NextFunction) => {
-      req.version = req.headers['accept-version'] || Config.getConfig().version;
+      req.version = req.headers['accept-version'] || Config.get().version;
       next();
     });
 
     // If behind proxy use 'X-Forwarded-For' header for client ip address
-    if (Config.getConfig().server.behindProxy) {
+    if (Config.get().server.behindProxy) {
       this.app.enable('trust proxy');
     }
 
     // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
     this.app.use(express.json({
-      limit: Config.getConfig().maxSyncSize || 512000
+      limit: Config.get().maxSyncSize || 512000
     }));
 
     // Enable support for CORS
     const corsOptions: cors.CorsOptions =
-      Config.getConfig().allowedOrigins.length > 0 && {
+      Config.get().allowedOrigins.length > 0 && {
         origin: (origin, callback) => {
-          if (Config.getConfig().allowedOrigins.indexOf(origin) !== -1) {
+          if (Config.get().allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
           } else {
             const err = new OriginNotPermittedException();
@@ -284,22 +283,16 @@ export default class Server {
     this.app.options('*', cors(corsOptions));
 
     // Add thottling if enabled
-    if (Config.getConfig().throttle.maxRequests > 0) {
+    if (Config.get().throttle.maxRequests > 0) {
       this.app.use(new this.rateLimit({
         delayMs: 0,
         handler: (req, res, next) => {
           next(new RequestThrottledException());
         },
-        max: Config.getConfig().throttle.maxRequests,
-        windowMs: Config.getConfig().throttle.timeWindow
+        max: Config.get().throttle.maxRequests,
+        windowMs: Config.get().throttle.timeWindow
       }));
     }
-  }
-
-  // Initialises and connects to mongodb
-  private async connectToDb(): Promise<void> {
-    this.db = new DB(this.log);
-    await this.db.openConnection();
   }
 
   // Handles and logs api errors
@@ -339,7 +332,7 @@ export default class Server {
   // Configures api routing
   private prepareRoutes(): void {
     const router = express.Router();
-    this.app.use(Config.getConfig().server.relativePath, router);
+    this.app.use(Config.get().server.relativePath, router);
 
     // Configure docs routing
     const docsRouter = new DocsRouter(this.app);

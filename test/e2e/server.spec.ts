@@ -1,5 +1,4 @@
 // tslint:disable:no-empty
-// tslint:disable:no-unused-expression
 
 import 'jest';
 import * as request from 'supertest';
@@ -12,7 +11,7 @@ describe('Server', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
     testConfig.log.file.enabled = false;
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
@@ -28,20 +27,20 @@ describe('Server', () => {
   });
 
   it('Should return an 500 status code when generic error occurs', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     jest.spyOn(InfoService.prototype, 'getInfo').mockImplementation(() => {
       throw new Error();
     });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}info`)
+      .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(500);
   });
 
   it('Should return a 404 status code for an invalid route', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks`)
+      .get(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(404);
   });
@@ -49,12 +48,12 @@ describe('Server', () => {
   it('Should return a 500 status code when requested api version is not supported', async () => {
     await server.stop();
     testConfig.allowedOrigins = ['http://test.com'];
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     server = new Server();
     await server.init();
     await server.start();
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}info`)
+      .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(500);
   });
@@ -62,23 +61,23 @@ describe('Server', () => {
   it('Should return a 429 status code when request throttling is triggered', async () => {
     await server.stop();
     testConfig.throttle.maxRequests = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     server = new Server();
     await server.init();
     await server.start();
     await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}info`)
+      .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}info`)
+      .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(429);
   });
 
   it('Should return an 412 status code when requested api version is not supported', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}info`)
+      .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json')
       .set('accept-version', '0.0.0');
     expect(response.status).toBe(412);

@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import * as Location from './location';
 

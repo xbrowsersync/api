@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import Server from './server';
 
 // Entry point into server

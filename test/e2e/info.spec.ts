@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import * as request from 'supertest';
 import * as Config from '../../src/config';
@@ -10,7 +8,7 @@ describe('InfoRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
     testConfig.log.file.enabled = false;
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
@@ -26,9 +24,9 @@ describe('InfoRouter', () => {
   });
 
   it('GET info: should return api status info', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}info`);
+      .get(`${Config.get().server.relativePath}info`);
     expect(response.status).toBe(200);
     expect(typeof response.body).toBe('object');
     expect(response.body.status).toEqual(ApiStatus.online);

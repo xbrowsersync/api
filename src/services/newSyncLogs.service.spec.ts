@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import { Request } from 'express';
 import * as Config from '../../src/config';
@@ -12,7 +10,7 @@ describe('NewSyncLogsService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
     const log = () => null;
     newSyncLogsService = new NewSyncLogsService(null, log);
   });
@@ -43,7 +41,7 @@ describe('NewSyncLogsService', () => {
     };
     const dailyNewSyncsLimitTestVal = 1;
     testConfig.dailyNewSyncsLimit = dailyNewSyncsLimitTestVal;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const countDocumentsSpy = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
     } as any);
@@ -57,7 +55,7 @@ describe('NewSyncLogsService', () => {
       ip: testClientIPAddress
     };
     testConfig.dailyNewSyncsLimit = 3;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const countDocumentsMock = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
       exec: () => Promise.resolve(1)
     } as any);

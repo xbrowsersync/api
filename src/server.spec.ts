@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import * as Config from './config';
 import { ServiceNotAvailableException } from './exception';
@@ -9,7 +7,7 @@ describe('Server', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
   });
 
   afterEach(() => {
@@ -18,7 +16,7 @@ describe('Server', () => {
 
   it('checkServiceAvailability: should not throw an error when status set as online in config settings', () => {
     testConfig.status.online = true;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     expect(() => {
       Server.checkServiceAvailability();
     }).not.toThrowError();
@@ -26,7 +24,7 @@ describe('Server', () => {
 
   it('checkServiceAvailability: should throw a ServiceNotAvailableException when status set as offline in config settings', () => {
     testConfig.status.online = false;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     expect(() => {
       Server.checkServiceAvailability();
     }).toThrow(ServiceNotAvailableException);

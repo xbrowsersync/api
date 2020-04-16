@@ -25,7 +25,7 @@ const Uuid = require("../uuid");
 class BookmarksRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
-        this.app.use(`${Config.getConfig().server.relativePath}bookmarks`, this.router);
+        this.app.use(`${Config.get().server.relativePath}bookmarks`, this.router);
         this.createRoute(server_1.ApiVerb.post, '/', {
             '~1.0.0': this.createBookmarks_v1,
             // tslint:disable-next-line:object-literal-sort-keys

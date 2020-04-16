@@ -60,7 +60,8 @@ export interface IConfigSettings {
 
 let config: IConfigSettings;
 
-export const getConfig = (force?: boolean): IConfigSettings => {
+// Returns combined default and user-specified config settings
+export const get = (force?: boolean): IConfigSettings => {
   if (config && !force) {
     return config;
   }
@@ -88,16 +89,19 @@ export const getConfig = (force?: boolean): IConfigSettings => {
   return config;
 }
 
+// Returns default config settings
 const getDefaultSettings = (pathToConfig: string): IConfigSettings => {
   const pathToSettings = path.join(pathToConfig, 'settings.default.json');
   return require(pathToSettings);
 }
 
+// Returns version number from package.json
 export const getPackageVersion = (): string => {
   const packageJson = require('../package.json');
   return packageJson.version;
 }
 
+// Returns user-specified config settings
 export const getUserSettings = (pathToConfig: string): IConfigSettings => {
   const pathToUserSettings = path.join(pathToConfig, 'settings.json');
   let userSettings: IConfigSettings = {};

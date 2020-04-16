@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { autobind } from 'core-decorators';
 import * as DOMPurify from 'dompurify';

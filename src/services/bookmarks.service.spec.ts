@@ -1,5 +1,4 @@
 // tslint:disable:no-empty
-// tslint:disable:no-unused-expression
 
 import 'jest';
 import { Request } from 'express';
@@ -24,7 +23,7 @@ describe('BookmarksService', () => {
   let testConfig: any;
 
   beforeEach(() => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
     const log = () => null;
     newSyncLogsService = new NewSyncLogsService(null, log);
     bookmarksService = new BookmarksService(newSyncLogsService, log);
@@ -38,7 +37,7 @@ describe('BookmarksService', () => {
   it('createBookmarks: should throw a NewSyncsForbiddenException if service is not accepting new syncs', async () => {
     const req: Partial<Request> = {};
     testConfig.status.allowNewSyncs = false;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     await expect(bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request))
       .rejects
       .toThrow(NewSyncsForbiddenException);
@@ -48,7 +47,7 @@ describe('BookmarksService', () => {
     const req: Partial<Request> = {};
     const maxSyncsTestVal = 1;
     testConfig.maxSyncs = maxSyncsTestVal;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(false);
     await expect(bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request))
       .rejects
@@ -58,7 +57,7 @@ describe('BookmarksService', () => {
   it('createBookmarks: should throw a NewSyncsLimitExceededException if daily new syncs limit has been hit', async () => {
     const req: Partial<Request> = {};
     testConfig.dailyNewSyncsLimit = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
     jest.spyOn(newSyncLogsService, 'newSyncsLimitHit').mockResolvedValue(true);
     await expect(bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request))
@@ -69,7 +68,7 @@ describe('BookmarksService', () => {
   it('createBookmarks: should add a new sync log if daily new syncs limit is enabled', async () => {
     const req: Partial<Request> = {};
     testConfig.dailyNewSyncsLimit = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
     jest.spyOn(newSyncLogsService, 'newSyncsLimitHit').mockResolvedValue(false);
     jest.spyOn(BookmarksModel.prototype, 'save').mockResolvedValue({});
@@ -150,21 +149,21 @@ describe('BookmarksService', () => {
 
   it('isAcceptingNewSyncs: should return false if service is not accepting new syncs', async () => {
     testConfig.status.allowNewSyncs = false;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const isAcceptingNewSyncs = await bookmarksService.isAcceptingNewSyncs();
     expect(isAcceptingNewSyncs).toBe(false);
   });
 
   it('isAcceptingNewSyncs: should return true if max syncs limit is disabled', async () => {
     testConfig.maxSyncs = 0;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const isAcceptingNewSyncs = await bookmarksService.isAcceptingNewSyncs();
     expect(isAcceptingNewSyncs).toBe(true);
   });
 
   it('isAcceptingNewSyncs: should return true if total bookmarks syncs is less than max syncs limit', async () => {
     testConfig.maxSyncs = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const estimatedDocumentCountMock = jest.spyOn(BookmarksModel, 'estimatedDocumentCount').mockReturnValue({
       exec: () => Promise.resolve(0)
     } as any);
@@ -175,7 +174,7 @@ describe('BookmarksService', () => {
 
   it('isAcceptingNewSyncs: should return false if total bookmarks syncs is not less than max syncs limit', async () => {
     testConfig.maxSyncs = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const estimatedDocumentCountMock = jest.spyOn(BookmarksModel, 'estimatedDocumentCount').mockReturnValue({
       exec: () => Promise.resolve(1)
     } as any);

@@ -18,16 +18,16 @@ class InfoService extends base_service_1.default {
     getInfo(req) {
         return __awaiter(this, void 0, void 0, function* () {
             // Convert location code to uppercase if set
-            const location = Config.getConfig().location && Config.getConfig().location.toUpperCase();
+            const location = Config.get().location && Config.get().location.toUpperCase();
             // Create response object from config settings
             const serviceInfo = {
                 location,
-                maxSyncSize: Config.getConfig().maxSyncSize,
-                message: this.stripScriptsFromHtml(Config.getConfig().status.message),
+                maxSyncSize: Config.get().maxSyncSize,
+                message: this.stripScriptsFromHtml(Config.get().status.message),
                 status: server_1.ApiStatus.offline,
-                version: Config.getConfig().version
+                version: Config.get().version
             };
-            if (Config.getConfig().status.online) {
+            if (Config.get().status.online) {
                 try {
                     // Call service method to check if accepting new syncs
                     const acceptingNewSyncs = yield this.service.isAcceptingNewSyncs();

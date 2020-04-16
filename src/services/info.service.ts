@@ -18,18 +18,18 @@ export default class InfoService extends BaseService<BookmarksService> {
   // Returns information describing the xBrowserSync service
   public async getInfo(req: Request): Promise<IGetInfoResponse> {
     // Convert location code to uppercase if set
-    const location = Config.getConfig().location && (Config.getConfig().location as string).toUpperCase();
+    const location = Config.get().location && (Config.get().location as string).toUpperCase();
 
     // Create response object from config settings
     const serviceInfo: IGetInfoResponse = {
       location,
-      maxSyncSize: Config.getConfig().maxSyncSize,
-      message: this.stripScriptsFromHtml(Config.getConfig().status.message),
+      maxSyncSize: Config.get().maxSyncSize,
+      message: this.stripScriptsFromHtml(Config.get().status.message),
       status: ApiStatus.offline,
-      version: Config.getConfig().version
+      version: Config.get().version
     };
 
-    if (Config.getConfig().status.online) {
+    if (Config.get().status.online) {
       try {
         // Call service method to check if accepting new syncs
         const acceptingNewSyncs = await this.service.isAcceptingNewSyncs();

@@ -9,7 +9,7 @@ import InfoService from '../services/info.service';
 export default class InfoRouter extends BaseRouter<InfoService> implements IApiRouter {
   // Initialises the routes for this router implementation
   public initRoutes(): void {
-    this.app.use(`${Config.getConfig().server.relativePath}info`, this.router);
+    this.app.use(`${Config.get().server.relativePath}info`, this.router);
     this.createRoute(ApiVerb.get, '/', { '^1.0.0': this.getInfo });
   }
 

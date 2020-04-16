@@ -3,53 +3,48 @@ import * as mongoose from 'mongoose';
 import * as Config from './config';
 import { LogLevel } from './server';
 
-// Handles database interaction
-export default class DB {
-  constructor(private log: (level: LogLevel, message: string, req?: Request, err?: Error) => void) { }
+// Initialises the database connection using config settings
+export const connect = (log?: (level: LogLevel, message: string, req?: Request, err?: Error) => void): Promise<void> => {
+  // Set the db connection options from config settings
+  const options: mongoose.ConnectionOptions = {
+    connectTimeoutMS: Config.get().db.connTimeout,
+    keepAlive: true,
+    useFindAndModify: false,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  };
 
-  // Closes the database connection
-  public async closeConnection(): Promise<void> {
-    await mongoose.disconnect()
+  // Get db username and password
+  const username = Config.get().db.username || process.env.XBROWSERSYNC_DB_USER;
+  const password = Config.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
+
+  // Connect to the host and db name defined in config settings
+  let dbServerUrl = 'mongodb';
+  if (Config.get().db.useSRV) {
+    dbServerUrl += `+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.get().db.host}/${Config.get().db.name}`;
   }
+  else {
+    dbServerUrl += `://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
+  }
+  dbServerUrl += (Config.get().db.authSource) ? `?authSource=${Config.get().db.authSource}` : '';
+  mongoose.connect(dbServerUrl, options);
+  const dbConn = mongoose.connection;
 
-  // Initialises the database connection using config settings
-  public async openConnection(): Promise<void> {
-    // Set the db connection options from config settings
-    const options: mongoose.ConnectionOptions = {
-      connectTimeoutMS: Config.getConfig().db.connTimeout,
-      keepAlive: true,
-      useFindAndModify: false,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    };
-
-    // Get db username and password
-    const username = Config.getConfig().db.username || process.env.XBROWSERSYNC_DB_USER;
-    const password = Config.getConfig().db.password || process.env.XBROWSERSYNC_DB_PWD;
-
-    // Connect to the host and db name defined in config settings
-    let dbServerUrl = 'mongodb';
-    if (Config.getConfig().db.useSRV) {
-      dbServerUrl += `+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.getConfig().db.host}/${Config.getConfig().db.name}`;
-      dbServerUrl += (Config.getConfig().db.authSource) ? `?authSource=${Config.getConfig().db.authSource}` : '';
-    }
-    else {
-      dbServerUrl += `://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.getConfig().db.host}:${Config.getConfig().db.port}/${Config.getConfig().db.name}?authSource=${Config.getConfig().db.authSource}`;
-    }
-    mongoose.connect(dbServerUrl, options);
-    const dbConn = mongoose.connection;
-
-    await new Promise((resolve, reject) => {
-      dbConn.on('close', () => {
-        dbConn.removeAllListeners();
-      });
-
-      dbConn.on('error', (err: mongoose.Error) => {
-        this.log(LogLevel.Error, 'Database error', null, err);
-        reject(new Error('Unable to connect to database.'));
-      });
-
-      dbConn.once('open', resolve);
+  return new Promise((resolve, reject) => {
+    dbConn.on('close', () => {
+      dbConn.removeAllListeners();
     });
-  }
+
+    dbConn.on('error', (err: mongoose.Error) => {
+      log && log(LogLevel.Error, 'Database error', null, err);
+      reject(new Error('Unable to connect to database.'));
+    });
+
+    dbConn.once('open', resolve);
+  });
+}
+
+// Closes the database connection
+export const disconnect = async (): Promise<void> => {
+  await mongoose.disconnect()
 }

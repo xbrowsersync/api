@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import * as request from 'supertest';
 import * as Config from '../../src/config';
@@ -15,7 +13,7 @@ describe('BookmarksRouter', () => {
   let testConfig: any;
 
   beforeEach(async () => {
-    testConfig = Config.getConfig(true);
+    testConfig = Config.get(true);
     testConfig.log.file.enabled = false;
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
@@ -34,12 +32,12 @@ describe('BookmarksRouter', () => {
 
   it('POST /bookmarks should return a 405 status code if new syncs are not allowed', async () => {
     testConfig.status.allowNewSyncs = false;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const data = {
       version: syncVersionTestVal
     };
     const response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send(data);
     expect(response.status).toBe(405);
@@ -47,17 +45,17 @@ describe('BookmarksRouter', () => {
 
   it('POST /bookmarks should return a 406 status code if daily syncs limit exceeded', async () => {
     testConfig.dailyNewSyncsLimit = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const data = {
       version: syncVersionTestVal
     };
     let response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send(data);
     expect(response.status).toBe(200);
     response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send(data);
     expect(response.status).toBe(406);
@@ -66,7 +64,7 @@ describe('BookmarksRouter', () => {
   it('POST /bookmarks should return a 503 status code if service offline', async () => {
     await server.stop();
     testConfig.status.online = false;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     server = new Server();
     await server.init();
     await server.start();
@@ -74,7 +72,7 @@ describe('BookmarksRouter', () => {
       version: syncVersionTestVal
     };
     const response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send(data);
     expect(response.status).toBe(503);
@@ -82,9 +80,9 @@ describe('BookmarksRouter', () => {
 
   it('POST /bookmarks should return a 200 status code code and bookmarks sync data', async () => {
     testConfig.dailyNewSyncsLimit = 0;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send({ version: syncVersionTestVal });
     expect(response.status).toBe(200);
@@ -97,43 +95,43 @@ describe('BookmarksRouter', () => {
   it('PUT /bookmarks/:id should return a 413 status code when bookmarks data size exceeds server limit', async () => {
     await server.stop();
     testConfig.maxSyncSize = 1;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     server = new Server();
     await server.init();
     await server.start();
     const response = await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/${syncIdTestVal}`)
+      .put(`${Config.get().server.relativePath}bookmarks/${syncIdTestVal}`)
       .set('content-type', 'application/json')
       .send({ bookmarks: bookmarksDataTestVal });
     expect(response.status).toBe(413);
   });
 
   it('PUT /bookmarks/:id should return a 401 status code if sync id is invalid', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/invalidid`)
+      .put(`${Config.get().server.relativePath}bookmarks/invalidid`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(401);
   });
 
   it('PUT /bookmarks/:id should return a 400 status code if bookmarks data not provided', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/${syncIdTestVal}`)
+      .put(`${Config.get().server.relativePath}bookmarks/${syncIdTestVal}`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(400);
   });
 
   it('PUT /bookmarks/:id should return a 200 status code and last updated date for the provided sync id', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     let response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send({ version: syncVersionTestVal });
     expect(response.status).toBe(200);
     const id = response.body.id;
     response = await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/${id}`)
+      .put(`${Config.get().server.relativePath}bookmarks/${id}`)
       .set('content-type', 'application/json')
       .send({ bookmarks: bookmarksDataTestVal });
     expect(response.status).toBe(200);
@@ -142,18 +140,18 @@ describe('BookmarksRouter', () => {
   });
 
   it('PUT /bookmarks/:id should return a 409 status code when incorrect lastUpdated value provided', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     let response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send({ version: syncVersionTestVal });
     const id = response.body.id;
     await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/${id}`)
+      .put(`${Config.get().server.relativePath}bookmarks/${id}`)
       .set('content-type', 'application/json')
       .send({ bookmarks: bookmarksDataTestVal });
     response = await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/${id}`)
+      .put(`${Config.get().server.relativePath}bookmarks/${id}`)
       .set('content-type', 'application/json')
       .send({
         bookmarks: bookmarksDataTestVal,
@@ -163,27 +161,27 @@ describe('BookmarksRouter', () => {
   });
 
   it('GET /bookmarks/:id should return a 401 status code if sync id is invalid', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks/invalidid`);
+      .get(`${Config.get().server.relativePath}bookmarks/invalidid`);
     expect(response.status).toBe(401);
   });
 
   it('GET /bookmarks/:id should return a 200 status code and existing bookmarks data for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     let response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send({ version: syncVersionTestVal });
     const id = response.body.id;
     response = await request(server.Application)
-      .put(`${Config.getConfig().server.relativePath}bookmarks/${id}`)
+      .put(`${Config.get().server.relativePath}bookmarks/${id}`)
       .set('content-type', 'application/json')
       .send({ bookmarks: bookmarksDataTestVal });
     expect(response.status).toBe(200);
     response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks/${id}`);
+      .get(`${Config.get().server.relativePath}bookmarks/${id}`);
     expect(response.status).toBe(200);
     expect(response.type).toBe('application/json');
     expect(response.body.bookmarks).toEqual(bookmarksDataTestVal);
@@ -192,46 +190,46 @@ describe('BookmarksRouter', () => {
   });
 
   it('GET /bookmarks/:id/lastUpdated should return a 401 status code if sync id is invalid', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks/invalidid/lastUpdated`);
+      .get(`${Config.get().server.relativePath}bookmarks/invalidid/lastUpdated`);
     expect(response.status).toBe(401);
   });
 
   it('GET /bookmarks/:id/lastUpdated should return a 200 status code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     let response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send({ version: syncVersionTestVal });
     expect(response.status).toBe(200);
     const id = response.body.id;
     response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks/${id}/lastUpdated`);
+      .get(`${Config.get().server.relativePath}bookmarks/${id}/lastUpdated`);
     expect(response.status).toBe(200);
     expect(response.type).toBe('application/json');
     expect(Date.parse(response.body.lastUpdated)).not.toBeNaN();
   });
 
   it('GET /bookmarks/:id/version should return a 401 status code if sync id is invalid', async () => {
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks/invalidid/version`);
+      .get(`${Config.get().server.relativePath}bookmarks/invalidid/version`);
     expect(response.status).toBe(401);
   });
 
   it('GET /bookmarks/:id/version should return a 200 status code and last updated date for the provided sync id', async () => {
     testConfig.dailyNewSyncsLimit = 0;
-    jest.spyOn(Config, 'getConfig').mockImplementation(() => { return testConfig; });
+    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     let response = await request(server.Application)
-      .post(`${Config.getConfig().server.relativePath}bookmarks`)
+      .post(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json')
       .send({ version: syncVersionTestVal });
     expect(response.status).toBe(200);
     const id = response.body.id;
     response = await request(server.Application)
-      .get(`${Config.getConfig().server.relativePath}bookmarks/${id}/version`);
+      .get(`${Config.get().server.relativePath}bookmarks/${id}/version`);
     expect(response.status).toBe(200);
     expect(response.type).toBe('application/json');
     expect(response.body.version).toEqual(syncVersionTestVal);

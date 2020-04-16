@@ -1,5 +1,4 @@
 "use strict";
-// tslint:disable:no-unused-expression
 Object.defineProperty(exports, "__esModule", { value: true });
 const server_1 = require("./server");
 // Entry point into server

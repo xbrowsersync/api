@@ -1,5 +1,3 @@
-// tslint:disable:no-unused-expression
-
 import 'jest';
 import { InvalidArgumentException, InvalidSyncIdException } from './exception';
 import * as Uuid from './uuid';
