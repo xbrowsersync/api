@@ -52,6 +52,7 @@
     "@types/uuid": "^7.0.2",
     "@types/uuid-parse": "^1.0.0",
     "copy-webpack-plugin": "^5.1.1",
+    "coveralls": "^3.0.13",
     "cross-env": "^7.0.2",
     "css-loader": "^3.5.2",
     "file-loader": "^6.0.0",
@@ -87,6 +88,7 @@
     "builddocs": "echo Building docs... & webpack --config webpack.config.js",
     "buildcomplete": "echo Done!",
     "test": "echo Running unit/integration tests... & jest --clearCache && jest --config jestconfig.unit.json --runInBand",
+    "coverage": "npm run test -- --coverage && coveralls < coverage/lcov.info",
     "e2etests": "echo Running e2e tests... & jest --clearCache && jest --config jestconfig.e2e.json --runInBand",
     "serve": "npm run builddocs && webpack-dev-server"
   }
