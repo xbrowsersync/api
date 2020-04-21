@@ -26,7 +26,7 @@ describe('NewSyncLogsService', () => {
     const saveMock = jest.spyOn(NewSyncLogsModel.prototype, 'save').mockResolvedValue(null);
     const savedTestLog = await newSyncLogsService.createLog(req as Request);
     expect(saveMock).toHaveBeenCalled();
-    expect(savedTestLog.ipAddress).toEqual(testClientIPAddress);
+    expect(savedTestLog.ipAddress).toStrictEqual(testClientIPAddress);
   });
 
   it('createLog: should return null if the request IP address could not be ascertained', async () => {

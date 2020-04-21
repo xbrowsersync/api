@@ -98,9 +98,9 @@ describe('BookmarksService', () => {
     } as any);
     const bookmarksSync = await bookmarksService.getBookmarks(null, req as Request);
     expect(findOneAndUpdateMock).toHaveBeenCalled();
-    expect(bookmarksSync.bookmarks).toEqual(bookmarksDataTestVal);
-    expect(bookmarksSync.version).toEqual(syncVersionTestVal);
-    expect(bookmarksSync.lastUpdated).toEqual(createdDateTestVal);
+    expect(bookmarksSync.bookmarks).toStrictEqual(bookmarksDataTestVal);
+    expect(bookmarksSync.version).toStrictEqual(syncVersionTestVal);
+    expect(bookmarksSync.lastUpdated).toStrictEqual(createdDateTestVal);
   });
 
   it('getLastUpdated: should throw a InvalidSyncIdException db operation returns null', async () => {
@@ -122,7 +122,7 @@ describe('BookmarksService', () => {
     } as any);
     const bookmarksSync = await bookmarksService.getLastUpdated(null, req as Request);
     expect(findOneAndUpdateMock).toHaveBeenCalled();
-    expect(bookmarksSync.lastUpdated).toEqual(createdDateTestVal);
+    expect(bookmarksSync.lastUpdated).toStrictEqual(createdDateTestVal);
   });
 
   it('getVersion: should throw a InvalidSyncIdException db operation returns null', async () => {
@@ -144,7 +144,7 @@ describe('BookmarksService', () => {
     } as any);
     const bookmarksSync = await bookmarksService.getVersion(null, req as Request);
     expect(findOneAndUpdateMock).toHaveBeenCalled();
-    expect(bookmarksSync.version).toEqual(syncVersionTestVal);
+    expect(bookmarksSync.version).toStrictEqual(syncVersionTestVal);
   });
 
   it('isAcceptingNewSyncs: should return false if service is not accepting new syncs', async () => {
@@ -222,6 +222,6 @@ describe('BookmarksService', () => {
     const updatedBookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, null, syncVersionTestVal, req as Request);
     expect(findByIdMock).toHaveBeenCalled();
     expect(findOneAndUpdateMock).toHaveBeenCalled();
-    expect(updatedBookmarksSync.lastUpdated).toEqual(createdDateTestVal);
+    expect(updatedBookmarksSync.lastUpdated).toStrictEqual(createdDateTestVal);
   });
 });

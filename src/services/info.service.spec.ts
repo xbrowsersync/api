@@ -28,7 +28,7 @@ describe('InfoService', () => {
     testConfig.location = location;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.location).toEqual(location.toUpperCase());
+    expect(response.location).toStrictEqual(location.toUpperCase());
   });
 
   it('getInfo: should return max sync size config value', async () => {
@@ -37,7 +37,7 @@ describe('InfoService', () => {
     testConfig.maxSyncSize = maxSyncSizeTestVal;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.maxSyncSize).toEqual(maxSyncSizeTestVal);
+    expect(response.maxSyncSize).toStrictEqual(maxSyncSizeTestVal);
   });
 
   it('getInfo: should return message config value', async () => {
@@ -46,7 +46,7 @@ describe('InfoService', () => {
     testConfig.status.message = messageTestVal;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.message).toEqual(messageTestVal);
+    expect(response.message).toStrictEqual(messageTestVal);
   });
 
   it('getInfo: should strip script tags from message config value', async () => {
@@ -55,7 +55,7 @@ describe('InfoService', () => {
     testConfig.status.message = messageTestVal;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.message).toEqual('');
+    expect(response.message).toStrictEqual('');
   });
 
   it('getInfo: should return correct API status when online', async () => {
@@ -63,7 +63,7 @@ describe('InfoService', () => {
     testConfig.status.online = true;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.status).toEqual(ServiceStatus.online);
+    expect(response.status).toStrictEqual(ServiceStatus.online);
   });
 
   it('getInfo: should return correct API status when offline', async () => {
@@ -71,7 +71,7 @@ describe('InfoService', () => {
     testConfig.status.online = false;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.status).toEqual(ServiceStatus.offline);
+    expect(response.status).toStrictEqual(ServiceStatus.offline);
   });
 
   it('getInfo: should return version config value', async () => {
@@ -80,6 +80,6 @@ describe('InfoService', () => {
     testConfig.version = versionTestVal;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.version).toEqual(versionTestVal);
+    expect(response.version).toStrictEqual(versionTestVal);
   });
 });

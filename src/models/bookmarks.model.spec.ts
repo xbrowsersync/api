@@ -20,6 +20,16 @@ describe('BookmarksModel', () => {
     expect(binary.sub_type).toBe(4);
   });
 
+  it('bookmarksSchema: should convert string uuid value to binary when setting id', () => {
+    const newBookmarks: IBookmarks = {
+      bookmarks: bookmarksDataTestVal
+    };
+    const bookmarksModel = new BookmarksModel(newBookmarks);
+    const convertUuidStringToBinaryMock = jest.spyOn(Uuid, 'convertUuidStringToBinary').mockImplementation();
+    bookmarksModel._id = '2b7b65fb-62bc-4162-8ec5-0008183c69b0';
+    expect(convertUuidStringToBinaryMock).toBeCalled();
+  });
+
   it('bookmarksSchema: should default lastAccessed value to now', () => {
     const newBookmarks: IBookmarks = {
       bookmarks: bookmarksDataTestVal
@@ -43,7 +53,7 @@ describe('BookmarksModel', () => {
       bookmarks: bookmarksDataTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.bookmarks).toEqual(bookmarksDataTestVal);
+    expect(bookmarksModel.bookmarks).toStrictEqual(bookmarksDataTestVal);
   });
 
   it('bookmarksSchema: should set lastAccessed to provided value', () => {
@@ -51,7 +61,7 @@ describe('BookmarksModel', () => {
       lastAccessed: lastAccessedTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.lastAccessed).toEqual(lastAccessedTestVal);
+    expect(bookmarksModel.lastAccessed).toStrictEqual(lastAccessedTestVal);
   });
 
   it('bookmarksSchema: should set lastUpdated to provided value', () => {
@@ -59,7 +69,7 @@ describe('BookmarksModel', () => {
       lastUpdated: lastUpdatedTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.lastUpdated).toEqual(lastUpdatedTestVal);
+    expect(bookmarksModel.lastUpdated).toStrictEqual(lastUpdatedTestVal);
   });
 
   it('bookmarksSchema: should set version to provided value', () => {
@@ -67,6 +77,6 @@ describe('BookmarksModel', () => {
       version: versionTestVal
     };
     const bookmarksModel = new BookmarksModel(newBookmarks);
-    expect(bookmarksModel.version).toEqual(versionTestVal);
+    expect(bookmarksModel.version).toStrictEqual(versionTestVal);
   });
 });

@@ -452,7 +452,7 @@ describe('Server', () => {
       });
     }
     catch { }
-    expect(corsConfig).toEqual({
+    expect(corsConfig).toStrictEqual({
       origin: expect.any(Function)
     });
     expect(() => {
@@ -501,7 +501,7 @@ describe('Server', () => {
       origin(originTest, originCallbackMock);
     }
     catch { }
-    expect(corsConfig).toEqual({
+    expect(corsConfig).toStrictEqual({
       origin: expect.any(Function)
     });
     expect(originCallbackMock).toBeCalledWith(null, true);
@@ -570,7 +570,7 @@ describe('Server', () => {
     const useMock = jest.fn().mockImplementation(callback => {
       try {
         callback(req, null, nextMock);
-        expect(req.version).toEqual(versionTest);
+        expect(req.version).toStrictEqual(versionTest);
       }
       catch { }
     });
@@ -610,7 +610,7 @@ describe('Server', () => {
     const useMock = jest.fn().mockImplementation(callback => {
       try {
         callback(req, null, nextMock);
-        expect(req.version).toEqual(versionTest);
+        expect(req.version).toStrictEqual(versionTest);
       }
       catch { }
     });

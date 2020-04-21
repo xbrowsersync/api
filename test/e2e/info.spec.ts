@@ -32,6 +32,6 @@ describe('InfoRouter', () => {
       .get(`${Config.get().server.relativePath}info`);
     expect(response.status).toBe(200);
     expect(typeof response.body).toBe('object');
-    expect(response.body.status).toEqual(Server.ServiceStatus.online);
+    expect(response.body.status).toStrictEqual(Server.ServiceStatus.online);
   });
 });

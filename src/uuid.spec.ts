@@ -11,7 +11,7 @@ describe('UUID', () => {
     const uuid = Uuid.convertBytesToUuidString(buffer);
     expect(typeof uuid).toBe('string');
     expect(uuid).not.toBeFalsy();
-    expect(uuid).toEqual(testUuid);
+    expect(uuid).toStrictEqual(testUuid);
   });
 
   it('convertBytesToUuidString: should return null if supplied param is null', () => {
@@ -35,7 +35,7 @@ describe('UUID', () => {
   it('convertUuidStringToBinary: should return a binary UUID from a given UUID string', () => {
     const binary = Uuid.convertUuidStringToBinary(testUuid);
     expect(binary).not.toBeNull();
-    expect(binary.buffer).toEqual(Buffer.from(testBytes));
+    expect(binary.buffer).toStrictEqual(Buffer.from(testBytes));
   });
 
   it('convertUuidStringToBinary: should return a version 4 binary UUID', () => {

@@ -18,13 +18,13 @@ describe('Config', () => {
       maxSyncs: maxSyncsTestVal
     });
     const maxSyncs = Config.get(true).maxSyncs;
-    expect(maxSyncs).toEqual(maxSyncsTestVal);
+    expect(maxSyncs).toStrictEqual(maxSyncsTestVal);
   });
 
   it('get: should return package version number', () => {
     const versionTestVal = '1.1.1';
     jest.spyOn(Config, 'getPackageVersion').mockReturnValue(versionTestVal);
     const version = Config.get(true).version;
-    expect(version).toEqual(versionTestVal);
+    expect(version).toStrictEqual(versionTestVal);
   });
 });

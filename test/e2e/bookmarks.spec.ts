@@ -91,7 +91,7 @@ describe('BookmarksRouter', () => {
     expect(response.type).toBe('application/json');
     expect(typeof response.body.id).toBe('string');
     expect(Date.parse(response.body.lastUpdated)).not.toBeNaN();
-    expect(response.body.version).toEqual(syncVersionTestVal);
+    expect(response.body.version).toStrictEqual(syncVersionTestVal);
   });
 
   it('PUT /bookmarks/:id should return a 413 status code when bookmarks data size exceeds Server limit', async () => {
@@ -185,8 +185,8 @@ describe('BookmarksRouter', () => {
       .get(`${Config.get().server.relativePath}bookmarks/${id}`);
     expect(response.status).toBe(200);
     expect(response.type).toBe('application/json');
-    expect(response.body.bookmarks).toEqual(bookmarksDataTestVal);
-    expect(response.body.version).toEqual(syncVersionTestVal);
+    expect(response.body.bookmarks).toStrictEqual(bookmarksDataTestVal);
+    expect(response.body.version).toStrictEqual(syncVersionTestVal);
     expect(Date.parse(response.body.lastUpdated)).not.toBeNaN();
   });
 
@@ -233,6 +233,6 @@ describe('BookmarksRouter', () => {
       .get(`${Config.get().server.relativePath}bookmarks/${id}/version`);
     expect(response.status).toBe(200);
     expect(response.type).toBe('application/json');
-    expect(response.body.version).toEqual(syncVersionTestVal);
+    expect(response.body.version).toStrictEqual(syncVersionTestVal);
   });
 });
