@@ -11,6 +11,11 @@ describe('DB', () => {
   const portTest = 12345;
   const usernameTest = 'usernameTest';
 
+  beforeEach(() => {
+    jest.spyOn(mongoose, 'connect').mockImplementation();;
+    jest.spyOn(mongoose.connection, 'on').mockImplementation();
+  })
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -18,7 +23,7 @@ describe('DB', () => {
   it('connect: should call mongoose.connect', async () => {
     const connectMock = jest.spyOn(mongoose, 'connect');
     DB.connect();
-    expect(connectMock).toBeCalled();
+    expect(connectMock).toHaveBeenCalled();
   });
 
   it('connect: should use standard connection uri by default', async () => {
@@ -238,6 +243,6 @@ describe('DB', () => {
   it('disconnect: should call mongoose.disconnect', async () => {
     const disconnectMock = jest.spyOn(mongoose, 'disconnect');
     DB.disconnect();
-    expect(disconnectMock).toBeCalled();
+    expect(disconnectMock).toHaveBeenCalled();
   });
 });

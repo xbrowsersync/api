@@ -19,7 +19,7 @@ export interface IConfigSettings {
   log?: {
     file?: {
       enabled?: boolean,
-      level?: string,
+      level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal',
       path?: string,
       rotatedFilesToKeep?: number,
       rotationPeriod?: string

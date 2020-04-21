@@ -1,9 +1,9 @@
 import { Request } from 'express';
+import BaseService from './base.service';
 import * as Config from '../config';
 import { UnspecifiedException } from '../exception';
-import { LogLevel } from '../server';
 import NewSyncLogsModel, { INewSyncLog } from '../models/newSyncLogs.model';
-import BaseService from './base.service';
+import { LogLevel } from '../server';
 
 // Implementation of data service for new sync log operations
 export default class NewSyncLogsService extends BaseService<void> {

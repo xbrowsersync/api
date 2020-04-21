@@ -1,8 +1,8 @@
 import { Request } from 'express';
 import * as Config from '../config';
-import { ApiStatus, LogLevel } from '../server';
 import BaseService from './base.service';
 import BookmarksService from './bookmarks.service';
+import { LogLevel, ServiceStatus } from '../server';
 
 // Interface for get info operation response object
 export interface IGetInfoResponse {
@@ -25,7 +25,7 @@ export default class InfoService extends BaseService<BookmarksService> {
       location,
       maxSyncSize: Config.get().maxSyncSize,
       message: this.stripScriptsFromHtml(Config.get().status.message),
-      status: ApiStatus.offline,
+      status: ServiceStatus.offline,
       version: Config.get().version
     };
 
@@ -33,7 +33,7 @@ export default class InfoService extends BaseService<BookmarksService> {
       try {
         // Call service method to check if accepting new syncs
         const acceptingNewSyncs = await this.service.isAcceptingNewSyncs();
-        serviceInfo.status = acceptingNewSyncs ? ApiStatus.online : ApiStatus.noNewSyncs;
+        serviceInfo.status = acceptingNewSyncs ? ServiceStatus.online : ServiceStatus.noNewSyncs;
       }
       catch (err) {
         this.log(LogLevel.Error, 'Exception occurred in InfoService.getInfo', req, err);

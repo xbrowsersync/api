@@ -18,27 +18,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const Config = require("../config");
 const exception_1 = require("../exception");
-const server_1 = require("../server");
 const base_router_1 = require("../routers/base.router");
+const server_1 = require("../server");
 const Uuid = require("../uuid");
 // Implementation of routes for bookmarks operations
 class BookmarksRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
         this.app.use(`${Config.get().server.relativePath}bookmarks`, this.router);
-        this.createRoute(server_1.ApiVerb.post, '/', {
+        this.createRoute(server_1.Verb.post, '/', {
             '~1.0.0': this.createBookmarks_v1,
             // tslint:disable-next-line:object-literal-sort-keys
             '^1.1.3': this.createBookmarks_v2
         });
-        this.createRoute(server_1.ApiVerb.get, '/:id', { '^1.0.0': this.getBookmarks });
-        this.createRoute(server_1.ApiVerb.put, '/:id', {
+        this.createRoute(server_1.Verb.get, '/:id', { '^1.0.0': this.getBookmarks });
+        this.createRoute(server_1.Verb.put, '/:id', {
             '~1.0.0': this.updateBookmarks_v1,
             // tslint:disable-next-line:object-literal-sort-keys
             '^1.1.3': this.updateBookmarks_v2
         });
-        this.createRoute(server_1.ApiVerb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
-        this.createRoute(server_1.ApiVerb.get, '/:id/version', { '^1.1.3': this.getVersion });
+        this.createRoute(server_1.Verb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
+        this.createRoute(server_1.Verb.get, '/:id/version', { '^1.1.3': this.getVersion });
     }
     // Creates a new bookmarks sync and returns new sync ID
     createBookmarks_v1(req, res, next) {

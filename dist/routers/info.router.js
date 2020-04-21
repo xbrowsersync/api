@@ -17,14 +17,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_decorators_1 = require("core-decorators");
 const Config = require("../config");
-const server_1 = require("../server");
 const base_router_1 = require("../routers/base.router");
+const server_1 = require("../server");
 // Implementation of routes for service info operations
 class InfoRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
         this.app.use(`${Config.get().server.relativePath}info`, this.router);
-        this.createRoute(server_1.ApiVerb.get, '/', { '^1.0.0': this.getInfo });
+        this.createRoute(server_1.Verb.get, '/', { '^1.0.0': this.getInfo });
     }
     // Gets service info such as status, version, etc
     getInfo(req, res, next) {

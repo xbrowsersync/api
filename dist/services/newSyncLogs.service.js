@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const base_service_1 = require("./base.service");
 const Config = require("../config");
 const exception_1 = require("../exception");
-const server_1 = require("../server");
 const newSyncLogs_model_1 = require("../models/newSyncLogs.model");
-const base_service_1 = require("./base.service");
+const server_1 = require("../server");
 // Implementation of data service for new sync log operations
 class NewSyncLogsService extends base_service_1.default {
     // Creates a new sync log entry with the supplied request data

@@ -2,8 +2,8 @@ import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
 import * as Config from '../config';
 import { RequiredDataNotFoundException } from '../exception';
-import { ApiVerb } from '../server';
 import BaseRouter, { IApiRouter } from '../routers/base.router';
+import { Verb } from '../server';
 import BookmarksService from '../services/bookmarks.service';
 import * as Uuid from '../uuid';
 
@@ -12,19 +12,19 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
   // Initialises the routes for this router implementation
   public initRoutes(): void {
     this.app.use(`${Config.get().server.relativePath}bookmarks`, this.router);
-    this.createRoute(ApiVerb.post, '/', {
+    this.createRoute(Verb.post, '/', {
       '~1.0.0': this.createBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys
       '^1.1.3': this.createBookmarks_v2
     });
-    this.createRoute(ApiVerb.get, '/:id', { '^1.0.0': this.getBookmarks });
-    this.createRoute(ApiVerb.put, '/:id', {
+    this.createRoute(Verb.get, '/:id', { '^1.0.0': this.getBookmarks });
+    this.createRoute(Verb.put, '/:id', {
       '~1.0.0': this.updateBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys
       '^1.1.3': this.updateBookmarks_v2
     });
-    this.createRoute(ApiVerb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
-    this.createRoute(ApiVerb.get, '/:id/version', { '^1.1.3': this.getVersion });
+    this.createRoute(Verb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
+    this.createRoute(Verb.get, '/:id/version', { '^1.1.3': this.getVersion });
   }
 
   // Creates a new bookmarks sync and returns new sync ID

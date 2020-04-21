@@ -1,5 +1,4 @@
 import * as bunyan from 'bunyan';
-import { autobind } from 'core-decorators';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as fs from 'fs';
@@ -27,13 +26,20 @@ import NewSyncLogsService from './services/newSyncLogs.service';
 import * as noCache from 'nocache';
 import * as Location from './location';
 
-export enum ApiStatus {
+let logger: bunyan;
+
+export enum LogLevel {
+  Error,
+  Info
+}
+
+export enum ServiceStatus {
   online = 1,
   offline = 2,
   noNewSyncs = 3
 }
 
-export enum ApiVerb {
+export enum Verb {
   delete = 'delete',
   get = 'get',
   options = 'options',
@@ -42,311 +48,281 @@ export enum ApiVerb {
   put = 'put'
 }
 
-export enum LogLevel {
-  Error,
-  Info
+// Throws an error if the service status is set to offline in config
+export const checkServiceAvailability = (): void => {
+  if (!Config.get().status.online) {
+    throw new ServiceNotAvailableException();
+  }
 }
 
-// Main class for the xBrowserSync api service
-export default class Server {
-  // Throws an error if the service status is set to offline in config
-  public static checkServiceAvailability(): void {
-    if (!Config.get().status.online) {
-      throw new ServiceNotAvailableException();
-    }
+// Cleans up server connections when stopping the service
+export const cleanupServer = async (server: http.Server | https.Server): Promise<void> => {
+  logMessage(LogLevel.Info, `Service shutting down`);
+  await DB.disconnect();
+  server.removeAllListeners();
+  process.removeAllListeners();
+}
+
+// Creates a new express application, configures routes and connects to the database
+export const createApplication = async (): Promise<express.Express> => {
+  const app = express();
+
+  try {
+    initApplication(app);
+    initRoutes(app);
+    app.use(handleError);
+
+    // Establish database connection
+    await DB.connect(logMessage);
+  }
+  catch (err) {
+    logMessage(LogLevel.Error, `Couldn't create application`, null, err);
+    return process.exit(1);
   }
 
-  private app: express.Application;
-  private bookmarksService: BookmarksService;
-  private infoService: InfoService;
-  private logger: bunyan;
-  private newSyncLogsService: NewSyncLogsService;
-  private rateLimit = require('express-rate-limit');
-  private server: http.Server | https.Server;
+  return app;
+}
 
-  public get Application(): express.Application {
-    return this.app;
+// Creates a new bunyan logger for the module
+export const createLogger = (logStreams: bunyan.Stream[]): void => {
+  try {
+    logger = bunyan.createLogger({
+      name: 'xBrowserSync_api',
+      serializers: bunyan.stdSerializers,
+      streams: logStreams
+    });
+  }
+  catch (err) {
+    console.error(`Failed to initialise logger.`);
+    throw err;
+  }
+}
+
+// Handles and logs api errors
+export const handleError = (err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+  if (!err) {
+    return;
   }
 
-  // Initialises the xBrowserSync api service when a new instance is created
-  public async init(): Promise<void> {
+  // Determine the response value based on the error thrown
+  let responseObj: any;
+  switch (true) {
+    // If the error is one of our exceptions get the reponse object to return to the client
+    case err instanceof ExceptionBase:
+      responseObj = (err as ExceptionBase).getResponseObject();
+      break;
+    // If the error is 413 Request Entity Too Large return a SyncDataLimitExceededException
+    case err.status === 413:
+      err = new SyncDataLimitExceededException();
+      responseObj = (err as SyncDataLimitExceededException).getResponseObject();
+      break;
+    // Otherwise return an UnspecifiedException
+    default:
+      err = new UnspecifiedException();
+      responseObj = (err as UnspecifiedException).getResponseObject();
+  }
+
+  res.status(err.status || 500);
+  res.json(responseObj);
+}
+
+// Initialises the express application and middleware
+export const initApplication = (app: express.Express): void => {
+  const logStreams = [];
+
+  // Enabled logging to stdout if required
+  if (Config.get().log.stdout.enabled) {
+    // Add file log stream
+    logStreams.push({
+      level: Config.get().log.stdout.level,
+      stream: process.stdout
+    });
+  }
+
+  // Enable logging to file if required
+  if (Config.get().log.file.enabled) {
     try {
-      this.configureServer();
-      this.prepareDataServices();
-      this.prepareRoutes();
-      this.app.use(this.handleErrors);
+      // Ensure log directory exists
+      const logDirectory = Config.get().log.file.path.substring(0, Config.get().log.file.path.lastIndexOf('/'));
+      if (!fs.existsSync(logDirectory)) {
+        mkdirp.sync(logDirectory);
+      }
 
-      // Establish database connection
-      await DB.connect(this.log);
-    }
-    catch (err) {
-      this.log(LogLevel.Error, `Service failed to start`, null, err);
-      process.exit(1);
-    }
-  }
-
-  // Logs messages and errors to console and to file (if enabled)
-  @autobind
-  public log(level: LogLevel, message: string, req?: express.Request, err?: Error): void {
-    if (!this.logger) {
-      return;
-    }
-
-    switch (level) {
-      case LogLevel.Error:
-        this.logger.error({ req, err }, message);
-        break;
-      case LogLevel.Info:
-        this.logger.info({ req }, message);
-        break;
-    }
-  }
-
-  // Starts the api service
-  @autobind
-  public async start(): Promise<void> {
-    // Check if location is valid before starting
-    if (!Location.validateLocationCode(Config.get().location)) {
-      this.log(LogLevel.Error, `Location is not a valid country code, exiting`);
-      process.exit(1);
-    }
-
-    // Create https server if enabled in config, otherwise create http server
-    if (Config.get().server.https.enabled) {
-      const options: https.ServerOptions = {
-        cert: fs.readFileSync(Config.get().server.https.certPath),
-        key: fs.readFileSync(Config.get().server.https.keyPath)
-      };
-      this.server = https.createServer(options, this.app);
-    }
-    else {
-      this.server = http.createServer(this.app);
-    }
-    this.server.listen(Config.get().server.port);
-
-    // Wait for server to start before continuing
-    await new Promise((resolve, reject) => {
-      this.server.on('error', (err: NodeJS.ErrnoException) => {
-        this.log(LogLevel.Error, `Uncaught exception occurred`, null, err);
-        this.server.close(async () => {
-          await this.cleanupServer();
-          process.exit(1);
-        });
-      });
-
-      this.server.on('listening', conn => {
-        const protocol = Config.get().server.https.enabled ? 'https' : 'http';
-        const url = `${protocol}://${Config.get().server.host}:${Config.get().server.port}${Config.get().server.relativePath}`;
-        this.log(LogLevel.Info, `Service started at ${url}`);
-        resolve();
-      });
-    });
-
-    // Catches ctrl+c event
-    process.on('SIGINT', () => {
-      this.log(LogLevel.Info, `Process terminated by SIGINT`, null, null);
-      this.server.close(async () => {
-        await this.cleanupServer();
-        process.exit(0);
-      });
-    });
-
-    // Catches kill pid event
-    process.on('SIGUSR1', () => {
-      this.log(LogLevel.Info, `Process terminated by SIGUSR1`, null, null);
-      this.server.close(async () => {
-        await this.cleanupServer();
-        process.exit(0);
-      });
-    });
-
-    // Catches kill pid event
-    process.on('SIGUSR2', () => {
-      this.log(LogLevel.Info, `Process terminated by SIGUSR2`, null, null);
-      this.server.close(async () => {
-        await this.cleanupServer();
-        process.exit(0);
-      });
-    });
-  }
-
-  // Stops the api service
-  public stop(): Promise<void> {
-    return new Promise(resolve => {
-      this.server.close(async () => {
-        await this.cleanupServer();
-        resolve();
-      });
-    });
-  }
-
-  // Cleans up server connections when stopping the service
-  private async cleanupServer(): Promise<void> {
-    this.log(LogLevel.Info, `Service shutting down`);
-    await DB.disconnect();
-    this.server.removeAllListeners();
-    process.removeAllListeners();
-  }
-
-  // Initialises the express application and middleware
-  private configureServer(): void {
-    const logStreams = [];
-    this.app = express();
-
-    // Enabled logging to stdout if required
-    if (Config.get().log.stdout.enabled) {
       // Add file log stream
       logStreams.push({
-        level: Config.get().log.stdout.level,
-        stream: process.stdout
+        count: Config.get().log.file.rotatedFilesToKeep,
+        level: Config.get().log.file.level,
+        path: Config.get().log.file.path,
+        period: Config.get().log.file.rotationPeriod,
+        type: 'rotating-file'
       });
     }
+    catch (err) {
+      console.error(`Failed to initialise log file.`);
+      throw err;
+    }
+  }
 
-    // Enable logging to file if required
-    if (Config.get().log.file.enabled) {
-      try {
-        // Ensure log directory exists
-        const logDirectory = Config.get().log.file.path.substring(0, Config.get().log.file.path.lastIndexOf('/'));
-        if (!fs.existsSync(logDirectory)) {
-          mkdirp.sync(logDirectory);
+  if (logStreams.length > 0) {
+    // Initialise bunyan logger
+    createLogger(logStreams);
+  }
+
+  // Create helmet config for security hardening
+  const helmetConfig: helmet.IHelmetConfiguration = {
+    contentSecurityPolicy: {
+      directives: { defaultSrc: ["'self'"] }
+    },
+    referrerPolicy: true
+  };
+  app.use(helmet(helmetConfig));
+  app.use(noCache());
+
+  // Add default version to request if not supplied
+  app.use((req: any, res: express.Response, next: express.NextFunction) => {
+    req.version = req.headers['accept-version'] || Config.get().version;
+    next();
+  });
+
+  // If behind proxy use 'X-Forwarded-For' header for client ip address
+  if (Config.get().server.behindProxy) {
+    app.enable('trust proxy');
+  }
+
+  // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
+  app.use(express.json({
+    limit: Config.get().maxSyncSize || 512000
+  }));
+
+  // Enable support for CORS
+  const corsOptions: cors.CorsOptions =
+    Config.get().allowedOrigins.length > 0 ? {
+      origin: (origin, callback) => {
+        if (Config.get().allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          const err = new OriginNotPermittedException();
+          callback(err);
         }
+      }
+    } : undefined;
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
 
-        // Add file log stream
-        logStreams.push({
-          count: Config.get().log.file.rotatedFilesToKeep,
-          level: Config.get().log.file.level,
-          path: Config.get().log.file.path,
-          period: Config.get().log.file.rotationPeriod,
-          type: 'rotating-file'
-        });
-      }
-      catch (err) {
-        console.error(`Failed to initialise log file.`);
-        throw err;
-      }
-    }
-
-    if (logStreams.length > 0) {
-      try {
-        // Initialise bunyan logger
-        this.logger = bunyan.createLogger({
-          name: 'xBrowserSync_api',
-          serializers: bunyan.stdSerializers,
-          streams: logStreams
-        });
-      }
-      catch (err) {
-        console.error(`Failed to initialise logger.`);
-        throw err;
-      }
-    }
-
-    // Create helmet config for security hardening
-    const helmetConfig: helmet.IHelmetConfiguration = {
-      contentSecurityPolicy: {
-        directives: { defaultSrc: ["'self'"] }
+  // Add thottling if enabled
+  if (Config.get().throttle.maxRequests > 0) {
+    const rateLimit = require('express-rate-limit');
+    app.use(new rateLimit({
+      delayMs: 0,
+      handler: (req, res, next) => {
+        next(new RequestThrottledException());
       },
-      referrerPolicy: true
-    };
-    this.app.use(helmet(helmetConfig));
-    this.app.use(noCache());
-
-    // Add default version to request if not supplied
-    this.app.use((req: any, res: express.Response, next: express.NextFunction) => {
-      req.version = req.headers['accept-version'] || Config.get().version;
-      next();
-    });
-
-    // If behind proxy use 'X-Forwarded-For' header for client ip address
-    if (Config.get().server.behindProxy) {
-      this.app.enable('trust proxy');
-    }
-
-    // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
-    this.app.use(express.json({
-      limit: Config.get().maxSyncSize || 512000
+      max: Config.get().throttle.maxRequests,
+      windowMs: Config.get().throttle.timeWindow
     }));
+  }
+}
 
-    // Enable support for CORS
-    const corsOptions: cors.CorsOptions =
-      Config.get().allowedOrigins.length > 0 && {
-        origin: (origin, callback) => {
-          if (Config.get().allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-          } else {
-            const err = new OriginNotPermittedException();
-            callback(err);
-          }
-        }
-      };
-    this.app.use(cors(corsOptions));
-    this.app.options('*', cors(corsOptions));
+// Configures api routing
+export const initRoutes = (app: express.Express): void => {
+  const router = express.Router();
+  app.use(Config.get().server.relativePath, router);
 
-    // Add thottling if enabled
-    if (Config.get().throttle.maxRequests > 0) {
-      this.app.use(new this.rateLimit({
-        delayMs: 0,
-        handler: (req, res, next) => {
-          next(new RequestThrottledException());
-        },
-        max: Config.get().throttle.maxRequests,
-        windowMs: Config.get().throttle.timeWindow
-      }));
-    }
+  // Initialise services
+  const newSyncLogsService = new NewSyncLogsService(null, logMessage);
+  const bookmarksService = new BookmarksService(newSyncLogsService, logMessage);
+  const infoService = new InfoService(bookmarksService, logMessage);
+
+  // Initialise routes
+  new DocsRouter(app);
+  new BookmarksRouter(app, bookmarksService);
+  new InfoRouter(app, infoService);
+
+  // Handle all other routes with 404 error
+  app.use((req, res, next) => {
+    const err = new NotImplementedException();
+    next(err);
+  });
+}
+
+// Logs messages and errors to console and to file (if enabled)
+export const logMessage = (level: LogLevel, message: string, req?: express.Request, err?: Error): void => {
+  if (!logger) {
+    return;
   }
 
-  // Handles and logs api errors
-  private handleErrors(err: any, req: express.Request, res: express.Response, next: express.NextFunction): void {
-    if (err) {
-      let responseObj: any;
+  switch (level) {
+    case LogLevel.Error:
+      logger.error({ req, err }, message);
+      break;
+    case LogLevel.Info:
+      logger.info({ req }, message);
+      break;
+  }
+}
 
-      // Determine the response value based on the error thrown
-      switch (true) {
-        // If the error is one of our exceptions get the reponse object to return to the client
-        case err instanceof ExceptionBase:
-          responseObj = (err as ExceptionBase).getResponseObject();
-          break;
-        // If the error is 413 Request Entity Too Large return a SyncDataLimitExceededException
-        case err.status === 413:
-          err = new SyncDataLimitExceededException();
-          responseObj = (err as SyncDataLimitExceededException).getResponseObject();
-          break;
-        // Otherwise return an UnspecifiedException
-        default:
-          err = new UnspecifiedException();
-          responseObj = (err as UnspecifiedException).getResponseObject();
-      }
-
-      res.status(err.status || 500);
-      res.json(responseObj);
-    }
+// Starts the api service
+export const startService = async (app: express.Application): Promise<http.Server | https.Server> => {
+  // Check if location is valid before starting
+  if (!Location.validateLocationCode(Config.get().location)) {
+    logMessage(LogLevel.Error, `Location is not a valid country code, exiting`);
+    return process.exit(1);
   }
 
-  // Initialise data services
-  private prepareDataServices(): void {
-    this.newSyncLogsService = new NewSyncLogsService(null, this.log);
-    this.bookmarksService = new BookmarksService(this.newSyncLogsService, this.log);
-    this.infoService = new InfoService(this.bookmarksService, this.log);
+  // Create https server if enabled in config, otherwise create http server
+  let server: http.Server | https.Server;
+  const serverListening = () => {
+    const protocol = Config.get().server.https.enabled ? 'https' : 'http';
+    const url = `${protocol}://${Config.get().server.host}:${Config.get().server.port}${Config.get().server.relativePath}`;
+    logMessage(LogLevel.Info, `Service started at ${url}`);
+  };
+  if (Config.get().server.https.enabled) {
+    const options: https.ServerOptions = {
+      cert: fs.readFileSync(Config.get().server.https.certPath),
+      key: fs.readFileSync(Config.get().server.https.keyPath)
+    };
+    server = https.createServer(options, app).listen(Config.get().server.port, null, serverListening);
+  }
+  else {
+    server = http.createServer(app).listen(Config.get().server.port, null, serverListening);
   }
 
-  // Configures api routing
-  private prepareRoutes(): void {
-    const router = express.Router();
-    this.app.use(Config.get().server.relativePath, router);
-
-    // Configure docs routing
-    const docsRouter = new DocsRouter(this.app);
-
-    // Configure bookmarks routing
-    const bookmarksRouter = new BookmarksRouter(this.app, this.bookmarksService);
-
-    // Configure info routing
-    const infoRouter = new InfoRouter(this.app, this.infoService);
-
-    // Handle all other routes with 404 error
-    this.app.use((req, res, next) => {
-      const err = new NotImplementedException();
-      next(err);
+  // Catches ctrl+c event
+  process.on('SIGINT', () => {
+    logMessage(LogLevel.Info, `Process terminated by SIGINT`, null, null);
+    server.close(async () => {
+      await cleanupServer(server);
+      return process.exit(0);
     });
-  }
+  });
+
+  // Catches kill pid event
+  process.on('SIGUSR1', () => {
+    logMessage(LogLevel.Info, `Process terminated by SIGUSR1`, null, null);
+    server.close(async () => {
+      await cleanupServer(server);
+      return process.exit(0);
+    });
+  });
+
+  // Catches kill pid event
+  process.on('SIGUSR2', () => {
+    logMessage(LogLevel.Info, `Process terminated by SIGUSR2`, null, null);
+    server.close(async () => {
+      await cleanupServer(server);
+      return process.exit(0);
+    });
+  });
+
+  return server;
+}
+
+// Stops the api service
+export const stopService = (server: http.Server | https.Server): Promise<void> => {
+  return new Promise(resolve => {
+    server.close(async () => {
+      await cleanupServer(server);
+      resolve();
+    });
+  });
 }

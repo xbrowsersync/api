@@ -86,7 +86,7 @@
     "tslint": "echo Running tslint... & tslint --project . -t stylish",
     "builddocs": "echo Building docs... & webpack --config webpack.config.js",
     "buildcomplete": "echo Done!",
-    "test": "echo Running unit/integration tests... & jest --clearCache && jest --config jestconfig.unit.json",
+    "test": "echo Running unit/integration tests... & jest --clearCache && jest --config jestconfig.unit.json --runInBand",
     "e2etests": "echo Running e2e tests... & jest --clearCache && jest --config jestconfig.e2e.json --runInBand",
     "serve": "npm run builddocs && webpack-dev-server"
   }

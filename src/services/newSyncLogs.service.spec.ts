@@ -25,7 +25,7 @@ describe('NewSyncLogsService', () => {
     };
     const saveMock = jest.spyOn(NewSyncLogsModel.prototype, 'save').mockResolvedValue(null);
     const savedTestLog = await newSyncLogsService.createLog(req as Request);
-    expect(saveMock).toBeCalled();
+    expect(saveMock).toHaveBeenCalled();
     expect(savedTestLog.ipAddress).toEqual(testClientIPAddress);
   });
 
@@ -46,7 +46,7 @@ describe('NewSyncLogsService', () => {
       exec: () => Promise.resolve(dailyNewSyncsLimitTestVal)
     } as any);
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
-    expect(countDocumentsSpy).toBeCalled();
+    expect(countDocumentsSpy).toHaveBeenCalled();
     expect(limitHit).toBe(true);
   });
 
@@ -60,7 +60,7 @@ describe('NewSyncLogsService', () => {
       exec: () => Promise.resolve(1)
     } as any);
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
-    expect(countDocumentsMock).toBeCalled();
+    expect(countDocumentsMock).toHaveBeenCalled();
     expect(limitHit).toBe(false);
   });
 

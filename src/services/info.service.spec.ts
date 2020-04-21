@@ -1,9 +1,9 @@
 import 'jest';
 import { Request } from 'express';
 import * as Config from '../config';
-import { ApiStatus } from '../server';
 import BookmarksService from './bookmarks.service';
 import InfoService from './info.service';
+import { ServiceStatus } from '../server';
 
 describe('InfoService', () => {
   let bookmarksService: BookmarksService;
@@ -63,7 +63,7 @@ describe('InfoService', () => {
     testConfig.status.online = true;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.status).toEqual(ApiStatus.online);
+    expect(response.status).toEqual(ServiceStatus.online);
   });
 
   it('getInfo: should return correct API status when offline', async () => {
@@ -71,7 +71,7 @@ describe('InfoService', () => {
     testConfig.status.online = false;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
     const response = await infoService.getInfo(req as Request);
-    expect(response.status).toEqual(ApiStatus.offline);
+    expect(response.status).toEqual(ServiceStatus.offline);
   });
 
   it('getInfo: should return version config value', async () => {

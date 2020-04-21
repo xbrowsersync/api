@@ -1,13 +1,17 @@
 // tslint:disable:no-empty
 
 import 'jest';
+import * as express from 'express';
+import * as http from 'http';
+import * as https from 'https';
 import * as request from 'supertest';
 import * as Config from '../../src/config';
-import Server from '../../src/server';
+import * as Server from '../../src/server';
 import InfoService from '../../src/services/info.service';
 
 describe('Server', () => {
-  let server: Server;
+  let app: express.Express;
+  let service: http.Server | https.Server;
   let testConfig: any;
 
   beforeEach(async () => {
@@ -16,14 +20,13 @@ describe('Server', () => {
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
-    server = new Server();
-    await server.init();
-    await server.start();
+    app = await Server.createApplication();
+    service = await Server.startService(app);
   });
 
   afterEach(async () => {
     jest.restoreAllMocks();
-    await server.stop();
+    await Server.stopService(service);
   });
 
   it('Should return an 500 status code when generic error occurs', async () => {
@@ -31,7 +34,7 @@ describe('Server', () => {
     jest.spyOn(InfoService.prototype, 'getInfo').mockImplementation(() => {
       throw new Error();
     });
-    const response = await request(server.Application)
+    const response = await request(app)
       .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(500);
@@ -39,36 +42,34 @@ describe('Server', () => {
 
   it('Should return a 404 status code for an invalid route', async () => {
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    const response = await request(server.Application)
+    const response = await request(app)
       .get(`${Config.get().server.relativePath}bookmarks`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(404);
   });
 
   it('Should return a 500 status code when requested api version is not supported', async () => {
-    await server.stop();
+    await Server.stopService(service);
     testConfig.allowedOrigins = ['http://test.com'];
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    server = new Server();
-    await server.init();
-    await server.start();
-    const response = await request(server.Application)
+    app = await Server.createApplication();
+    service = await Server.startService(app);
+    const response = await request(app)
       .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(500);
   });
 
   it('Should return a 429 status code when request throttling is triggered', async () => {
-    await server.stop();
+    await Server.stopService(service);
     testConfig.throttle.maxRequests = 1;
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    server = new Server();
-    await server.init();
-    await server.start();
-    await request(server.Application)
+    app = await Server.createApplication();
+    service = await Server.startService(app);
+    await request(app)
       .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
-    const response = await request(server.Application)
+    const response = await request(app)
       .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json');
     expect(response.status).toBe(429);
@@ -76,7 +77,7 @@ describe('Server', () => {
 
   it('Should return an 412 status code when requested api version is not supported', async () => {
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    const response = await request(server.Application)
+    const response = await request(app)
       .get(`${Config.get().server.relativePath}info`)
       .set('content-type', 'application/json')
       .set('accept-version', '0.0.0');

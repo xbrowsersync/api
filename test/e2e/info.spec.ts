@@ -1,10 +1,14 @@
 import 'jest';
+import * as express from 'express';
+import * as http from 'http';
+import * as https from 'https';
 import * as request from 'supertest';
 import * as Config from '../../src/config';
-import Server, { ApiStatus } from '../../src/server';
+import * as Server from '../../src/server';
 
 describe('InfoRouter', () => {
-  let server: Server;
+  let app: express.Express;
+  let service: http.Server | https.Server;
   let testConfig: any;
 
   beforeEach(async () => {
@@ -13,22 +17,21 @@ describe('InfoRouter', () => {
     testConfig.log.stdout.enabled = false;
     testConfig.db.name = testConfig.tests.db;
     testConfig.server.port = testConfig.tests.port;
-    server = new Server();
-    await server.init();
-    await server.start();
+    app = await Server.createApplication();
+    service = await Server.startService(app);
   });
 
   afterEach(async () => {
     jest.restoreAllMocks();
-    await server.stop();
+    await Server.stopService(service);
   });
 
   it('GET info: should return api status info', async () => {
     jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    const response = await request(server.Application)
+    const response = await request(app)
       .get(`${Config.get().server.relativePath}info`);
     expect(response.status).toBe(200);
     expect(typeof response.body).toBe('object');
-    expect(response.body.status).toEqual(ApiStatus.online);
+    expect(response.body.status).toEqual(Server.ServiceStatus.online);
   });
 });

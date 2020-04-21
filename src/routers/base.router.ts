@@ -1,7 +1,7 @@
 import { autobind } from 'core-decorators';
 import { Application, Router } from 'express';
 import { NotImplementedException, UnsupportedVersionException } from '../exception';
-import { ApiVerb } from '../server';
+import { Verb } from '../server';
 
 // Interface for router implementations
 export interface IApiRouter {
@@ -27,7 +27,7 @@ export default class BaseRouter<T> implements IApiRouter {
 
   // Adds a new route to this router implementation
   @autobind
-  protected createRoute(verb: ApiVerb, path: string, versionMappings: any): void {
+  protected createRoute(verb: Verb, path: string, versionMappings: any): void {
     this.router[verb](path, this.routesVersioning(versionMappings, this.unsupportedVersion));
   }
 

@@ -1,6 +1,5 @@
 import { Request } from 'express';
-import * as uuid from 'uuid';
-import * as Uuid from '../uuid';
+import BaseService from './base.service';
 import * as Config from '../config';
 import {
   InvalidSyncIdException,
@@ -9,10 +8,9 @@ import {
   SyncConflictException,
   UnspecifiedException
 } from '../exception';
-import Server, { LogLevel } from '../server';
+import * as Server from '../server';
 import BookmarksModel, { IBookmarks } from '../models/bookmarks.model';
 import NewSyncLogsService from '../services/newSyncLogs.service';
-import BaseService from './base.service';
 
 // Interface for create bookmarks operation response object
 export interface ICreateBookmarksResponse {
@@ -78,7 +76,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       if (Config.get().dailyNewSyncsLimit > 0) {
         await this.service.createLog(req);
       }
-      this.log(LogLevel.Info, 'New bookmarks sync created', req);
+      this.log(Server.LogLevel.Info, 'New bookmarks sync created', req);
 
       // Return the response data
       const returnObj: ICreateBookmarksResponse = {
@@ -88,7 +86,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return returnObj;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
   }
@@ -126,7 +124,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       if (Config.get().dailyNewSyncsLimit > 0) {
         await this.service.createLog(req);
       }
-      this.log(LogLevel.Info, 'New bookmarks sync created', req);
+      this.log(Server.LogLevel.Info, 'New bookmarks sync created', req);
 
       // Return the response data
       const returnObj: ICreateBookmarksResponse = {
@@ -137,7 +135,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return returnObj;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
   }
@@ -170,7 +168,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
     catch (err) {
       if (!(err instanceof InvalidSyncIdException)) {
-        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
+        this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
       }
       throw err;
     }
@@ -202,7 +200,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
     catch (err) {
       if (!(err instanceof InvalidSyncIdException)) {
-        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
+        this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
       }
       throw err;
     }
@@ -234,7 +232,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
     catch (err) {
       if (!(err instanceof InvalidSyncIdException)) {
-        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
+        this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
       }
       throw err;
     }
@@ -284,7 +282,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       return response;
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+      this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       throw err;
     }
   }
@@ -333,7 +331,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
     }
     catch (err) {
       if (!(err instanceof InvalidSyncIdException)) {
-        this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
+        this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       }
       throw err;
     }
@@ -347,14 +345,14 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       bookmarksCount = await BookmarksModel.estimatedDocumentCount().exec();
     }
     catch (err) {
-      this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
+      this.log(Server.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
       throw err;
     }
 
     // Ensure a valid count was returned
     if (bookmarksCount < 0) {
       const err = new UnspecifiedException('Bookmarks count cannot be less than zero');
-      this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', null, err);
+      this.log(Server.LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', null, err);
       throw err;
     }
 

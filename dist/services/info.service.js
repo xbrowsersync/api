@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Config = require("../config");
-const server_1 = require("../server");
 const base_service_1 = require("./base.service");
+const server_1 = require("../server");
 // Implementation of data service for service info operations
 class InfoService extends base_service_1.default {
     // Returns information describing the xBrowserSync service
@@ -24,14 +24,14 @@ class InfoService extends base_service_1.default {
                 location,
                 maxSyncSize: Config.get().maxSyncSize,
                 message: this.stripScriptsFromHtml(Config.get().status.message),
-                status: server_1.ApiStatus.offline,
+                status: server_1.ServiceStatus.offline,
                 version: Config.get().version
             };
             if (Config.get().status.online) {
                 try {
                     // Call service method to check if accepting new syncs
                     const acceptingNewSyncs = yield this.service.isAcceptingNewSyncs();
-                    serviceInfo.status = acceptingNewSyncs ? server_1.ApiStatus.online : server_1.ApiStatus.noNewSyncs;
+                    serviceInfo.status = acceptingNewSyncs ? server_1.ServiceStatus.online : server_1.ServiceStatus.noNewSyncs;
                 }
                 catch (err) {
                     this.log(server_1.LogLevel.Error, 'Exception occurred in InfoService.getInfo', req, err);

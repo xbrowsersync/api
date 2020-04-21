@@ -9,7 +9,7 @@ import {
   NewSyncsLimitExceededException,
   SyncConflictException
 } from '../../src/exception';
-import Server from '../../src/server';
+import * as Server from '../../src/server';
 import BookmarksModel from '../models/bookmarks.model';
 import BookmarksService from './bookmarks.service';
 import NewSyncLogsService from './newSyncLogs.service';
@@ -74,7 +74,7 @@ describe('BookmarksService', () => {
     jest.spyOn(BookmarksModel.prototype, 'save').mockResolvedValue({});
     const createLogMock = jest.spyOn(newSyncLogsService, 'createLog').mockResolvedValue({});
     await bookmarksService.createBookmarks_v2(syncVersionTestVal, req as Request);
-    expect(createLogMock).toBeCalled();
+    expect(createLogMock).toHaveBeenCalled();
   });
 
   it('getBookmarks: should throw a InvalidSyncIdException db operation returns null', async () => {
@@ -97,7 +97,7 @@ describe('BookmarksService', () => {
       } as any)
     } as any);
     const bookmarksSync = await bookmarksService.getBookmarks(null, req as Request);
-    expect(findOneAndUpdateMock).toBeCalled();
+    expect(findOneAndUpdateMock).toHaveBeenCalled();
     expect(bookmarksSync.bookmarks).toEqual(bookmarksDataTestVal);
     expect(bookmarksSync.version).toEqual(syncVersionTestVal);
     expect(bookmarksSync.lastUpdated).toEqual(createdDateTestVal);
@@ -121,7 +121,7 @@ describe('BookmarksService', () => {
       } as any)
     } as any);
     const bookmarksSync = await bookmarksService.getLastUpdated(null, req as Request);
-    expect(findOneAndUpdateMock).toBeCalled();
+    expect(findOneAndUpdateMock).toHaveBeenCalled();
     expect(bookmarksSync.lastUpdated).toEqual(createdDateTestVal);
   });
 
@@ -143,7 +143,7 @@ describe('BookmarksService', () => {
       } as any)
     } as any);
     const bookmarksSync = await bookmarksService.getVersion(null, req as Request);
-    expect(findOneAndUpdateMock).toBeCalled();
+    expect(findOneAndUpdateMock).toHaveBeenCalled();
     expect(bookmarksSync.version).toEqual(syncVersionTestVal);
   });
 
@@ -168,7 +168,7 @@ describe('BookmarksService', () => {
       exec: () => Promise.resolve(0)
     } as any);
     const isAcceptingNewSyncs = await bookmarksService.isAcceptingNewSyncs();
-    expect(estimatedDocumentCountMock).toBeCalled();
+    expect(estimatedDocumentCountMock).toHaveBeenCalled();
     expect(isAcceptingNewSyncs).toBe(true);
   });
 
@@ -179,7 +179,7 @@ describe('BookmarksService', () => {
       exec: () => Promise.resolve(1)
     } as any);
     const isAcceptingNewSyncs = await bookmarksService.isAcceptingNewSyncs();
-    expect(estimatedDocumentCountMock).toBeCalled();
+    expect(estimatedDocumentCountMock).toHaveBeenCalled();
     expect(isAcceptingNewSyncs).toBe(false);
   });
 
@@ -191,7 +191,7 @@ describe('BookmarksService', () => {
     await expect(bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, null, syncVersionTestVal, req as Request))
       .rejects
       .toThrow(InvalidSyncIdException);
-    expect(findByIdMock).toBeCalled();
+    expect(findByIdMock).toHaveBeenCalled();
   });
 
   it('updateBookmarks: should throw a SyncConflictException if supplied last updated value does not match existing bookmarks', async () => {
@@ -204,7 +204,7 @@ describe('BookmarksService', () => {
     await expect(bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, new Date().toISOString(), syncVersionTestVal, req as Request))
       .rejects
       .toThrow(SyncConflictException);
-    expect(findByIdMock).toBeCalled();
+    expect(findByIdMock).toHaveBeenCalled();
   });
 
   it('updateBookmarks: should return updated date in response when updated bookmarks', async () => {
@@ -220,8 +220,8 @@ describe('BookmarksService', () => {
       } as any)
     } as any);
     const updatedBookmarksSync = await bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, null, syncVersionTestVal, req as Request);
-    expect(findByIdMock).toBeCalled();
-    expect(findOneAndUpdateMock).toBeCalled();
+    expect(findByIdMock).toHaveBeenCalled();
+    expect(findOneAndUpdateMock).toHaveBeenCalled();
     expect(updatedBookmarksSync.lastUpdated).toEqual(createdDateTestVal);
   });
 });
