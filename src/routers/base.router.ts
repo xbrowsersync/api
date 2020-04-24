@@ -11,28 +11,28 @@ export interface IApiRouter {
 // Base class for router implementations
 // Implements the routes that are served by the api 
 export default class BaseRouter<T> implements IApiRouter {
-  protected router: Router;
-  private routesVersioning = require('express-routes-versioning')();
+  _router: Router;
+  _routesVersioning = require('express-routes-versioning')();
 
   constructor(protected app: Application, protected service?: T) {
     // Configure routes
-    this.router = Router();
+    this._router = Router();
     this.initRoutes();
   }
 
   // Initialises the routes for this router implementation
-  public initRoutes(): void {
+  initRoutes(): void {
     throw new NotImplementedException();
   }
 
   // Adds a new route to this router implementation
   @autobind
-  protected createRoute(verb: Verb, path: string, versionMappings: any): void {
-    this.router[verb](path, this.routesVersioning(versionMappings, this.unsupportedVersion));
+  createRoute(verb: Verb, path: string, versionMappings: any): void {
+    this._router[verb](path, this._routesVersioning(versionMappings, this.unsupportedVersion));
   }
 
   // Throws an error for when a requested api version is not supported
-  private unsupportedVersion(): void {
+  unsupportedVersion(): void {
     throw new UnsupportedVersionException();
   }
 }

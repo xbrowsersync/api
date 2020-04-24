@@ -15,9 +15,9 @@ class BaseRouter {
     constructor(app, service) {
         this.app = app;
         this.service = service;
-        this.routesVersioning = require('express-routes-versioning')();
+        this._routesVersioning = require('express-routes-versioning')();
         // Configure routes
-        this.router = express_1.Router();
+        this._router = express_1.Router();
         this.initRoutes();
     }
     // Initialises the routes for this router implementation
@@ -26,7 +26,7 @@ class BaseRouter {
     }
     // Adds a new route to this router implementation
     createRoute(verb, path, versionMappings) {
-        this.router[verb](path, this.routesVersioning(versionMappings, this.unsupportedVersion));
+        this._router[verb](path, this._routesVersioning(versionMappings, this.unsupportedVersion));
     }
     // Throws an error for when a requested api version is not supported
     unsupportedVersion() {

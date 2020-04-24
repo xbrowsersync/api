@@ -25,7 +25,7 @@ const Uuid = require("../uuid");
 class BookmarksRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
-        this.app.use(`${Config.get().server.relativePath}bookmarks`, this.router);
+        this.app.use(`${Config.get().server.relativePath}bookmarks`, this._router);
         this.createRoute(server_1.Verb.post, '/', {
             '~1.0.0': this.createBookmarks_v1,
             // tslint:disable-next-line:object-literal-sort-keys
@@ -113,8 +113,13 @@ class BookmarksRouter extends base_router_1.default {
     // Retrieves the sync ID from the request query string parameters
     getSyncId(req) {
         const id = req.params.id;
-        // Check id is valid
-        const binary = Uuid.convertUuidStringToBinary(id);
+        try {
+            // Check id is valid
+            Uuid.convertUuidStringToBinary(id);
+        }
+        catch (err) {
+            throw err;
+        }
         return id;
     }
     // Retrieves sync version for a given sync ID

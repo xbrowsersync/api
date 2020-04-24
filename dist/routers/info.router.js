@@ -23,7 +23,7 @@ const server_1 = require("../server");
 class InfoRouter extends base_router_1.default {
     // Initialises the routes for this router implementation
     initRoutes() {
-        this.app.use(`${Config.get().server.relativePath}info`, this.router);
+        this.app.use(`${Config.get().server.relativePath}info`, this._router);
         this.createRoute(server_1.Verb.get, '/', { '^1.0.0': this.getInfo });
     }
     // Gets service info such as status, version, etc

@@ -10,8 +10,8 @@ import * as Uuid from '../uuid';
 // Implementation of routes for bookmarks operations
 export default class BookmarksRouter extends BaseRouter<BookmarksService> implements IApiRouter {
   // Initialises the routes for this router implementation
-  public initRoutes(): void {
-    this.app.use(`${Config.get().server.relativePath}bookmarks`, this.router);
+  initRoutes(): void {
+    this.app.use(`${Config.get().server.relativePath}bookmarks`, this._router);
     this.createRoute(Verb.post, '/', {
       '~1.0.0': this.createBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys
@@ -29,7 +29,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
 
   // Creates a new bookmarks sync and returns new sync ID
   @autobind
-  private async createBookmarks_v1(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createBookmarks_v1(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
@@ -48,7 +48,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
 
   // Creates an empty sync using sync version and returns new sync ID
   @autobind
-  private async createBookmarks_v2(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createBookmarks_v2(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Get posted sync version
       const syncVersion = req.body.version;
@@ -67,7 +67,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
 
   // Retrieves an existing sync with a provided sync ID
   @autobind
-  private async getBookmarks(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getBookmarks(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
@@ -82,13 +82,13 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
   }
 
   // Retrieves posted bookmarks data from request body
-  private getBookmarksData(req: Request): string {
+  getBookmarksData(req: Request): string {
     return req.body.bookmarks || '';
   }
 
   // Retrieves last updated date for a given sync ID
   @autobind
-  private async getLastUpdated(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getLastUpdated(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
@@ -103,18 +103,23 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
   }
 
   // Retrieves the sync ID from the request query string parameters
-  private getSyncId(req: Request): string {
+  getSyncId(req: Request): string {
     const id = req.params.id;
 
-    // Check id is valid
-    const binary = Uuid.convertUuidStringToBinary(id);
+    try {
+      // Check id is valid
+      Uuid.convertUuidStringToBinary(id);
+    }
+    catch (err) {
+      throw err;
+    }
 
     return id;
   }
 
   // Retrieves sync version for a given sync ID
   @autobind
-  private async getVersion(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getVersion(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
@@ -130,7 +135,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
 
   // Updates bookmarks data for a given bookmarks sync ID
   @autobind
-  private async updateBookmarks_v1(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateBookmarks_v1(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
@@ -152,7 +157,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
 
   // Updates bookmarks sync bookmarks data and sync version for a given bookmarks sync ID
   @autobind
-  private async updateBookmarks_v2(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateBookmarks_v2(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Check sync id has been provided
       const id = this.getSyncId(req);
