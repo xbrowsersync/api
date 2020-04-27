@@ -3,11 +3,13 @@ import { Request } from 'express';
 import * as Config from '../../src/config';
 import NewSyncLogsModel from '../models/newSyncLogs.model';
 import NewSyncLogsService from './newSyncLogs.service';
+import { LogLevel } from '../server';
+import { UnspecifiedException } from '../exception';
 
 describe('NewSyncLogsService', () => {
   const testClientIPAddress = '123.456.789.0';
   let newSyncLogsService: NewSyncLogsService;
-  let testConfig: any;
+  let testConfig: Config.IConfigSettings;
 
   beforeEach(() => {
     testConfig = Config.get(true);
@@ -29,6 +31,20 @@ describe('NewSyncLogsService', () => {
     expect(savedTestLog.ipAddress).toStrictEqual(testClientIPAddress);
   });
 
+  it('createLog: should log error if encoutered when saving', async () => {
+    const errorTest = new Error();
+    jest.spyOn(NewSyncLogsModel.prototype, 'save').mockImplementation(() => {
+      throw errorTest;
+    });
+    jest.spyOn(newSyncLogsService, 'getClientIpAddress').mockReturnValue('test');
+    const logMock = jest.spyOn(newSyncLogsService, 'log').mockImplementation();
+    const req: Partial<Request> = {};
+    await expect(newSyncLogsService.createLog(req as Request))
+      .rejects
+      .toThrow(errorTest);
+    expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
+  });
+
   it('createLog: should return null if the request IP address could not be ascertained', async () => {
     const req: Partial<Request> = {};
     const response = await newSyncLogsService.createLog(req as Request);
@@ -48,6 +64,33 @@ describe('NewSyncLogsService', () => {
     const limitHit = await newSyncLogsService.newSyncsLimitHit(req as Request);
     expect(countDocumentsSpy).toHaveBeenCalled();
     expect(limitHit).toBe(true);
+  });
+
+  it('newSyncsLimitHit: should log error if encoutered when calling countDocuments on the model', async () => {
+    jest.spyOn(newSyncLogsService, 'getClientIpAddress').mockReturnValue('test');
+    const errorTest = new Error();
+    jest.spyOn(NewSyncLogsModel, 'countDocuments').mockImplementation(() => {
+      throw errorTest;
+    });
+    const logMock = jest.spyOn(newSyncLogsService, 'log').mockImplementation();
+    const req: Partial<Request> = {};
+    await expect(newSyncLogsService.newSyncsLimitHit(req as Request))
+      .rejects
+      .toThrow(errorTest);
+    expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
+  });
+
+  it('newSyncsLimitHit: should log error if countDocuments returns a value less than zero', async () => {
+    jest.spyOn(newSyncLogsService, 'getClientIpAddress').mockReturnValue('test');
+    jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
+      exec: () => Promise.resolve(-1)
+    } as any);
+    const logMock = jest.spyOn(newSyncLogsService, 'log').mockImplementation();
+    const req: Partial<Request> = {};
+    await expect(newSyncLogsService.newSyncsLimitHit(req as Request))
+      .rejects
+      .toThrow(UnspecifiedException);
+    expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, expect.any(UnspecifiedException));
   });
 
   it('newSyncsLimitHit: should return false if the request IP address has not hit the limit for daily new syncs created', async () => {

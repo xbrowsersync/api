@@ -1,4 +1,5 @@
 import 'jest';
+import { Response, Request } from 'express';
 import * as Config from '../config';
 import InfoRouter from './info.router';
 import { Verb } from '../server';
@@ -55,13 +56,13 @@ describe('InfoRouter', () => {
       getInfo: getInfoMock
     };
     const router = new InfoRouter(null, serviceTest as any);
-    const req = jest.fn();
+    const req: Partial<Request> = {};
     const sendMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       send: sendMock
     };
     const next = jest.fn();
-    await router.getInfo(req as any, res as any, next);
+    await router.getInfo(req as Request, res as Response, next);
     expect(getInfoMock).toBeCalledWith(req);
     expect(sendMock).toBeCalledWith(getInfoMockResult);
   });
@@ -76,13 +77,13 @@ describe('InfoRouter', () => {
       getInfo: getInfoMock
     };
     const router = new InfoRouter(null, serviceTest as any);
-    const req = jest.fn();
+    const req: Partial<Request> = {};
     const sendMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       send: sendMock
     };
     const next = jest.fn();
-    await router.getInfo(req as any, res as any, next);
+    await router.getInfo(req as Request, res as Response, next);
     expect(next).toBeCalledWith(errorTest);
   });
 });

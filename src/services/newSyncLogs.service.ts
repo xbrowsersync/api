@@ -8,7 +8,7 @@ import { LogLevel } from '../server';
 // Implementation of data service for new sync log operations
 export default class NewSyncLogsService extends BaseService<void> {
   // Creates a new sync log entry with the supplied request data
-  public async createLog(req: Request): Promise<INewSyncLog> {
+  async createLog(req: Request): Promise<INewSyncLog> {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
@@ -35,7 +35,7 @@ export default class NewSyncLogsService extends BaseService<void> {
   }
 
   // Returns true/false depending on whether a given request's ip address has hit the limit for daily new syncs created
-  public async newSyncsLimitHit(req: Request): Promise<boolean> {
+  async newSyncsLimitHit(req: Request): Promise<boolean> {
     // Get the client's ip address
     const clientIp = this.getClientIpAddress(req);
     if (!clientIp) {
@@ -66,7 +66,7 @@ export default class NewSyncLogsService extends BaseService<void> {
   }
 
   // Extracts the client's ip address from a given request
-  private getClientIpAddress(req: Request): string {
+  getClientIpAddress(req: Request): string {
     if (!req || !req.ip) {
       return;
     }

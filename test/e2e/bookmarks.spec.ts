@@ -14,7 +14,7 @@ describe('BookmarksRouter', () => {
   const syncIdTestVal = '426e20b680054872a46c3e1ce9a2c54e';
   let app: express.Express;
   let service: http.Server | https.Server;
-  let testConfig: any;
+  let testConfig: Config.IConfigSettings;
 
   beforeEach(async () => {
     testConfig = Config.get(true);

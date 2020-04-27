@@ -58,12 +58,18 @@ export interface IConfigSettings {
   version?: string
 }
 
-let config: IConfigSettings;
+let _cachedConfig: IConfigSettings;
+export const getCachedConfig = (): IConfigSettings => {
+  return _cachedConfig;
+}
+export const setCachedConfig = (value: IConfigSettings): void => {
+  _cachedConfig = value;
+}
 
 // Returns combined default and user-specified config settings
 export const get = (force?: boolean): IConfigSettings => {
-  if (config && !force) {
-    return config;
+  if (getCachedConfig() && !force) {
+    return getCachedConfig();
   }
 
   // Get full path to config folder
@@ -81,12 +87,12 @@ export const get = (force?: boolean): IConfigSettings => {
   // Get current version number
   const version = getPackageVersion();
 
-  config = {
+  setCachedConfig({
     ...settings,
     version
-  };
+  });
 
-  return config;
+  return getCachedConfig();
 }
 
 // Returns default config settings

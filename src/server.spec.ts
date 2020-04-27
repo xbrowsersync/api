@@ -31,7 +31,7 @@ jest.mock('helmet', () => {
 });
 
 describe('Server', () => {
-  let testConfig: any;
+  let testConfig: Config.IConfigSettings;
 
   beforeEach(() => {
     testConfig = Config.get(true);

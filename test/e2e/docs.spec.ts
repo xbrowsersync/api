@@ -9,7 +9,7 @@ import * as Server from '../../src/server';
 describe('Docs', () => {
   let app: express.Express;
   let service: http.Server | https.Server;
-  let testConfig: any;
+  let testConfig: Config.IConfigSettings;
 
   beforeEach(async () => {
     testConfig = Config.get(true);

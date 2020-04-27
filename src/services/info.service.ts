@@ -16,7 +16,7 @@ export interface IGetInfoResponse {
 // Implementation of data service for service info operations
 export default class InfoService extends BaseService<BookmarksService> {
   // Returns information describing the xBrowserSync service
-  public async getInfo(req: Request): Promise<IGetInfoResponse> {
+  async getInfo(req: Request): Promise<IGetInfoResponse> {
     // Convert location code to uppercase if set
     const location = Config.get().location && (Config.get().location as string).toUpperCase();
 
@@ -44,7 +44,7 @@ export default class InfoService extends BaseService<BookmarksService> {
   }
 
   // Removes script tags from a given HTML string
-  private stripScriptsFromHtml(html: string): string {
+  stripScriptsFromHtml(html: string): string {
     return !html ? '' : html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   }
 }

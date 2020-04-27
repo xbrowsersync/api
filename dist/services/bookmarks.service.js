@@ -115,12 +115,11 @@ class BookmarksService extends base_service_1.default {
                     throw new exception_1.InvalidSyncIdException();
                 }
                 // Return the existing bookmarks data if found 
-                const response = {};
-                if (updatedBookmarks) {
-                    response.bookmarks = updatedBookmarks.bookmarks;
-                    response.version = updatedBookmarks.version;
-                    response.lastUpdated = updatedBookmarks.lastUpdated;
-                }
+                const response = {
+                    bookmarks: updatedBookmarks.bookmarks,
+                    version: updatedBookmarks.version,
+                    lastUpdated: updatedBookmarks.lastUpdated
+                };
                 return response;
             }
             catch (err) {
@@ -143,10 +142,9 @@ class BookmarksService extends base_service_1.default {
                     throw new exception_1.InvalidSyncIdException();
                 }
                 // Return the last updated date if bookmarks data found 
-                const response = {};
-                if (updatedBookmarks) {
-                    response.lastUpdated = updatedBookmarks.lastUpdated;
-                }
+                const response = {
+                    lastUpdated: updatedBookmarks.lastUpdated
+                };
                 return response;
             }
             catch (err) {
@@ -169,10 +167,9 @@ class BookmarksService extends base_service_1.default {
                     throw new exception_1.InvalidSyncIdException();
                 }
                 // Return the last updated date if bookmarks data found 
-                const response = {};
-                if (updatedBookmarks) {
-                    response.version = updatedBookmarks.version;
-                }
+                const response = {
+                    version: updatedBookmarks.version
+                };
                 return response;
             }
             catch (err) {

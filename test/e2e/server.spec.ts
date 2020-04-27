@@ -12,7 +12,7 @@ import InfoService from '../../src/services/info.service';
 describe('Server', () => {
   let app: express.Express;
   let service: http.Server | https.Server;
-  let testConfig: any;
+  let testConfig: Config.IConfigSettings;
 
   beforeEach(async () => {
     testConfig = Config.get(true);

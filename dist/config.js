@@ -3,11 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const merge = require("deepmerge");
 const fs = require("fs");
 const path = require("path");
-let config;
+let _cachedConfig;
+exports.getCachedConfig = () => {
+    return _cachedConfig;
+};
+exports.setCachedConfig = (value) => {
+    _cachedConfig = value;
+};
 // Returns combined default and user-specified config settings
 exports.get = (force) => {
-    if (config && !force) {
-        return config;
+    if (exports.getCachedConfig() && !force) {
+        return exports.getCachedConfig();
     }
     // Get full path to config folder
     const pathToConfig = path.join(__dirname, '../config');
@@ -19,8 +25,8 @@ exports.get = (force) => {
     const settings = merge(defaultSettings, userSettings);
     // Get current version number
     const version = exports.getPackageVersion();
-    config = Object.assign(Object.assign({}, settings), { version });
-    return config;
+    exports.setCachedConfig(Object.assign(Object.assign({}, settings), { version }));
+    return exports.getCachedConfig();
 };
 // Returns default config settings
 const getDefaultSettings = (pathToConfig) => {

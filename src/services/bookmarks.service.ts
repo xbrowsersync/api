@@ -44,7 +44,7 @@ export interface IUpdateBookmarksResponse {
 // Implementation of data service for bookmarks operations
 export default class BookmarksService extends BaseService<NewSyncLogsService> {
   // Creates a new bookmarks sync with the supplied bookmarks data
-  public async createBookmarks_v1(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
+  async createBookmarks_v1(bookmarksData: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -92,7 +92,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Creates an empty sync with the supplied version info
-  public async createBookmarks_v2(syncVersion: string, req: Request): Promise<ICreateBookmarksResponse> {
+  async createBookmarks_v2(syncVersion: string, req: Request): Promise<ICreateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -141,7 +141,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Retrieves an existing bookmarks sync using the supplied sync ID
-  public async getBookmarks(id: string, req: Request): Promise<IGetBookmarksResponse> {
+  async getBookmarks(id: string, req: Request): Promise<IGetBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -158,12 +158,11 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       }
 
       // Return the existing bookmarks data if found 
-      const response: IGetBookmarksResponse = {};
-      if (updatedBookmarks) {
-        response.bookmarks = updatedBookmarks.bookmarks;
-        response.version = updatedBookmarks.version;
-        response.lastUpdated = updatedBookmarks.lastUpdated;
-      }
+      const response: IGetBookmarksResponse = {
+        bookmarks: updatedBookmarks.bookmarks,
+        version: updatedBookmarks.version,
+        lastUpdated: updatedBookmarks.lastUpdated
+      };
       return response;
     }
     catch (err) {
@@ -175,7 +174,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Returns the last updated date for the supplied sync ID
-  public async getLastUpdated(id: string, req: Request): Promise<IGetLastUpdatedResponse> {
+  async getLastUpdated(id: string, req: Request): Promise<IGetLastUpdatedResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -192,10 +191,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       }
 
       // Return the last updated date if bookmarks data found 
-      const response: IGetLastUpdatedResponse = {};
-      if (updatedBookmarks) {
-        response.lastUpdated = updatedBookmarks.lastUpdated;
-      }
+      const response: IGetLastUpdatedResponse = {
+        lastUpdated: updatedBookmarks.lastUpdated
+      };
       return response;
     }
     catch (err) {
@@ -207,7 +205,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Returns the sync version for the supplied sync ID
-  public async getVersion(id: string, req: Request): Promise<IGetVersionResponse> {
+  async getVersion(id: string, req: Request): Promise<IGetVersionResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -224,10 +222,9 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
       }
 
       // Return the last updated date if bookmarks data found 
-      const response: IGetVersionResponse = {};
-      if (updatedBookmarks) {
-        response.version = updatedBookmarks.version;
-      }
+      const response: IGetVersionResponse = {
+        version: updatedBookmarks.version
+      };
       return response;
     }
     catch (err) {
@@ -239,7 +236,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Returns true/false depending whether the service is currently accepting new syncs
-  public async isAcceptingNewSyncs(): Promise<boolean> {
+  async isAcceptingNewSyncs(): Promise<boolean> {
     // Check if allowNewSyncs config value enabled
     if (!Config.get().status.allowNewSyncs) {
       return false;
@@ -256,7 +253,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks data
-  public async updateBookmarks_v1(id: string, bookmarksData: string, req: Request): Promise<IUpdateBookmarksResponse> {
+  async updateBookmarks_v1(id: string, bookmarksData: string, req: Request): Promise<IUpdateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -288,7 +285,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Updates an existing bookmarks sync corresponding to the supplied sync ID with the supplied bookmarks and version data
-  public async updateBookmarks_v2(id: string, bookmarksData: string, lastUpdated: string, syncVersion: string, req: Request): Promise<IUpdateBookmarksResponse> {
+  async updateBookmarks_v2(id: string, bookmarksData: string, lastUpdated: string, syncVersion: string, req: Request): Promise<IUpdateBookmarksResponse> {
     // Before proceeding, check service is available
     Server.checkServiceAvailability();
 
@@ -338,7 +335,7 @@ export default class BookmarksService extends BaseService<NewSyncLogsService> {
   }
 
   // Returns the total number of existing bookmarks syncs
-  private async getBookmarksCount(): Promise<number> {
+  async getBookmarksCount(): Promise<number> {
     let bookmarksCount = -1;
 
     try {

@@ -1,4 +1,5 @@
 import 'jest';
+import { Response, Request } from 'express';
 import BookmarksRouter from './bookmarks.router';
 import * as Config from '../config';
 import { RequiredDataNotFoundException, InvalidSyncIdException } from '../exception';
@@ -107,12 +108,12 @@ describe('InfoRouter', () => {
       createBookmarks_v1: createBookmarksV1Mock
     };
     const router = new BookmarksRouter(null, serviceTest as any);
-    const req = {};
+    const req: Partial<Request> = {};
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.createBookmarks_v1(req as any, res as any, null);
+    await router.createBookmarks_v1(req as Request, res as Response, null);
     expect(getBookmarksDataMock).toHaveBeenCalledWith(req);
     expect(createBookmarksV1Mock).toHaveBeenCalledWith(bookmarksDataTest, req);
     expect(jsonMock).toHaveBeenCalledWith(createBookmarksResult);
@@ -121,13 +122,13 @@ describe('InfoRouter', () => {
   it('createBookmarks_v2: should call next with RequiredDataNotFoundException if version missing from post data', async () => {
     jest.spyOn(BookmarksRouter.prototype, 'initRoutes').mockImplementation();
     const router = new BookmarksRouter(null);
-    const req = {
+    const req: Partial<Request> = {
       body: {
         version: ''
       }
     };
     const next = jest.fn();
-    await router.createBookmarks_v2(req as any, null, next);
+    await router.createBookmarks_v2(req as Request, null, next);
     expect(next).toHaveBeenCalledWith(expect.any(RequiredDataNotFoundException));
   });
 
@@ -142,16 +143,16 @@ describe('InfoRouter', () => {
     };
     const router = new BookmarksRouter(null, serviceTest as any);
     const versionTest = '1.0.0';
-    const req = {
+    const req: Partial<Request> = {
       body: {
         version: versionTest
       }
     };
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.createBookmarks_v2(req as any, res as any, null);
+    await router.createBookmarks_v2(req as Request, res as Response, null);
     expect(createBookmarksV2Mock).toHaveBeenCalledWith(versionTest, req);
     expect(jsonMock).toHaveBeenCalledWith(createBookmarksResult);
   });
@@ -182,12 +183,12 @@ describe('InfoRouter', () => {
       getBookmarks: getBookmarksMock
     };
     const router = new BookmarksRouter(null, serviceTest as any);
-    const req = {};
+    const req: Partial<Request> = {};
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.getBookmarks(req as any, res as any, null);
+    await router.getBookmarks(req as Request, res as Response, null);
     expect(getSyncIdMock).toHaveBeenCalledWith(req);
     expect(getBookmarksMock).toHaveBeenCalledWith(getSyncIdResult, req);
     expect(jsonMock).toHaveBeenCalledWith(getBookmarksResult);
@@ -195,24 +196,24 @@ describe('InfoRouter', () => {
 
   it('getBookmarksData: should return bookmarks value from post body', async () => {
     const bookmarksDataTest = 'bookmarksDataTest';
-    const req = {
+    const req: Partial<Request> = {
       body: {
         bookmarks: bookmarksDataTest
       }
     };
     jest.spyOn(BookmarksRouter.prototype, 'initRoutes').mockImplementation();
     const router = new BookmarksRouter(null);
-    const result = router.getBookmarksData(req as any);
+    const result = router.getBookmarksData(req as Request);
     expect(result).toStrictEqual(bookmarksDataTest);
   });
 
   it('getBookmarksData: should return an empty string if bookmarks value missing from post body', async () => {
-    const req = {
+    const req: Partial<Request> = {
       body: {}
     };
     jest.spyOn(BookmarksRouter.prototype, 'initRoutes').mockImplementation();
     const router = new BookmarksRouter(null);
-    const result = router.getBookmarksData(req as any);
+    const result = router.getBookmarksData(req as Request);
     expect(result).toStrictEqual('');
   });
 
@@ -242,12 +243,12 @@ describe('InfoRouter', () => {
       getLastUpdated: getLastUpdatedMock
     };
     const router = new BookmarksRouter(null, serviceTest as any);
-    const req = {};
+    const req: Partial<Request> = {};
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.getLastUpdated(req as any, res as any, null);
+    await router.getLastUpdated(req as Request, res as Response, null);
     expect(getSyncIdMock).toHaveBeenCalledWith(req);
     expect(getLastUpdatedMock).toHaveBeenCalledWith(getSyncIdResult, req);
     expect(jsonMock).toHaveBeenCalledWith(getLastUpdatedResult);
@@ -255,7 +256,7 @@ describe('InfoRouter', () => {
 
   it('getSyncId: should throw an error if invalid id provided in request params', async () => {
     jest.spyOn(BookmarksRouter.prototype, 'initRoutes').mockImplementation();
-    const req = {
+    const req: Partial<Request> = {
       params: {}
     };
     const error = new InvalidSyncIdException();
@@ -264,21 +265,21 @@ describe('InfoRouter', () => {
     });
     const router = new BookmarksRouter(null);
     expect(() => {
-      router.getSyncId(req as any);
+      router.getSyncId(req as Request);
     }).toThrow(error);
   });
 
   it('getSyncId: should return id provided in request params', async () => {
     jest.spyOn(BookmarksRouter.prototype, 'initRoutes').mockImplementation();
     const idTest = 'idTest';
-    const req = {
+    const req: Partial<Request> = {
       params: {
         id: idTest
       }
     };
     const convertUuidStringToBinaryMock = jest.spyOn(Uuid, 'convertUuidStringToBinary').mockImplementation();
     const router = new BookmarksRouter(null);
-    const result = router.getSyncId(req as any);
+    const result = router.getSyncId(req as Request);
     expect(convertUuidStringToBinaryMock).toHaveBeenCalledWith(idTest);
     expect(result).toStrictEqual(idTest);
   });
@@ -309,12 +310,12 @@ describe('InfoRouter', () => {
       getVersion: getVersionMock
     };
     const router = new BookmarksRouter(null, serviceTest as any);
-    const req = {};
+    const req: Partial<Request> = {};
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.getVersion(req as any, res as any, null);
+    await router.getVersion(req as Request, res as Response, null);
     expect(getSyncIdMock).toHaveBeenCalledWith(req);
     expect(getVersionMock).toHaveBeenCalledWith(getSyncIdResult, req);
     expect(jsonMock).toHaveBeenCalledWith(getVersionResult);
@@ -346,12 +347,12 @@ describe('InfoRouter', () => {
       updateBookmarks_v1: updateBookmarksV1Mock
     };
     const router = new BookmarksRouter(null, serviceTest as any);
-    const req = {};
+    const req: Partial<Request> = {};
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.updateBookmarks_v1(req as any, res as any, null);
+    await router.updateBookmarks_v1(req as Request, res as Response, null);
     expect(getSyncIdMock).toHaveBeenCalledWith(req);
     expect(getBookmarksDataMock).toHaveBeenCalledWith(req);
     expect(updateBookmarksV1Mock).toHaveBeenCalledWith(getSyncIdResult, bookmarksDataTest, req);
@@ -386,17 +387,17 @@ describe('InfoRouter', () => {
     const router = new BookmarksRouter(null, serviceTest as any);
     const lastUpdatedTest = 'lastUpdatedTest';
     const versionTest = 'versionTest';
-    const req = {
+    const req: Partial<Request> = {
       body: {
         lastUpdated: lastUpdatedTest,
         version: versionTest
       }
     };
     const jsonMock = jest.fn();
-    const res = {
+    const res: Partial<Response> = {
       json: jsonMock
     };
-    await router.updateBookmarks_v2(req as any, res as any, null);
+    await router.updateBookmarks_v2(req as Request, res as Response, null);
     expect(getSyncIdMock).toHaveBeenCalledWith(req);
     expect(getBookmarksDataMock).toHaveBeenCalledWith(req);
     expect(updateBookmarksV2Mock).toHaveBeenCalledWith(getSyncIdResult, bookmarksDataTest, lastUpdatedTest, versionTest, req);
