@@ -68,7 +68,7 @@ export default class NewSyncLogsService extends BaseService<void> {
   // Extracts the client's ip address from a given request
   getClientIpAddress(req: Request): string {
     if (!req || !req.ip) {
-      return;
+      return null;
     }
 
     return req.ip;

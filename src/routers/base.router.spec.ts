@@ -3,6 +3,21 @@ import BaseRouter from './base.router';
 import { NotImplementedException, UnsupportedVersionException } from '../exception';
 import { Verb } from '../server';
 
+jest.mock('express', () => {
+  return {
+    Router: () => {
+      return {
+        'get': jest.fn()
+      };
+    }
+  };
+});
+jest.mock('express-routes-versioning', () => {
+  return () => {
+    return () => { };
+  };
+});
+
 describe('BaseRouter', () => {
   afterEach(() => {
     jest.restoreAllMocks();

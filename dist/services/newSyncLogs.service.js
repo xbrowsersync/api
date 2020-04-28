@@ -72,7 +72,7 @@ class NewSyncLogsService extends base_service_1.default {
     // Extracts the client's ip address from a given request
     getClientIpAddress(req) {
         if (!req || !req.ip) {
-            return;
+            return null;
         }
         return req.ip;
     }
