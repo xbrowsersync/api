@@ -22,16 +22,17 @@ exports.connect = (log) => {
         useNewUrlParser: true,
         useUnifiedTopology: true
     };
-    // Get db username and password
+    // Configure db credentials
     const username = Config.get().db.username || process.env.XBROWSERSYNC_DB_USER;
     const password = Config.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
+    const creds = username && password ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@` : '';
     // Connect to the host and db name defined in config settings
     let dbServerUrl = 'mongodb';
     if (Config.get().db.useSRV) {
-        dbServerUrl += `+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.get().db.host}/${Config.get().db.name}`;
+        dbServerUrl += `+srv://${creds}${Config.get().db.host}/${Config.get().db.name}`;
     }
     else {
-        dbServerUrl += `://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
+        dbServerUrl += `://${creds}${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
     }
     dbServerUrl += (Config.get().db.authSource) ? `?authSource=${Config.get().db.authSource}` : '';
     mongoose.connect(dbServerUrl, options);
@@ -42,7 +43,6 @@ exports.connect = (log) => {
         });
         dbConn.on('error', (err) => {
             log && log(server_1.LogLevel.Error, 'Database error', null, err);
-            throw err;
             reject(new Error('Unable to connect to database.'));
         });
         dbConn.once('open', resolve);

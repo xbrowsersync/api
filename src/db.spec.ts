@@ -56,7 +56,8 @@ describe('DB', () => {
   it('connect: should include username from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
-        username: usernameTest
+        username: usernameTest,
+        password: passwordTest
       }
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
@@ -73,6 +74,7 @@ describe('DB', () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
         username: usernameTest,
+        password: passwordTest,
         useSRV: true
       }
     };
@@ -97,6 +99,7 @@ describe('DB', () => {
       return Promise.resolve(require('mongoose'));
     });
     process.env.XBROWSERSYNC_DB_USER = usernameTest;
+    process.env.XBROWSERSYNC_DB_PWD = passwordTest;
     DB.connect();
     expect(connectionUri).toMatch(new RegExp(`\:\/\/${usernameTest}\:`));
   });
@@ -104,6 +107,7 @@ describe('DB', () => {
   it('connect: should include password from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
+        username: usernameTest,
         password: passwordTest
       }
     };
@@ -120,6 +124,7 @@ describe('DB', () => {
   it('connect: should include password from config settings in srv connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
+        username: usernameTest,
         password: passwordTest,
         useSRV: true
       }
@@ -144,6 +149,7 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
+    process.env.XBROWSERSYNC_DB_USER = usernameTest;
     process.env.XBROWSERSYNC_DB_PWD = passwordTest;
     DB.connect();
     expect(connectionUri).toMatch(new RegExp(`\:\/\/.*\:${passwordTest}@`));

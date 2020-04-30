@@ -3,10 +3,6 @@ node_js:
   - "lts/*"
 services:
   - mongodb
-before_script:
-  - sleep 15
-  - mongo admin --eval 'db.createUser({user:"xbsdb",pwd:"xbsdbpass",roles:[{role:"root",db:"admin"}]});'
-  - mongo xbrowsersynctest --host localhost --port 27017 --username xbsdb --password xbsdbpass --authenticationDatabase admin --eval 'db.bookmarks.count({})'
 install:
   - npm install
 script:
