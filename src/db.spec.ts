@@ -1,7 +1,8 @@
 import 'jest';
-import * as DB from './db';
-import * as Config from './config';
 import * as mongoose from 'mongoose';
+import * as Config from './config';
+import * as DB from './db';
+import { LogLevel } from './server';
 
 jest.mock('mongoose');
 
@@ -18,7 +19,11 @@ describe('DB', () => {
   });
 
   it('connect: should call mongoose.connect', async () => {
-    const connectMock = jest.spyOn(mongoose, 'connect');
+    const configSettingsTest: Config.IConfigSettings = {
+      db: {}
+    };
+    jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
+    const connectMock = jest.spyOn(mongoose, 'connect').mockImplementation();
     DB.connect();
     expect(connectMock).toHaveBeenCalled();
   });
@@ -268,6 +273,20 @@ describe('DB', () => {
     });
     DB.connect();
     expect(connectionUri).toMatch(new RegExp(`\/${dbNameTest}`));
+  });
+
+  it('connect: should exit process with error if db connection fails', async () => {
+    const configSettingsTest: Config.IConfigSettings = {
+      db: {}
+    };
+    jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
+    const exitMock = jest.spyOn(process, 'exit').mockImplementation();
+    const errorTest = new Error();
+    jest.spyOn(mongoose, 'connect').mockRejectedValue(errorTest);
+    const logMock = jest.fn();
+    await DB.connect(logMock)
+    expect(exitMock).toHaveBeenCalledWith(1);
+    expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), null, errorTest);
   });
 
   it('disconnect: should call mongoose.disconnect', async () => {

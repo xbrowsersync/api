@@ -4,7 +4,7 @@ import * as Config from './config';
 import { LogLevel } from './server';
 
 // Initialises the database connection using config settings
-export const connect = (log?: (level: LogLevel, message: string, req?: Request, err?: Error) => void): Promise<void> => {
+export const connect = async (log?: (level: LogLevel, message: string, req?: Request, err?: Error) => void): Promise<void> => {
   // Set the db connection options from config settings
   const options: mongoose.ConnectionOptions = {
     connectTimeoutMS: Config.get().db.connTimeout,
@@ -19,7 +19,7 @@ export const connect = (log?: (level: LogLevel, message: string, req?: Request, 
   const password = Config.get().db.password || process.env.XBROWSERSYNC_DB_PWD;
   const creds = username && password ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@` : '';
 
-  // Connect to the host and db name defined in config settings
+  // Create mongo connection uri using host and db name defined in config settings
   let dbServerUrl = 'mongodb';
   if (Config.get().db.useSRV) {
     dbServerUrl += `+srv://${creds}${Config.get().db.host}/${Config.get().db.name}`;
@@ -28,21 +28,15 @@ export const connect = (log?: (level: LogLevel, message: string, req?: Request, 
     dbServerUrl += `://${creds}${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
   }
   dbServerUrl += (Config.get().db.authSource) ? `?authSource=${Config.get().db.authSource}` : '';
-  mongoose.connect(dbServerUrl, options);
-  const dbConn = mongoose.connection;
 
-  return new Promise((resolve, reject) => {
-    dbConn.on('close', () => {
-      dbConn.removeAllListeners();
-    });
-
-    dbConn.on('error', (err: mongoose.Error) => {
-      log && log(LogLevel.Error, 'Database error', null, err);
-      reject(new Error('Unable to connect to database.'));
-    });
-
-    dbConn.once('open', resolve);
-  });
+  // Connect to the database
+  try {
+    await mongoose.connect(dbServerUrl, options);
+  }
+  catch (err) {
+    log && log(LogLevel.Error, 'Unable to connect to database', null, err);
+    process.exit(1);
+  }
 }
 
 // Closes the database connection
