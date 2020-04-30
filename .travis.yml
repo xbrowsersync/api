@@ -5,7 +5,7 @@ services:
   - mongodb
 before_script:
   - sleep 15
-  - mongo --eval 'db.createUser({user:"xbsdb",pwd:"xbsdbpass",roles:[{role:"root",db:"admin"}]});'
+  - mongo admin --eval 'db.createUser({user:"xbsdb",pwd:"xbsdbpass",roles:[{role:"root",db:"admin"}]});'
 install:
   - npm install
 script:
