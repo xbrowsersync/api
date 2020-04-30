@@ -42,6 +42,7 @@ exports.connect = (log) => {
         });
         dbConn.on('error', (err) => {
             log && log(server_1.LogLevel.Error, 'Database error', null, err);
+            throw err;
             reject(new Error('Unable to connect to database.'));
         });
         dbConn.once('open', resolve);

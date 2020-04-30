@@ -37,6 +37,7 @@ export const connect = (log?: (level: LogLevel, message: string, req?: Request, 
 
     dbConn.on('error', (err: mongoose.Error) => {
       log && log(LogLevel.Error, 'Database error', null, err);
+      throw err;
       reject(new Error('Unable to connect to database.'));
     });
 
