@@ -2,10 +2,10 @@ language: node_js
 node_js:
   - "lts/*"
 services:
-  - docker
-before_install:
-  - docker pull mongo:4.2
-  - docker run -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=xbsdb -e MONGO_INITDB_ROOT_PASSWORD=xbsdbpass -d mongo:4.2
+  - mongodb
+before_script:
+  - sleep 15
+  - mongo --eval 'db.createUser({user:"xbsdb",pwd:"xbsdbpass",roles:[{role:"root",db:"admin"}]});'
 install:
   - npm install
 script:
