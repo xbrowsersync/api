@@ -1,8 +1,14 @@
 language: node_js
 node_js:
   - "lts/*"
+services:
+  - docker
+before_install:
+  - docker pull mongo:4.2
+  - docker run -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=xbsdb -e MONGO_INITDB_ROOT_PASSWORD=xbsdbpass -d mongo:4.2
 install:
   - npm install
 script:
   - npm run build
   - npm run coverage
+  - npm run e2etests
