@@ -1,0 +1,636 @@
+Description: "xBrowserSync Personal API Server"
+
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ApiStageName:
+    Description: 'Name of the API Stage'
+    MaxLength: 6
+    MinLength: 3
+    Type: String
+    Default: prod
+
+Resources:
+  xBrowserSyncTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+
+  xBrowserSyncLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: xBrowserSyncLambdaPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Sid: AllowDDBAccess
+                Action:
+                  - "dynamodb:PutItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:UpdateItem"
+                Resource:
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${xBrowserSyncTable}
+              - Effect: Allow
+                Sid: LambdaMonitoringAccess
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "xray:PutTraceSegments"
+                  - "xray:PutTelemetryRecords"
+                Resource:
+                  - "*"
+
+  xBrowserSyncAPIGWRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - apigateway.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: xBrowserSyncAPIGWPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Sid: AllowDDBAccess
+                Action:
+                  - "dynamodb:GetItem"
+                Resource:
+                  - Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${xBrowserSyncTable}
+              - Effect: Allow
+                Sid: APIGWMonitoringAccess
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "logs:PutLogEvents"
+                  - "logs:GetLogEvents"
+                  - "logs:FilterLogEvents"
+                Resource:
+                  - "*"
+
+  xBrowserSyncCreateFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+          import uuid
+          import os
+          import json
+          import traceback
+          from datetime import datetime
+
+          ddb = boto3.client('dynamodb')
+          ddb_table = os.environ['DDB_TABLE']
+
+          def create_bookmark(event, context):
+              vers = event['version']
+              uniq_id = uuid.uuid4().hex[:32]
+              curr_time = datetime.utcnow().isoformat()[:-3]+'Z'
+              try:
+                  ddb_res = ddb.put_item(
+                      TableName=ddb_table,
+                      Item={
+                          'id': {'S': uniq_id},
+                          'lastUpdated': {'S': curr_time},
+                          'version': {'S': vers}
+                      }
+                  )
+                  if ddb_res['ResponseMetadata']['HTTPStatusCode'] == 200:
+                      return {
+                          'id': uniq_id,
+                          'lastUpdated': curr_time,
+                          'version': vers
+                      }
+                  else:
+                      print('DynamoDB responded with non-200 status code')
+                      print(ddb_res)
+                      return {
+                          "statusCode": 500,
+                          "body": json.dumps('DynamoDB responded with non-200 status code. Check CloudWatch Logs for details')
+                      }
+              except:
+                  print('Failed to update the DynamoDB table with id ' + uniq_id)
+                  traceback.print_exc()
+                  return {
+                          "statusCode": 500,
+                          "body": json.dumps('Failed with exception. Check CloudWatch Logs for details')
+                      }
+      Description: xBrowserSync Create Bookmark Function
+      Handler: index.create_bookmark
+      Role : !GetAtt xBrowserSyncLambdaRole.Arn
+      Runtime: python3.8
+      ReservedConcurrentExecutions: 10
+      Timeout: 20
+      Environment:
+        Variables:
+          DDB_TABLE: !Ref xBrowserSyncTable
+
+  xBrowserSyncUpdateFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        ZipFile: |
+          import boto3
+          import uuid
+          import os
+          import json
+          import traceback
+          from datetime import datetime
+
+          ddb = boto3.client('dynamodb')
+          ddb_table = os.environ['DDB_TABLE']
+
+          def update_bookmark(event, context):
+              curr_id = event['path'].split('/')[2]
+              payload = json.loads(event['body'])
+              bookmarks = payload['bookmarks']
+              lastUpdated = payload['lastUpdated']
+              if len(bookmarks) > 204800:
+                  return {
+                      "isBase64Encoded": false,
+                      "statusCode": 413,
+                      "headers": {"Access-Control-Allow-Origin": "*"},
+                      "body": json.dumps('SyncDataLimitExceededException: Sync data limit exceeded')
+                  }
+
+              try:
+                  ddb_res = ddb.get_item(
+                      TableName=ddb_table,
+                      Key={'id': {'S':curr_id}}
+                  )
+                  if 'Item' in ddb_res:
+                      item = ddb_res['Item']
+                      if item['lastUpdated']['S'] == lastUpdated:
+                          curr_time = datetime.utcnow().isoformat()[:-3]+'Z'
+                          ddb_res = ddb.update_item(
+                              TableName=ddb_table,
+                              Key={
+                                  'id': {'S': curr_id}
+                              },
+                              UpdateExpression="set lastUpdated = :ut, bookmarks = :bm",
+                              ExpressionAttributeValues={':ut': {'S': curr_time}, ':bm': {'S': bookmarks}}
+                          )
+
+                          if ddb_res['ResponseMetadata']['HTTPStatusCode'] == 200:
+                              return {
+                                  "isBase64Encoded": False,
+                                  "statusCode": 200,
+                                  "headers": {"Access-Control-Allow-Origin": "*"},
+                                  "body": json.dumps({'lastUpdated': curr_time})
+                              }
+                          else:
+                              print('DynamoDB responded with non-200 status code')
+                              print(ddb_res)
+                              return {
+                                  "isBase64Encoded": False,
+                                  "statusCode": 500,
+                                  "headers": {"Access-Control-Allow-Origin": "*"},
+                                  "body": json.dumps({"UnspecifiedException": "DynamoDB responded with non-200 status code. Check CloudWatch Logs for details"})
+                              }
+                      else:
+                          return {
+                              "isBase64Encoded": False,
+                              "statusCode": 409,
+                              "headers": {"Access-Control-Allow-Origin": "*"},
+                              "body": json.dumps({"SyncConflictException": "A sync conflict was detected"})
+                          }
+
+                  else:
+                      return {
+                          "isBase64Encoded": False,
+                          "statusCode": 401,
+                          "headers": {"Access-Control-Allow-Origin": "*"},
+                          "body": json.dumps({"InvalidSyncIdException": "Invalid sync ID"})
+                      }
+
+              except:
+                  print('Failed to access the DynamoDB table with id ' + curr_id)
+                  traceback.print_exc()
+                  return {
+                          "isBase64Encoded": False,
+                          "statusCode": 500,
+                          "headers": {"Access-Control-Allow-Origin": "*"},
+                          "body": json.dumps({"UnspecifiedExceptio": "Failed with exception. Check CloudWatch Logs for details"})
+                      }
+      Description: xBrowserSync Update Bookmark Function
+      Handler: index.update_bookmark
+      Role : !GetAtt xBrowserSyncLambdaRole.Arn
+      ReservedConcurrentExecutions: 20
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          DDB_TABLE: !Ref xBrowserSyncTable
+
+  xBrowserSyncAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: xBrowserSync
+      Description: xBrowserSync API
+      Body:
+        openapi: "3.0.1"
+        info:
+          title: "xBrowserSync"
+          description: "xBrowserSync API"
+          version: "1.0.0"
+        paths:
+          /bookmarks/{id}/version:
+            get:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                credentials: !GetAtt xBrowserSyncAPIGWRole.Arn
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                    responseTemplates:
+                      application/json: "#set($resRoot = $input.path('$')){\"version\":\"$resRoot.Item.version.S\"}"
+                requestTemplates:
+                  application/json: !Sub "{\"TableName\":\"${xBrowserSyncTable}\",\"Key\":{\"id\":{\"S\":\"$input.params('id')\"}}}"
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws"
+            options:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          /bookmarks/{id}:
+            get:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                credentials: !GetAtt xBrowserSyncAPIGWRole.Arn
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                    responseTemplates:
+                      application/json: "#set($resRoot = $input.path('$')){\"bookmarks\":\"$resRoot.Item.bookmarks.S\",\"lastUpdated\":\"$resRoot.Item.lastUpdated.S\",\"version\":\"$resRoot.Item.version.S\"}"
+                requestTemplates:
+                  application/json: !Sub "{\"TableName\": \"${xBrowserSyncTable}\",\"Key\":{\"id\":{\"S\": \"$input.params('id')\"}}}"
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws"
+            put:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${xBrowserSyncUpdateFunction.Arn}/invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws_proxy"
+            options:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          /bookmarks:
+            post:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                  content: {}
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${xBrowserSyncCreateFunction.Arn}/invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: "when_no_templates"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws"
+            options:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          /bookmarks/{id}/lastUpdated:
+            get:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                credentials: !GetAtt xBrowserSyncAPIGWRole.Arn
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:dynamodb:action/GetItem"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                    responseTemplates:
+                      application/json: "#set($resRoot = $input.path('$')){\"lastUpdated\":\"$resRoot.Item.lastUpdated.S\"}"
+                requestTemplates:
+                  application/json: !Sub "{\"TableName\": \"${xBrowserSyncTable}\",\"Key\":{\"id\":{\"S\": \"$input.params('id')\"}}}"
+                passthroughBehavior: "never"
+                httpMethod: "POST"
+                type: "aws"
+            options:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          /info:
+            get:
+              responses:
+                "500":
+                  description: "500 response"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Error"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                    responseTemplates:
+                      application/json: "{\"maxSyncSize\": 399500,\"message\": \"Personal xBrowsersync API\",\"status\": 1,\"version\": \"1.1.12\"}"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+            options:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: "string"
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: "string"
+                  content:
+                    application/json:
+                      schema:
+                        $ref: "#/components/schemas/Empty"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+
+  xBrowserSyncAPIDeployment:
+    Type: 'AWS::ApiGateway::Deployment'
+    Properties:
+      RestApiId: !Ref xBrowserSyncAPI
+      Description: Production Deployment
+      StageName: !Ref ApiStageName
+      StageDescription:
+        LoggingLevel: ERROR
+        ThrottlingRateLimit: 10
+        ThrottlingBurstLimit: 50
+
+
+  xBrowserSyncCreatePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt xBrowserSyncCreateFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${xBrowserSyncAPI}/*/POST/bookmarks
+
+  xBrowserSyncUpdatePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt xBrowserSyncUpdateFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${xBrowserSyncAPI}/*/PUT/bookmarks/*
+
+Outputs:
+  APIEndpoint:
+    Value: !Sub https://${xBrowserSyncAPI}.execute-api.${AWS::Region}.amazonaws.com/${ApiStageName}
