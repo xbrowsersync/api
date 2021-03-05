@@ -24,7 +24,7 @@ Once you have installed Docker you can use the [xBrowserSync API Docker image](h
 
 ## Manual installation
 
-Whilst running in a Docker container is the recommended way to run your xBrowserSync service, you can 
+Whilst running in a Docker container is the recommended way to run your xBrowserSync service, you can self-host xBrowserSync instead by performing a manual installation on your own server by installing the two dependencies listed as prerequisites and following the six easy steps below:
 
 ### Prerequisites
 
