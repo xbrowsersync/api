@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -27,7 +27,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const enums_1 = require("./common/enums");
 const Config = __importStar(require("./config"));
 // Initialises the database connection using config settings
-exports.connect = async (log) => {
+const connect = async (log) => {
     // Set the db connection options from config settings
     const options = {
         connectTimeoutMS: Config.get().db.connTimeout,
@@ -60,7 +60,9 @@ exports.connect = async (log) => {
         process.exit(1);
     }
 };
+exports.connect = connect;
 // Closes the database connection
-exports.disconnect = async () => {
+const disconnect = async () => {
     await mongoose_1.default.disconnect();
 };
+exports.disconnect = disconnect;

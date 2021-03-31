@@ -3,7 +3,6 @@ import bunyan from 'bunyan';
 import cors from 'cors';
 import express from 'express';
 import fs from 'fs';
-import helmet from 'helmet';
 import http from 'http';
 import https from 'https';
 import mkdirp from 'mkdirp';
@@ -26,13 +25,6 @@ let corsConfig: cors.CorsOptions;
 jest.mock('cors', () => {
   return jest.fn().mockImplementation((config: cors.CorsOptions) => {
     corsConfig = config;
-  });
-});
-
-let helmetConfig: helmet.IHelmetConfiguration;
-jest.mock('helmet', () => {
-  return jest.fn().mockImplementation((config: helmet.IHelmetConfiguration) => {
-    helmetConfig = config;
   });
 });
 
@@ -247,41 +239,6 @@ describe('Server', () => {
     expect(() => {
       Server.initApplication(app);
     }).toThrowError();
-  });
-
-  it('initApplication: should add helmet config to application', () => {
-    const configSettingsTest: Config.IConfigSettings = {
-      allowedOrigins: [],
-      log: {
-        file: {
-          enabled: false,
-        },
-        stdout: {
-          enabled: false,
-        },
-      },
-      server: {
-        behindProxy: false,
-      },
-      throttle: {
-        maxRequests: 0,
-      },
-    };
-    jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    const useMock = jest.fn().mockImplementation((callback) => {
-      try {
-        callback();
-      } catch {}
-    });
-    const app: any = {
-      enable: jest.fn(),
-      options: jest.fn(),
-      use: useMock,
-    };
-    Server.initApplication(app);
-    expect(helmet).toHaveBeenCalled();
-    expect(helmetConfig.contentSecurityPolicy).not.toBeNull();
-    expect(helmetConfig.referrerPolicy).toBe(true);
   });
 
   it('initApplication: should limit size of json encoded request bodies by default to 512000', () => {
@@ -847,7 +804,7 @@ describe('Server', () => {
     jest.spyOn(http, 'createServer').mockReturnValue({
       listen: jest.fn().mockReturnValue(serverTest),
     } as any);
-    jest.spyOn(process, 'on').mockImplementation((event: string, callback): any => {
+    jest.spyOn(process, 'on').mockImplementation((event: string | symbol, callback): any => {
       if (event === 'SIGINT') {
         callback(null, null, null);
       }
@@ -879,7 +836,7 @@ describe('Server', () => {
     jest.spyOn(http, 'createServer').mockReturnValue({
       listen: jest.fn().mockReturnValue(serverTest),
     } as any);
-    jest.spyOn(process, 'on').mockImplementation((event: string, callback): any => {
+    jest.spyOn(process, 'on').mockImplementation((event: string | symbol, callback): any => {
       if (event === 'SIGUSR1') {
         callback(null, null, null);
       }
@@ -911,7 +868,7 @@ describe('Server', () => {
     jest.spyOn(http, 'createServer').mockReturnValue({
       listen: jest.fn().mockReturnValue(serverTest),
     } as any);
-    jest.spyOn(process, 'on').mockImplementation((event: string, callback): any => {
+    jest.spyOn(process, 'on').mockImplementation((event: string | symbol, callback): any => {
       if (event === 'SIGUSR2') {
         callback(null, null, null);
       }

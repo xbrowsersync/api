@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -27,7 +27,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const uuid = __importStar(require("uuid"));
 const uuid_parse_1 = __importDefault(require("uuid-parse"));
 const exception_1 = require("./exception");
-exports.convertBytesToUuidString = (bytes) => {
+const convertBytesToUuidString = (bytes) => {
     if (!bytes) {
         return null;
     }
@@ -39,7 +39,8 @@ exports.convertBytesToUuidString = (bytes) => {
     }
     return uuid_parse_1.default.unparse(bytes).replace(/-/g, '');
 };
-exports.convertUuidStringToBinary = (uuidString) => {
+exports.convertBytesToUuidString = convertBytesToUuidString;
+const convertUuidStringToBinary = (uuidString) => {
     if (!uuidString) {
         return null;
     }
@@ -50,7 +51,7 @@ exports.convertUuidStringToBinary = (uuidString) => {
     try {
         const buffer = uuid_parse_1.default.parse(uuidString);
         binary = new mongoose_1.default.Types.Buffer(buffer).toObject(0x04);
-        if (this.convertBytesToUuidString(binary.buffer) !== uuidString.replace(/-/g, '')) {
+        if (exports.convertBytesToUuidString(binary.buffer) !== uuidString.replace(/-/g, '')) {
             throw new Error();
         }
     }
@@ -59,7 +60,9 @@ exports.convertUuidStringToBinary = (uuidString) => {
     }
     return binary;
 };
-exports.generateRandomUuid = () => {
+exports.convertUuidStringToBinary = convertUuidStringToBinary;
+const generateRandomUuid = () => {
     const buffer = uuid.v4(null, Buffer.alloc(16));
     return new mongoose_1.default.Types.Buffer(buffer).toObject(0x04);
 };
+exports.generateRandomUuid = generateRandomUuid;

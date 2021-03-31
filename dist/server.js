@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -46,14 +46,15 @@ const info_service_1 = require("./services/info.service");
 const newSyncLogs_service_1 = require("./services/newSyncLogs.service");
 let logger;
 // Cleans up server connections when stopping the service
-exports.cleanupServer = async (server) => {
+const cleanupServer = async (server) => {
     exports.logMessage(enums_1.LogLevel.Info, `Service shutting down`);
     await DB.disconnect();
     server.removeAllListeners();
     process.removeAllListeners();
 };
+exports.cleanupServer = cleanupServer;
 // Creates a new express application, configures routes and connects to the database
-exports.createApplication = async () => {
+const createApplication = async () => {
     const app = express_1.default();
     try {
         exports.initApplication(app);
@@ -68,8 +69,9 @@ exports.createApplication = async () => {
     }
     return app;
 };
+exports.createApplication = createApplication;
 // Creates a new bunyan logger for the module
-exports.createLogger = (logStreams) => {
+const createLogger = (logStreams) => {
     try {
         logger = bunyan_1.default.createLogger({
             name: 'xBrowserSync_api',
@@ -83,8 +85,9 @@ exports.createLogger = (logStreams) => {
         throw err;
     }
 };
+exports.createLogger = createLogger;
 // Handles and logs api errors
-exports.handleError = (err, req, res) => {
+const handleError = (err, req, res) => {
     if (!err) {
         return;
     }
@@ -108,8 +111,9 @@ exports.handleError = (err, req, res) => {
     res.status(err.status || 500);
     res.json(responseObj);
 };
+exports.handleError = handleError;
 // Initialises the express application and middleware
-exports.initApplication = (app) => {
+const initApplication = (app) => {
     const logStreams = [];
     // Enabled logging to stdout if required
     if (Config.get().log.stdout.enabled) {
@@ -147,13 +151,7 @@ exports.initApplication = (app) => {
         exports.createLogger(logStreams);
     }
     // Create helmet config for security hardening
-    const helmetConfig = {
-        contentSecurityPolicy: {
-            directives: { defaultSrc: ["'self'"] },
-        },
-        referrerPolicy: true,
-    };
-    app.use(helmet_1.default(helmetConfig));
+    app.use(helmet_1.default());
     app.use(nocache_1.default());
     // Add default version to request if not supplied
     app.use((req, res, next) => {
@@ -183,7 +181,6 @@ exports.initApplication = (app) => {
         }
         : undefined;
     app.use(cors_1.default(corsOptions));
-    app.options('*', cors_1.default(corsOptions));
     // Add thottling if enabled
     if (Config.get().throttle.maxRequests > 0) {
         app.use(express_rate_limit_1.default({
@@ -195,8 +192,9 @@ exports.initApplication = (app) => {
         }));
     }
 };
+exports.initApplication = initApplication;
 // Configures api routing
-exports.initRoutes = (app) => {
+const initRoutes = (app) => {
     const router = express_1.default.Router();
     app.use(Config.get().server.relativePath, router);
     // Initialise services
@@ -213,8 +211,9 @@ exports.initRoutes = (app) => {
         next(err);
     });
 };
+exports.initRoutes = initRoutes;
 // Logs messages and errors to console and to file (if enabled)
-exports.logMessage = (level, message, req, err) => {
+const logMessage = (level, message, req, err) => {
     if (!logger) {
         return;
     }
@@ -228,8 +227,9 @@ exports.logMessage = (level, message, req, err) => {
             break;
     }
 };
+exports.logMessage = logMessage;
 // Starts the api service
-exports.startService = async (app) => {
+const startService = async (app) => {
     // Check if location is valid before starting
     if (!Location.validateLocationCode(Config.get().location)) {
         exports.logMessage(enums_1.LogLevel.Error, `Location is not a valid country code, exiting`);
@@ -278,8 +278,9 @@ exports.startService = async (app) => {
     });
     return server;
 };
+exports.startService = startService;
 // Stops the api service
-exports.stopService = (server) => {
+const stopService = (server) => {
     return new Promise((resolve) => {
         server.close(async () => {
             await exports.cleanupServer(server);
@@ -287,3 +288,4 @@ exports.stopService = (server) => {
         });
     });
 };
+exports.stopService = stopService;

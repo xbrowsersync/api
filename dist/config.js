@@ -8,14 +8,16 @@ const deepmerge_1 = __importDefault(require("deepmerge"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 let cachedConfig;
-exports.getCachedConfig = () => {
+const getCachedConfig = () => {
     return cachedConfig;
 };
-exports.setCachedConfig = (value) => {
+exports.getCachedConfig = getCachedConfig;
+const setCachedConfig = (value) => {
     cachedConfig = value;
 };
+exports.setCachedConfig = setCachedConfig;
 // Returns combined default and user-specified config settings
-exports.get = (force) => {
+const get = (force) => {
     if (exports.getCachedConfig() && !force) {
         return exports.getCachedConfig();
     }
@@ -32,18 +34,20 @@ exports.get = (force) => {
     exports.setCachedConfig(Object.assign(Object.assign({}, settings), { version }));
     return exports.getCachedConfig();
 };
+exports.get = get;
 // Returns default config settings
 const getDefaultSettings = (pathToConfig) => {
     const pathToSettings = path_1.default.join(pathToConfig, 'settings.default.json');
     return require(pathToSettings);
 };
 // Returns version number from package.json
-exports.getPackageVersion = () => {
+const getPackageVersion = () => {
     const packageJson = require('../package.json');
     return packageJson.version;
 };
+exports.getPackageVersion = getPackageVersion;
 // Returns user-specified config settings
-exports.getUserSettings = (pathToConfig) => {
+const getUserSettings = (pathToConfig) => {
     const pathToUserSettings = path_1.default.join(pathToConfig, 'settings.json');
     let userSettings = {};
     if (fs_1.default.existsSync(pathToUserSettings)) {
@@ -51,3 +55,4 @@ exports.getUserSettings = (pathToConfig) => {
     }
     return userSettings;
 };
+exports.getUserSettings = getUserSettings;

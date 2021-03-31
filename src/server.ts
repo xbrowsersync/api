@@ -142,13 +142,7 @@ export const initApplication = (app: express.Express): void => {
   }
 
   // Create helmet config for security hardening
-  const helmetConfig: helmet.IHelmetConfiguration = {
-    contentSecurityPolicy: {
-      directives: { defaultSrc: ["'self'"] },
-    },
-    referrerPolicy: true,
-  };
-  app.use(helmet(helmetConfig));
+  app.use(helmet());
   app.use(noCache());
 
   // Add default version to request if not supplied
@@ -184,7 +178,6 @@ export const initApplication = (app: express.Express): void => {
         }
       : undefined;
   app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions));
 
   // Add thottling if enabled
   if (Config.get().throttle.maxRequests > 0) {

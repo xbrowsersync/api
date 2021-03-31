@@ -2,13 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateLocationCode = exports.setCountryNames = exports.getCountryNameFromLocationCode = void 0;
 const country_list_1 = require("country-list");
-exports.getCountryNameFromLocationCode = (locationCode) => {
+const getCountryNameFromLocationCode = (locationCode) => {
     if (!locationCode) {
         return null;
     }
     return country_list_1.getName(locationCode);
 };
-exports.setCountryNames = () => {
+exports.getCountryNameFromLocationCode = getCountryNameFromLocationCode;
+const setCountryNames = () => {
     country_list_1.overwrite([
         {
             code: 'GB',
@@ -16,7 +17,8 @@ exports.setCountryNames = () => {
         },
     ]);
 };
-exports.validateLocationCode = (locationCode) => {
+exports.setCountryNames = setCountryNames;
+const validateLocationCode = (locationCode) => {
     if (!locationCode) {
         return true;
     }
@@ -26,3 +28,4 @@ exports.validateLocationCode = (locationCode) => {
     }
     return true;
 };
+exports.validateLocationCode = validateLocationCode;

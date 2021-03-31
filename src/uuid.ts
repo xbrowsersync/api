@@ -33,7 +33,7 @@ export const convertUuidStringToBinary = (uuidString: string): Binary => {
   try {
     const buffer = uuidParse.parse(uuidString);
     binary = new mongoose.Types.Buffer(buffer).toObject(0x04);
-    if (this.convertBytesToUuidString(binary.buffer) !== uuidString.replace(/-/g, '')) {
+    if (convertBytesToUuidString(binary.buffer) !== uuidString.replace(/-/g, '')) {
       throw new Error();
     }
   } catch (err) {
