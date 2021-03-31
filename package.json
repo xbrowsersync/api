@@ -16,7 +16,7 @@
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "echo Running unit/integration tests... & jest --clearCache && jest --config jestconfig.unit.json --runInBand",
     "test:e2e": "echo Running e2e tests... & jest --clearCache && jest --config jestconfig.e2e.json --runInBand",
-    "coverage": "npm run test -- --coverage && coveralls < coverage/lcov.info",
+    "coverage": "mkdir coverage && npm run test:unit -- --coverage && coveralls < coverage/lcov.info",
     "lint": "echo Running lint... & eslint src && stylelint src/**/*.scss",
     "clean": "rimraf ./dist",
     "build:docs:dev": "echo Building docs (dev mode)... & webpack --config webpack.config.js --mode development",

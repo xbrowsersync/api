@@ -8,4 +8,4 @@ install:
 script:
   - npm run build
   - npm run coverage
-  - npm run test
+  - npm run test:e2e
