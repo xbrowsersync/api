@@ -1,33 +1,29 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { autobind } from 'core-decorators';
-import * as DOMPurify from 'dompurify';
-import 'es6-shim';
-import * as marked from 'marked';
-import * as SmoothScroll from 'smooth-scroll';
 import 'typeface-roboto-condensed';
-import 'whatwg-fetch';
+import DOMPurify from 'dompurify';
+import marked from 'marked';
+import SmoothScroll from 'smooth-scroll';
+import { getCountryNameFromLocationCode, setCountryNames } from '../location';
 import { IGetInfoResponse } from '../services/info.service';
-import * as Location from '../location';
 
 // API home page and documentation
 class DocsPage {
   // Initialises the page once DOM is ready
-  @autobind
-  public async init(): Promise<void> {
+  init = async (): Promise<void> => {
     // Enable resonsive menu
     this.enableMenu();
 
     // Update list of country names where necessary
-    Location.setCountryNames();
+    setCountryNames();
 
     // Check service status
     this.checkStatus();
 
     // Enable smooth scrolling of page links
-    new SmoothScroll('a[href*="#"]', {
-      updateURL: false
+    SmoothScroll('a[href*="#"]', {
+      updateURL: false,
     });
-  }
+  };
 
   private async checkStatus() {
     const serviceInfoEl = document.querySelector('.serviceinfo');
@@ -38,7 +34,7 @@ class DocsPage {
 
     // Display current status and version for this xBrowserSync service
     try {
-      const response = await fetch(`${location.pathname}info`);
+      const response = await fetch(`${window.location.pathname}info`);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -52,13 +48,13 @@ class DocsPage {
 
         // If the server has configured a location, display it
         if (apiInfo.location) {
-          locationEl.querySelector('span').innerText = Location.getCountryNameFromLocationCode(apiInfo.location);
+          locationEl.querySelector('span').innerText = getCountryNameFromLocationCode(apiInfo.location);
           locationEl.classList.add('d-block');
         }
 
         // If the server has configured a message, display it
         if (apiInfo.message) {
-          serverMessageEl.innerHTML = DOMPurify.sanitize(marked(apiInfo.message));
+          serverMessageEl.innerHTML = DOMPurify.sanitize(marked(apiInfo.message), {});
         }
       }
 
@@ -77,10 +73,10 @@ class DocsPage {
           currentStatusEl.className = 'text-danger';
           break;
       }
-    }
-    catch (err) {
+    } catch (err) {
       currentStatusEl.textContent = 'Offline';
       currentStatusEl.className = 'text-danger';
+      // eslint-disable-next-line no-console
       console.error(err);
     }
   }
@@ -95,8 +91,7 @@ class DocsPage {
         navbar.classList.remove('open');
         toggle.classList.remove('hide');
         document.body.classList.remove('noscroll');
-      }
-      else {
+      } else {
         navbar.classList.add('open');
         toggle.classList.add('hide');
         document.body.classList.add('noscroll');
@@ -104,14 +99,14 @@ class DocsPage {
     };
 
     // Enable menu button
-    toggle.addEventListener('click', e => {
+    toggle.addEventListener('click', () => {
       toggleMenu();
     });
 
     // Hide menu when nav link is clicked
     const navbarLinks = navbar.querySelectorAll('a');
-    Array.from(navbarLinks).forEach(link => {
-      link.addEventListener('click', e => {
+    Array.from(navbarLinks).forEach((link) => {
+      link.addEventListener('click', () => {
         toggleMenu();
       });
     });

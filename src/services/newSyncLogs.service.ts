@@ -1,12 +1,12 @@
 import { Request } from 'express';
-import BaseService from './base.service';
+import { LogLevel } from '../common/enums';
 import * as Config from '../config';
 import { UnspecifiedException } from '../exception';
-import NewSyncLogsModel, { INewSyncLog } from '../models/newSyncLogs.model';
-import { LogLevel } from '../server';
+import { INewSyncLog, NewSyncLogsModel } from '../models/newSyncLogs.model';
+import { ApiService } from './api.service';
 
 // Implementation of data service for new sync log operations
-export default class NewSyncLogsService extends BaseService<void> {
+export class NewSyncLogsService extends ApiService<void> {
   // Creates a new sync log entry with the supplied request data
   async createLog(req: Request): Promise<INewSyncLog> {
     // Get the client's ip address
@@ -18,15 +18,14 @@ export default class NewSyncLogsService extends BaseService<void> {
 
     // Create new sync log payload
     const newLogPayload: INewSyncLog = {
-      ipAddress: clientIp
+      ipAddress: clientIp,
     };
     const newSyncLogsModel = new NewSyncLogsModel(newLogPayload);
 
     // Commit the payload to the db
     try {
       await newSyncLogsModel.save();
-    }
-    catch (err) {
+    } catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.createLog', req, err);
       throw err;
     }
@@ -48,8 +47,7 @@ export default class NewSyncLogsService extends BaseService<void> {
     // Query the newsynclogs collection for the total number of logs for the given ip address
     try {
       newSyncsCreated = await NewSyncLogsModel.countDocuments({ ipAddress: clientIp }).exec();
-    }
-    catch (err) {
+    } catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
       throw err;
     }

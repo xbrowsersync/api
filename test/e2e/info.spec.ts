@@ -1,8 +1,9 @@
 import 'jest';
-import * as express from 'express';
-import * as http from 'http';
-import * as https from 'https';
-import * as request from 'supertest';
+import express from 'express';
+import http from 'http';
+import https from 'https';
+import request from 'supertest';
+import { ServiceStatus } from '../../src/common/enums';
 import * as Config from '../../src/config';
 import * as Server from '../../src/server';
 
@@ -27,11 +28,12 @@ describe('InfoRouter', () => {
   });
 
   it('GET info: should return api status info', async () => {
-    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    const response = await request(app)
-      .get(`${Config.get().server.relativePath}info`);
+    jest.spyOn(Config, 'get').mockImplementation(() => {
+      return testConfig;
+    });
+    const response = await request(app).get(`${Config.get().server.relativePath}info`);
     expect(response.status).toBe(200);
     expect(typeof response.body).toBe('object');
-    expect(response.body.status).toStrictEqual(Server.ServiceStatus.online);
+    expect(response.body.status).toStrictEqual(ServiceStatus.online);
   });
 });

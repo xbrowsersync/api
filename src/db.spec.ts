@@ -1,8 +1,8 @@
 import 'jest';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
+import { LogLevel } from './common/enums';
 import * as Config from './config';
-import * as DB from './db';
-import { LogLevel } from './server';
+import { connect, disconnect } from './db';
 
 jest.mock('mongoose');
 
@@ -20,17 +20,17 @@ describe('DB', () => {
 
   it('connect: should call mongoose.connect', async () => {
     const configSettingsTest: Config.IConfigSettings = {
-      db: {}
+      db: {},
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const connectMock = jest.spyOn(mongoose, 'connect').mockImplementation();
-    DB.connect();
+    connect();
     expect(connectMock).toHaveBeenCalled();
   });
 
   it('connect: should use standard connection uri by default', async () => {
     const configSettingsTest: Config.IConfigSettings = {
-      db: {}
+      db: {},
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -38,15 +38,15 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`mongodb\:\/\/`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`mongodb://`));
   });
 
   it('connect: should use srv connection uri if specified in config settings', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
-        useSRV: true
-      }
+        useSRV: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -54,16 +54,16 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`mongodb\\+srv\:\/\/`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`mongodb\\+srv://`));
   });
 
   it('connect: should include username from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
         username: usernameTest,
-        password: passwordTest
-      }
+        password: passwordTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -71,8 +71,8 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:\/\/${usernameTest}\:`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`://${usernameTest}:`));
   });
 
   it('connect: should include username from config settings in srv connection uri', async () => {
@@ -80,8 +80,8 @@ describe('DB', () => {
       db: {
         username: usernameTest,
         password: passwordTest,
-        useSRV: true
-      }
+        useSRV: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -89,13 +89,13 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:\/\/${usernameTest}\:`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`://${usernameTest}:`));
   });
 
   it('connect: should include username from environment variables in connection uri if no username defined in config settings', async () => {
     const configSettingsTest: Config.IConfigSettings = {
-      db: {}
+      db: {},
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -105,16 +105,16 @@ describe('DB', () => {
     });
     process.env.XBROWSERSYNC_DB_USER = usernameTest;
     process.env.XBROWSERSYNC_DB_PWD = passwordTest;
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:\/\/${usernameTest}\:`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`://${usernameTest}:`));
   });
 
   it('connect: should include password from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
         username: usernameTest,
-        password: passwordTest
-      }
+        password: passwordTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -122,8 +122,8 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:\/\/.*\:${passwordTest}@`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`://.*:${passwordTest}@`));
   });
 
   it('connect: should include password from config settings in srv connection uri', async () => {
@@ -131,8 +131,8 @@ describe('DB', () => {
       db: {
         username: usernameTest,
         password: passwordTest,
-        useSRV: true
-      }
+        useSRV: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -140,13 +140,13 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:\/\/.*\:${passwordTest}@`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`://.*:${passwordTest}@`));
   });
 
   it('connect: should include password from environment variables in connection uri if no password defined in config settings', async () => {
     const configSettingsTest: Config.IConfigSettings = {
-      db: {}
+      db: {},
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -156,15 +156,15 @@ describe('DB', () => {
     });
     process.env.XBROWSERSYNC_DB_USER = usernameTest;
     process.env.XBROWSERSYNC_DB_PWD = passwordTest;
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:\/\/.*\:${passwordTest}@`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`://.*:${passwordTest}@`));
   });
 
   it('connect: should include authSource from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
-        authSource: authSourceTest
-      }
+        authSource: authSourceTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -172,7 +172,7 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
+    connect();
     expect(connectionUri).toMatch(new RegExp(`\\?authSource=${authSourceTest}$`));
   });
 
@@ -180,8 +180,8 @@ describe('DB', () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
         authSource: authSourceTest,
-        useSRV: true
-      }
+        useSRV: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -189,15 +189,15 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
+    connect();
     expect(connectionUri).toMatch(new RegExp(`\\?authSource=${authSourceTest}$`));
   });
 
   it('connect: should include hostname from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
-        host: hostnameTest
-      }
+        host: hostnameTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -205,7 +205,7 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
+    connect();
     expect(connectionUri).toMatch(new RegExp(`@${hostnameTest}`));
   });
 
@@ -213,8 +213,8 @@ describe('DB', () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
         host: hostnameTest,
-        useSRV: true
-      }
+        useSRV: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -222,15 +222,15 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
+    connect();
     expect(connectionUri).toMatch(new RegExp(`@${hostnameTest}`));
   });
 
   it('connect: should include port from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
-        port: portTest
-      }
+        port: portTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -238,15 +238,15 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\:${portTest}\/`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`:${portTest}/`));
   });
 
   it('connect: should include db name from config settings in standard connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
-        name: dbNameTest
-      }
+        name: dbNameTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -254,16 +254,16 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\/${dbNameTest}`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`/${dbNameTest}`));
   });
 
   it('connect: should include db name from config settings in srv connection uri', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       db: {
         name: dbNameTest,
-        useSRV: true
-      }
+        useSRV: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     let connectionUri: string;
@@ -271,27 +271,27 @@ describe('DB', () => {
       connectionUri = args[0];
       return Promise.resolve(require('mongoose'));
     });
-    DB.connect();
-    expect(connectionUri).toMatch(new RegExp(`\/${dbNameTest}`));
+    connect();
+    expect(connectionUri).toMatch(new RegExp(`/${dbNameTest}`));
   });
 
   it('connect: should exit process with error if db connection fails', async () => {
     const configSettingsTest: Config.IConfigSettings = {
-      db: {}
+      db: {},
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const exitMock = jest.spyOn(process, 'exit').mockImplementation();
     const errorTest = new Error();
     jest.spyOn(mongoose, 'connect').mockRejectedValue(errorTest);
     const logMock = jest.fn();
-    await DB.connect(logMock)
+    await connect(logMock);
     expect(exitMock).toHaveBeenCalledWith(1);
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), null, errorTest);
   });
 
   it('disconnect: should call mongoose.disconnect', async () => {
     const disconnectMock = jest.spyOn(mongoose, 'disconnect');
-    DB.disconnect();
+    disconnect();
     expect(disconnectMock).toHaveBeenCalled();
   });
 });

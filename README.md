@@ -158,9 +158,7 @@ If you've made code changes you can run a fresh build with the command:
 
 ## Testing
 
-To run unit/integration tests, run the following command:
-
-    $ npm run test
+The project includes unit, integration and end to end tests.
 
 To run end to end tests, you will need to create the test database first. Run the following commands in the mongo shell:
 
@@ -173,7 +171,7 @@ To run end to end tests, you will need to create the test database first. Run th
 
 You can then run the end to end tests by running the following command:
 
-    $ npm run e2etests
+    $ npm run test
 
 ## Upgrading from an earlier version
 

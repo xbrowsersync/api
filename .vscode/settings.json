@@ -1,14 +1,81 @@
 {
+  "[markdown]": {
+    "editor.formatOnSave": false
+  },
+  "[html]": {
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": false
+  },
+  "[json]": {
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": false
+  },
+  "beautify.config": {
+    "end_with_newline": true,
+    "indent_size": 2,
+    "indent_with_tabs": false
+  },
+  "beautify.language": {
+    "js": {
+      "ext": [
+        "json"
+      ]
+    },
+    "html": [
+      "html"
+    ]
+  },
+  "css.validate": false,
+  "editor.codeActionsOnSave": {
+    "source.addMissingImports": true,
+    "source.fixAll": false,
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true
+  },
   "editor.detectIndentation": false,
   "editor.formatOnSave": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
+  "eslint.alwaysShowStatus": true,
+  "eslint.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "typescript"
+  ],
+  "files.eol": "\n",
   "git.ignoreLimitWarning": true,
-  "search.exclude": {
-    "dist": true,
+  "html.format.enable": false,
+  "html.format.endWithNewline": true,
+  "html.format.maxPreserveNewLines": 1,
+  "html.format.wrapAttributes": "aligned-multiple",
+  "html.format.wrapLineLength": 120,
+  "scss.validate": false,
+  "stylelint.enable": true,
+  "stylelint.validate": [
+    "css",
+    "html",
+    "markdown",
+    "sass",
+    "scss"
+  ],
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "files.exclude": {
+    "**/node_modules": true
   },
-  "terminal.integrated.shellArgs.windows": [],
-  "typescript.tsc.autoDetect": "off",
-  "typescript.tsdk": "node_modules\\typescript\\lib",
-  "jestTestExplorer.logpanel": true
+  "search.exclude": {
+    "**/dist": true
+  }
 }

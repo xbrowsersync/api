@@ -1,7 +1,7 @@
-import * as Server from './server';
+import { createApplication, startService } from './server';
 
 // Entry point into server
 export default (async () => {
-  const app = await Server.createApplication();
-  await Server.startService(app);
+  const app = await createApplication();
+  await startService(app);
 })();

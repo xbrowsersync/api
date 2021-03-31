@@ -1,29 +1,31 @@
-import * as countryList from 'country-list';
+import { getName, overwrite } from 'country-list';
 
-export function getCountryNameFromLocationCode(locationCode: string): string {
+export const getCountryNameFromLocationCode = (locationCode: string): string => {
   if (!locationCode) {
     return null;
   }
 
-  return countryList.getName(locationCode);
-}
+  return getName(locationCode);
+};
 
-export function setCountryNames(): void {
-  countryList.overwrite([{
-    code: 'GB',
-    name: 'United Kingdom'
-  }]);
-}
+export const setCountryNames = (): void => {
+  overwrite([
+    {
+      code: 'GB',
+      name: 'United Kingdom',
+    },
+  ]);
+};
 
-export function validateLocationCode(locationCode: string): boolean {
+export const validateLocationCode = (locationCode: string): boolean => {
   if (!locationCode) {
     return true;
   }
 
-  const countryName = countryList.getName(locationCode);
+  const countryName = getName(locationCode);
   if (!countryName) {
-    return false
+    return false;
   }
 
   return true;
-}
+};

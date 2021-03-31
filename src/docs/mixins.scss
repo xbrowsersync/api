@@ -12,28 +12,28 @@
 }
 
 @mixin background-gradient($direction, $startColor, $startColorAmount, $endColor, $endColorAmount) {
-  background-color: $startColor;
   background: linear-gradient($direction, $startColor $startColorAmount, $endColor $endColorAmount);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorStr= '#{$startColor}', endColorStr='#{$endColor}');
+  background-color: $startColor;
+  filter: progid:dximagetransform.microsoft.gradient(startColorStr= '#{$startColor}', endColorStr='#{$endColor}');
 }
 
 @mixin hide-text {
+  color: transparent;
   font: 0/0 a;
   text-shadow: none;
-  color: transparent;
 }
 
 @mixin keyframes($animation-name) {
-  @-webkit-keyframes #{$animation-name} {
+  @keyframes #{$animation-name} {
     @content;
   }
-  @-moz-keyframes #{$animation-name} {
+  @keyframes #{$animation-name} {
     @content;
   }
-  @-ms-keyframes #{$animation-name} {
+  @keyframes #{$animation-name} {
     @content;
   }
-  @-o-keyframes #{$animation-name} {
+  @keyframes #{$animation-name} {
     @content;
   }
   @keyframes #{$animation-name} {
@@ -42,20 +42,12 @@
 }
 
 @mixin placeholder {
-  &::-webkit-input-placeholder {
-    @content;
-  }
-
-  &:-moz-placeholder {
+  &:placeholder {
     opacity: 1;
     @content;
   }
 
-  &::-moz-placeholder {
-    @content;
-  }
-
-  &:-ms-input-placeholder {
+  &::placeholder {
     @content;
   }
 }
@@ -76,8 +68,8 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-wrap: normal;
   white-space: nowrap;
+  word-wrap: normal;
 }
 
 @mixin transform($transforms) {

@@ -1,9 +1,9 @@
 import 'jest';
 import { Request } from 'express';
+import { LogLevel, ServiceStatus } from '../common/enums';
 import * as Config from '../config';
-import BookmarksService from './bookmarks.service';
-import InfoService from './info.service';
-import { ServiceStatus, LogLevel } from '../server';
+import { BookmarksService } from './bookmarks.service';
+import { InfoService } from './info.service';
 
 jest.mock('./bookmarks.service');
 
@@ -23,8 +23,8 @@ describe('InfoService', () => {
     const configSettingsTest: Config.IConfigSettings = {
       location: locationTest,
       status: {
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -40,8 +40,8 @@ describe('InfoService', () => {
     const configSettingsTest: Config.IConfigSettings = {
       maxSyncSize: maxSyncSizeTest,
       status: {
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -57,8 +57,8 @@ describe('InfoService', () => {
     const configSettingsTest: Config.IConfigSettings = {
       status: {
         message: messageTest,
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -74,8 +74,8 @@ describe('InfoService', () => {
     const configSettingsTest: Config.IConfigSettings = {
       status: {
         message: messageTest,
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -89,8 +89,8 @@ describe('InfoService', () => {
   it('getInfo: should return correct API status when online', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       status: {
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -104,8 +104,8 @@ describe('InfoService', () => {
   it('getInfo: should return correct API status when offline', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       status: {
-        online: false
-      }
+        online: false,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -120,9 +120,9 @@ describe('InfoService', () => {
     const versionTest = '0.0.0';
     const configSettingsTest: Config.IConfigSettings = {
       status: {
-        online: false
+        online: false,
       },
-      version: versionTest
+      version: versionTest,
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(true);
@@ -136,8 +136,8 @@ describe('InfoService', () => {
   it('getInfo: should return correct API status when not accepting new syncs', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       status: {
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(BookmarksService.prototype, 'isAcceptingNewSyncs').mockResolvedValue(false);
@@ -151,8 +151,8 @@ describe('InfoService', () => {
   it('getInfo: should catch and log errors', async () => {
     const configSettingsTest: Config.IConfigSettings = {
       status: {
-        online: true
-      }
+        online: true,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const errorTest = new Error();

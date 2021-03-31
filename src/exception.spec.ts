@@ -1,200 +1,202 @@
 import 'jest';
-import * as Exception from './exception';
+import {
+  ApiException,
+  InvalidArgumentException,
+  InvalidSyncIdException,
+  NewSyncsForbiddenException,
+  NewSyncsLimitExceededException,
+  NotImplementedException,
+  OriginNotPermittedException,
+  RequestThrottledException,
+  RequiredDataNotFoundException,
+  SyncConflictException,
+  SyncDataLimitExceededException,
+  UnspecifiedException,
+  UnsupportedVersionException,
+} from './exception';
 
 describe('Exception', () => {
   it('getResponseObject: should return exception reponse object', () => {
-    const exception = new Exception.UnspecifiedException();
+    const exception = new UnspecifiedException();
     const response = exception.getResponseObject();
     expect(response.code).toBeDefined();
     expect(response.message).toBeDefined();
   });
 
   it('InvalidArgumentException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.InvalidArgumentException();
-      }
-      catch (err) {
+        throw new InvalidArgumentException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.InvalidArgumentException);
+    }).toThrow(InvalidArgumentException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
   });
 
   it('InvalidSyncIdException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.InvalidSyncIdException();
-      }
-      catch (err) {
+        throw new InvalidSyncIdException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.InvalidSyncIdException);
+    }).toThrow(InvalidSyncIdException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('RequiredDataNotFoundException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.RequiredDataNotFoundException();
-      }
-      catch (err) {
+        throw new RequiredDataNotFoundException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.RequiredDataNotFoundException);
+    }).toThrow(RequiredDataNotFoundException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('NewSyncsForbiddenException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.NewSyncsForbiddenException();
-      }
-      catch (err) {
+        throw new NewSyncsForbiddenException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.NewSyncsForbiddenException);
+    }).toThrow(NewSyncsForbiddenException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('NewSyncsLimitExceededException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.NewSyncsLimitExceededException();
-      }
-      catch (err) {
+        throw new NewSyncsLimitExceededException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.NewSyncsLimitExceededException);
+    }).toThrow(NewSyncsLimitExceededException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('NotImplementedException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.NotImplementedException();
-      }
-      catch (err) {
+        throw new NotImplementedException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.NotImplementedException);
+    }).toThrow(NotImplementedException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('SyncConflictException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.SyncConflictException();
-      }
-      catch (err) {
+        throw new SyncConflictException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.SyncConflictException);
+    }).toThrow(SyncConflictException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('UnsupportedVersionException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.UnsupportedVersionException();
-      }
-      catch (err) {
+        throw new UnsupportedVersionException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.UnsupportedVersionException);
+    }).toThrow(UnsupportedVersionException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('SyncDataLimitExceededException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.SyncDataLimitExceededException();
-      }
-      catch (err) {
+        throw new SyncDataLimitExceededException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.SyncDataLimitExceededException);
+    }).toThrow(SyncDataLimitExceededException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('RequestThrottledException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.RequestThrottledException();
-      }
-      catch (err) {
+        throw new RequestThrottledException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.RequestThrottledException);
+    }).toThrow(RequestThrottledException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('OriginNotPermittedException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.OriginNotPermittedException();
-      }
-      catch (err) {
+        throw new OriginNotPermittedException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.OriginNotPermittedException);
+    }).toThrow(OriginNotPermittedException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');
   });
 
   it('UnspecifiedException should define properties', () => {
-    let exception: Exception.ExceptionBase;
+    let exception: ApiException;
     expect(() => {
       try {
-        throw new Exception.UnspecifiedException();
-      }
-      catch (err) {
+        throw new UnspecifiedException();
+      } catch (err) {
         exception = err;
         throw err;
       }
-    }).toThrow(Exception.UnspecifiedException);
+    }).toThrow(UnspecifiedException);
     expect(typeof exception.message).toBe('string');
     expect(typeof exception.name).toBe('string');
     expect(typeof exception.status).toBe('number');

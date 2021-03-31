@@ -1,18 +1,17 @@
 "use strict";
+/* eslint-disable max-classes-per-file */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ServiceNotAvailableException = exports.UnspecifiedException = exports.OriginNotPermittedException = exports.RequestThrottledException = exports.SyncDataLimitExceededException = exports.UnsupportedVersionException = exports.SyncConflictException = exports.NotImplementedException = exports.NewSyncsLimitExceededException = exports.NewSyncsForbiddenException = exports.RequiredDataNotFoundException = exports.InvalidSyncIdException = exports.InvalidArgumentException = exports.ApiException = void 0;
 // Base class for custom api exceptions
-class ExceptionBase extends Error {
-    constructor(message) {
-        super(message);
-    }
+class ApiException extends Error {
     getResponseObject() {
         return {
             code: this.name,
-            message: this.message
+            message: this.message,
         };
     }
 }
-exports.ExceptionBase = ExceptionBase;
+exports.ApiException = ApiException;
 class InvalidArgumentException extends Error {
     constructor(message) {
         super(message || 'Supplied argument has incorrect type');
@@ -20,7 +19,7 @@ class InvalidArgumentException extends Error {
     }
 }
 exports.InvalidArgumentException = InvalidArgumentException;
-class InvalidSyncIdException extends ExceptionBase {
+class InvalidSyncIdException extends ApiException {
     constructor(message) {
         super(message || 'Invalid sync ID');
         this.name = 'InvalidSyncIdException';
@@ -28,7 +27,7 @@ class InvalidSyncIdException extends ExceptionBase {
     }
 }
 exports.InvalidSyncIdException = InvalidSyncIdException;
-class RequiredDataNotFoundException extends ExceptionBase {
+class RequiredDataNotFoundException extends ApiException {
     constructor(message) {
         super(message || 'Unable to find required data');
         this.name = 'RequiredDataNotFoundException';
@@ -36,7 +35,7 @@ class RequiredDataNotFoundException extends ExceptionBase {
     }
 }
 exports.RequiredDataNotFoundException = RequiredDataNotFoundException;
-class NewSyncsForbiddenException extends ExceptionBase {
+class NewSyncsForbiddenException extends ApiException {
     constructor(message) {
         super(message || 'The service is not accepting new syncs');
         this.name = 'NewSyncsForbiddenException';
@@ -44,7 +43,7 @@ class NewSyncsForbiddenException extends ExceptionBase {
     }
 }
 exports.NewSyncsForbiddenException = NewSyncsForbiddenException;
-class NewSyncsLimitExceededException extends ExceptionBase {
+class NewSyncsLimitExceededException extends ApiException {
     constructor(message) {
         super(message || 'Client has exceeded the daily new syncs limit');
         this.name = 'NewSyncsLimitExceededException';
@@ -52,7 +51,7 @@ class NewSyncsLimitExceededException extends ExceptionBase {
     }
 }
 exports.NewSyncsLimitExceededException = NewSyncsLimitExceededException;
-class NotImplementedException extends ExceptionBase {
+class NotImplementedException extends ApiException {
     constructor(message) {
         super(message || 'The requested route has not been implemented');
         this.name = 'NotImplementedException';
@@ -60,7 +59,7 @@ class NotImplementedException extends ExceptionBase {
     }
 }
 exports.NotImplementedException = NotImplementedException;
-class SyncConflictException extends ExceptionBase {
+class SyncConflictException extends ApiException {
     constructor(message) {
         super(message || 'A sync conflict was detected');
         this.name = 'SyncConflictException';
@@ -68,7 +67,7 @@ class SyncConflictException extends ExceptionBase {
     }
 }
 exports.SyncConflictException = SyncConflictException;
-class UnsupportedVersionException extends ExceptionBase {
+class UnsupportedVersionException extends ApiException {
     constructor(message) {
         super(message || 'The requested API version is not supported');
         this.name = 'UnsupportedVersionException';
@@ -76,7 +75,7 @@ class UnsupportedVersionException extends ExceptionBase {
     }
 }
 exports.UnsupportedVersionException = UnsupportedVersionException;
-class SyncDataLimitExceededException extends ExceptionBase {
+class SyncDataLimitExceededException extends ApiException {
     constructor(message) {
         super(message || 'Sync data limit exceeded');
         this.name = 'SyncDataLimitExceededException';
@@ -84,7 +83,7 @@ class SyncDataLimitExceededException extends ExceptionBase {
     }
 }
 exports.SyncDataLimitExceededException = SyncDataLimitExceededException;
-class RequestThrottledException extends ExceptionBase {
+class RequestThrottledException extends ApiException {
     constructor(message) {
         super(message || 'Too many requests');
         this.name = 'RequestThrottledException';
@@ -92,7 +91,7 @@ class RequestThrottledException extends ExceptionBase {
     }
 }
 exports.RequestThrottledException = RequestThrottledException;
-class OriginNotPermittedException extends ExceptionBase {
+class OriginNotPermittedException extends ApiException {
     constructor(message) {
         super(message || 'Client not permitted to access this service');
         this.name = 'OriginNotPermittedException';
@@ -100,7 +99,7 @@ class OriginNotPermittedException extends ExceptionBase {
     }
 }
 exports.OriginNotPermittedException = OriginNotPermittedException;
-class UnspecifiedException extends ExceptionBase {
+class UnspecifiedException extends ApiException {
     constructor(message) {
         super(message || 'An unspecified error has occurred');
         this.name = 'UnspecifiedException';
@@ -108,7 +107,7 @@ class UnspecifiedException extends ExceptionBase {
     }
 }
 exports.UnspecifiedException = UnspecifiedException;
-class ServiceNotAvailableException extends ExceptionBase {
+class ServiceNotAvailableException extends ApiException {
     constructor(message) {
         super(message || 'The service is currently offline');
         this.name = 'ServiceNotAvailableException';
@@ -116,4 +115,3 @@ class ServiceNotAvailableException extends ExceptionBase {
     }
 }
 exports.ServiceNotAvailableException = ServiceNotAvailableException;
-//# sourceMappingURL=exception.js.map

@@ -1,29 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const countryList = require("country-list");
-function getCountryNameFromLocationCode(locationCode) {
+exports.validateLocationCode = exports.setCountryNames = exports.getCountryNameFromLocationCode = void 0;
+const country_list_1 = require("country-list");
+exports.getCountryNameFromLocationCode = (locationCode) => {
     if (!locationCode) {
         return null;
     }
-    return countryList.getName(locationCode);
-}
-exports.getCountryNameFromLocationCode = getCountryNameFromLocationCode;
-function setCountryNames() {
-    countryList.overwrite([{
+    return country_list_1.getName(locationCode);
+};
+exports.setCountryNames = () => {
+    country_list_1.overwrite([
+        {
             code: 'GB',
-            name: 'United Kingdom'
-        }]);
-}
-exports.setCountryNames = setCountryNames;
-function validateLocationCode(locationCode) {
+            name: 'United Kingdom',
+        },
+    ]);
+};
+exports.validateLocationCode = (locationCode) => {
     if (!locationCode) {
         return true;
     }
-    const countryName = countryList.getName(locationCode);
+    const countryName = country_list_1.getName(locationCode);
     if (!countryName) {
         return false;
     }
     return true;
-}
-exports.validateLocationCode = validateLocationCode;
-//# sourceMappingURL=location.js.map
+};

@@ -1,66 +1,50 @@
 import 'jest';
-import * as bunyan from 'bunyan';
-import * as cors from 'cors';
-import * as express from 'express';
-import * as fs from 'fs';
-import * as helmet from 'helmet';
-import * as http from 'http';
-import * as https from 'https';
-import * as mkdirp from 'mkdirp';
+import bunyan from 'bunyan';
+import cors from 'cors';
+import express from 'express';
+import fs from 'fs';
+import helmet from 'helmet';
+import http from 'http';
+import https from 'https';
+import mkdirp from 'mkdirp';
+import { LogLevel } from './common/enums';
 import * as Config from './config';
 import * as DB from './db';
-import { ServiceNotAvailableException, ExceptionBase, UnspecifiedException, SyncDataLimitExceededException, OriginNotPermittedException } from './exception';
-import BookmarksRouter from './routers/bookmarks.router';
-import DocsRouter from './routers/docs.router';
-import InfoRouter from './routers/info.router';
-import * as Server from './server';
+import {
+  ApiException,
+  OriginNotPermittedException,
+  SyncDataLimitExceededException,
+  UnspecifiedException,
+} from './exception';
 import * as Location from './location';
+import { BookmarksRouter } from './routers/bookmarks.router';
+import { DocsRouter } from './routers/docs.router';
+import { InfoRouter } from './routers/info.router';
+import * as Server from './server';
 
 let corsConfig: cors.CorsOptions;
 jest.mock('cors', () => {
   return jest.fn().mockImplementation((config: cors.CorsOptions) => {
     corsConfig = config;
-  })
+  });
 });
 
 let helmetConfig: helmet.IHelmetConfiguration;
 jest.mock('helmet', () => {
   return jest.fn().mockImplementation((config: helmet.IHelmetConfiguration) => {
     helmetConfig = config;
-  })
+  });
 });
 
 describe('Server', () => {
-  let testConfig: Config.IConfigSettings;
-
-  beforeEach(() => {
-    testConfig = Config.get(true);
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
-  });
-
-  it('checkServiceAvailability: should not throw an error when status set as online in config settings', () => {
-    testConfig.status.online = true;
-    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    expect(() => {
-      Server.checkServiceAvailability();
-    }).not.toThrowError();
-  });
-
-  it('checkServiceAvailability: should throw a ServiceNotAvailableException when status set as offline in config settings', () => {
-    testConfig.status.online = false;
-    jest.spyOn(Config, 'get').mockImplementation(() => { return testConfig; });
-    expect(() => {
-      Server.checkServiceAvailability();
-    }).toThrow(ServiceNotAvailableException);
   });
 
   it('cleanupServer: should close db connection', async () => {
     const disconnectSpy = jest.spyOn(DB, 'disconnect');
     await Server.cleanupServer({
-      removeAllListeners: () => { }
+      removeAllListeners: () => {},
     } as any);
     expect(disconnectSpy).toHaveBeenCalled();
   });
@@ -78,7 +62,7 @@ describe('Server', () => {
 
   it('createApplication: should exit process if an error is encountered', async () => {
     jest.spyOn(Server, 'initApplication').mockImplementation(() => {
-      throw new Error;
+      throw new Error();
     });
     const exitMock = jest.spyOn(process, 'exit').mockImplementation();
     await Server.createApplication();
@@ -89,9 +73,11 @@ describe('Server', () => {
     const createLoggerSpy = jest.spyOn(bunyan, 'createLogger').mockImplementation();
     const streamsTest = [];
     Server.createLogger(streamsTest);
-    expect(createLoggerSpy).toHaveBeenCalledWith(expect.objectContaining({
-      streams: streamsTest
-    }));
+    expect(createLoggerSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        streams: streamsTest,
+      })
+    );
   });
 
   it('createLogger: should output error message to console if bunyan.createLogger throws an error', async () => {
@@ -111,33 +97,33 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
           enabled: true,
-          level: logLevelTest
-        }
+          level: logLevelTest,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const createLoggerMock = jest.spyOn(Server, 'createLogger');
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: jest.fn()
+      use: jest.fn(),
     };
     Server.initApplication(app);
     expect(createLoggerMock).toBeCalledWith([
       {
         level: logLevelTest,
-        stream: process.stdout
-      }
+        stream: process.stdout,
+      },
     ]);
   });
 
@@ -154,18 +140,18 @@ describe('Server', () => {
           level: logLevelTest,
           path: logPathTest,
           rotatedFilesToKeep: logRotatedFilesToKeepTest,
-          rotationPeriod: logRotationPeriodTest
+          rotationPeriod: logRotationPeriodTest,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(fs, 'existsSync').mockReturnValue(true);
@@ -173,7 +159,7 @@ describe('Server', () => {
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: jest.fn()
+      use: jest.fn(),
     };
     Server.initApplication(app);
     expect(createLoggerMock).toBeCalledWith([
@@ -182,8 +168,8 @@ describe('Server', () => {
         level: logLevelTest,
         path: logPathTest,
         period: logRotationPeriodTest,
-        type: 'rotating-file'
-      }
+        type: 'rotating-file',
+      },
     ]);
   });
 
@@ -201,18 +187,18 @@ describe('Server', () => {
           level: logLevelTest,
           path: logPathTest,
           rotatedFilesToKeep: logRotatedFilesToKeepTest,
-          rotationPeriod: logRotationPeriodTest
+          rotationPeriod: logRotationPeriodTest,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(fs, 'existsSync').mockReturnValue(false);
@@ -221,7 +207,7 @@ describe('Server', () => {
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: jest.fn()
+      use: jest.fn(),
     };
     Server.initApplication(app);
     expect(syncMock).toBeCalledWith(logPathDirTest);
@@ -238,25 +224,25 @@ describe('Server', () => {
           enabled: true,
           level: logLevelTest,
           rotatedFilesToKeep: logRotatedFilesToKeepTest,
-          rotationPeriod: logRotationPeriodTest
+          rotationPeriod: logRotationPeriodTest,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     jest.spyOn(console, 'error').mockImplementation();
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: jest.fn()
+      use: jest.fn(),
     };
     expect(() => {
       Server.initApplication(app);
@@ -268,30 +254,29 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback();
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
     expect(helmet).toHaveBeenCalled();
@@ -304,35 +289,34 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const jsonMock = jest.spyOn(express, 'json').mockImplementation();
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback();
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
     expect(jsonMock).toHaveBeenCalledWith({
-      limit: 512000
+      limit: 512000,
     });
   });
 
@@ -342,36 +326,35 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       maxSyncSize: maxSyncSizeTest,
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const jsonMock = jest.spyOn(express, 'json').mockImplementation();
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback();
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
     expect(jsonMock).toHaveBeenCalledWith({
-      limit: maxSyncSizeTest
+      limit: maxSyncSizeTest,
     });
   });
 
@@ -380,30 +363,29 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback();
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
     expect(corsConfig).toBeUndefined();
@@ -412,48 +394,42 @@ describe('Server', () => {
   it('initApplication: should throw OriginNotPermittedException exception if origin not present in allowedOrigins defined in config settings', () => {
     const originTest = 'http://www.allowed-origin.com';
     const configSettingsTest: Config.IConfigSettings = {
-      allowedOrigins: [
-        originTest
-      ],
+      allowedOrigins: [originTest],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback();
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
     let originErr: Error;
     try {
-      let origin: any;
-      origin = corsConfig.origin;
-      origin('http://www.forbidden-origin.com', (err: Error) => {
+      (corsConfig.origin as any)('http://www.forbidden-origin.com', (err: Error) => {
         originErr = err;
       });
-    }
-    catch { }
+    } catch {}
     expect(corsConfig).toStrictEqual({
-      origin: expect.any(Function)
+      origin: expect.any(Function),
     });
     expect(() => {
       throw originErr;
@@ -463,46 +439,40 @@ describe('Server', () => {
   it('initApplication: should allow origin if present in allowedOrigins defined in config settings', () => {
     const originTest = 'http://www.allowed-origin.com';
     const configSettingsTest: Config.IConfigSettings = {
-      allowedOrigins: [
-        originTest
-      ],
+      allowedOrigins: [originTest],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback();
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
     const originCallbackMock = jest.fn();
     try {
-      let origin: any;
-      origin = corsConfig.origin;
-      origin(originTest, originCallbackMock);
-    }
-    catch { }
+      (corsConfig.origin as any)(originTest, originCallbackMock);
+    } catch {}
     expect(corsConfig).toStrictEqual({
-      origin: expect.any(Function)
+      origin: expect.any(Function),
     });
     expect(originCallbackMock).toBeCalledWith(null, true);
   });
@@ -512,30 +482,29 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         expect(callback.name).toBe('noCache');
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
   });
@@ -546,38 +515,37 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
+        maxRequests: 0,
       },
-      version: '1.0.0'
+      version: '1.0.0',
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const req: any = {
       headers: {
-        'accept-version': versionTest
-      }
+        'accept-version': versionTest,
+      },
     };
     const nextMock = jest.fn();
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback(req, null, nextMock);
         expect(req.version).toStrictEqual(versionTest);
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
   });
@@ -588,36 +556,35 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: false
+        behindProxy: false,
       },
       throttle: {
-        maxRequests: 0
+        maxRequests: 0,
       },
-      version: versionTest
+      version: versionTest,
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const req: any = {
-      headers: []
+      headers: [],
     };
     const nextMock = jest.fn();
-    const useMock = jest.fn().mockImplementation(callback => {
+    const useMock = jest.fn().mockImplementation((callback) => {
       try {
         callback(req, null, nextMock);
         expect(req.version).toStrictEqual(versionTest);
-      }
-      catch { }
+      } catch {}
     });
     const app: any = {
       enable: jest.fn(),
       options: jest.fn(),
-      use: useMock
+      use: useMock,
     };
     Server.initApplication(app);
   });
@@ -627,25 +594,25 @@ describe('Server', () => {
       allowedOrigins: [],
       log: {
         file: {
-          enabled: false
+          enabled: false,
         },
         stdout: {
-          enabled: false
-        }
+          enabled: false,
+        },
       },
       server: {
-        behindProxy: true
+        behindProxy: true,
       },
       throttle: {
-        maxRequests: 0
-      }
+        maxRequests: 0,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const enableMock = jest.fn();
     const app: any = {
       enable: enableMock,
       options: jest.fn(),
-      use: jest.fn()
+      use: jest.fn(),
     };
     Server.initApplication(app);
     expect(enableMock).toHaveBeenCalledWith('trust proxy');
@@ -654,45 +621,45 @@ describe('Server', () => {
   it('handleError: should not set response status code if no error provided', async () => {
     const statusMock = jest.fn();
     const res: any = {
-      json: () => { },
-      status: statusMock
+      json: () => {},
+      status: statusMock,
     };
-    Server.handleError(null, null, res, () => { })
+    Server.handleError(null, null, res);
     expect(statusMock).not.toHaveBeenCalled();
   });
 
   it('handleError: should set response status code to 500 if no status code provided', async () => {
     const statusMock = jest.fn();
     const res: any = {
-      json: () => { },
-      status: statusMock
+      json: () => {},
+      status: statusMock,
     };
-    Server.handleError(new Error(), null, res, () => { })
+    Server.handleError(new Error(), null, res);
     expect(statusMock).toHaveBeenCalledWith(500);
   });
 
   it('handleError: should set response status code to status code provided', async () => {
     const statusTest = 999;
-    const exception = new ExceptionBase('');
+    const exception = new ApiException('');
     exception.status = statusTest;
     const statusMock = jest.fn();
     const res: any = {
-      json: () => { },
-      status: statusMock
+      json: () => {},
+      status: statusMock,
     };
-    Server.handleError(exception, null, res, () => { })
+    Server.handleError(exception, null, res);
     expect(statusMock).toHaveBeenCalledWith(statusTest);
   });
 
   it('handleError: should set response json to with provided error response object', async () => {
     const message = 'test';
-    const exception = new ExceptionBase(message);
+    const exception = new ApiException(message);
     const jsonMock = jest.fn();
     const res: any = {
       json: jsonMock,
-      status: () => { }
+      status: () => {},
     };
-    Server.handleError(exception, null, res, () => { })
+    Server.handleError(exception, null, res);
     expect(jsonMock).toHaveBeenCalledWith(exception.getResponseObject());
   });
 
@@ -702,26 +669,27 @@ describe('Server', () => {
     const jsonMock = jest.fn();
     const res: any = {
       json: jsonMock,
-      status: () => { }
+      status: () => {},
     };
-    Server.handleError(exception, null, res, () => { })
-    expect(jsonMock).toHaveBeenCalledWith((new SyncDataLimitExceededException()).getResponseObject());
+    Server.handleError(exception, null, res);
+    expect(jsonMock).toHaveBeenCalledWith(new SyncDataLimitExceededException().getResponseObject());
   });
 
   it('handleError: should set response json to UnspecifiedException response object if provided error is not an instance of ExceptionBase', async () => {
     const jsonMock = jest.fn();
     const res: any = {
       json: jsonMock,
-      status: () => { }
+      status: () => {},
     };
-    Server.handleError(new Error(), null, res, () => { })
-    expect(jsonMock).toHaveBeenCalledWith((new UnspecifiedException()).getResponseObject());
+    Server.handleError(new Error(), null, res);
+    expect(jsonMock).toHaveBeenCalledWith(new UnspecifiedException().getResponseObject());
   });
 
   it('initRoutes: should initialise docs routes', async () => {
     const initDocsRouterRoutesMock = jest.spyOn(DocsRouter.prototype, 'initRoutes').mockImplementation();
     const app: any = {
-      use: jest.fn()
+      get: jest.fn(),
+      use: jest.fn(),
     };
     Server.initRoutes(app);
     expect(initDocsRouterRoutesMock).toHaveBeenCalled();
@@ -730,7 +698,8 @@ describe('Server', () => {
   it('initRoutes: should initialise bookmarks routes', async () => {
     const initBookmarksRouterRoutesMock = jest.spyOn(BookmarksRouter.prototype, 'initRoutes').mockImplementation();
     const app: any = {
-      use: jest.fn()
+      get: jest.fn(),
+      use: jest.fn(),
     };
     Server.initRoutes(app);
     expect(initBookmarksRouterRoutesMock).toHaveBeenCalled();
@@ -739,18 +708,11 @@ describe('Server', () => {
   it('initRoutes: should initialise info routes', async () => {
     const initInfoRouterRoutesMock = jest.spyOn(InfoRouter.prototype, 'initRoutes').mockImplementation();
     const app: any = {
-      use: jest.fn()
+      get: jest.fn(),
+      use: jest.fn(),
     };
     Server.initRoutes(app);
     expect(initInfoRouterRoutesMock).toHaveBeenCalled();
-  });
-
-  it('logMessage: should not call logger if it has not been initialised', async () => {
-    const errorSpy = jest.spyOn(bunyan.prototype, 'error');
-    const infoSpy = jest.spyOn(bunyan.prototype, 'info');
-    Server.logMessage(null, null);
-    expect(errorSpy).not.toHaveBeenCalled();
-    expect(infoSpy).not.toHaveBeenCalled();
   });
 
   it('logMessage: should call logger.error when log level is error', async () => {
@@ -758,41 +720,41 @@ describe('Server', () => {
     const reqTest = {};
     const formatTest = {
       err: errorTest,
-      req: reqTest
-    }
+      req: reqTest,
+    };
     const messageTest = 'test message';
     const errorMock = jest.fn();
     jest.spyOn(bunyan, 'createLogger').mockImplementation(() => {
       return {
-        error: errorMock
+        error: errorMock,
       } as any;
     });
     Server.createLogger([]);
-    Server.logMessage(Server.LogLevel.Error, messageTest, reqTest as any, errorTest);
+    Server.logMessage(LogLevel.Error, messageTest, reqTest as any, errorTest);
     expect(errorMock).toHaveBeenCalledWith(expect.objectContaining(formatTest), messageTest);
   });
 
   it('logMessage: should call logger.info when log level is info', async () => {
     const reqTest = {};
     const formatTest = {
-      req: reqTest
-    }
+      req: reqTest,
+    };
     const messageTest = 'test message';
     const infoMock = jest.fn();
     jest.spyOn(bunyan, 'createLogger').mockImplementation(() => {
       return {
-        info: infoMock
+        info: infoMock,
       } as any;
     });
     Server.createLogger([]);
-    Server.logMessage(Server.LogLevel.Info, messageTest, reqTest as any);
+    Server.logMessage(LogLevel.Info, messageTest, reqTest as any);
     expect(infoMock).toHaveBeenCalledWith(expect.objectContaining(formatTest), messageTest);
   });
 
   it('startService: should exit if an invalid location code is used in config settings', async () => {
     const locationTest = 'locationTest';
     const configSettingsTest: Config.IConfigSettings = {
-      location: locationTest
+      location: locationTest,
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const validateLocationCodeMock = jest.spyOn(Location, 'validateLocationCode').mockReturnValue(false);
@@ -808,21 +770,21 @@ describe('Server', () => {
     const configSettingsTest: Config.IConfigSettings = {
       server: {
         https: {
-          enabled: false
+          enabled: false,
         },
-        port: portTest
-      }
+        port: portTest,
+      },
     };
     jest.spyOn(Location, 'validateLocationCode').mockReturnValue(true);
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    jest.spyOn(fs, 'readFileSync').mockImplementation(x => x as any);
+    jest.spyOn(fs, 'readFileSync').mockImplementation((x) => x as any);
     jest.spyOn(process, 'on').mockImplementation();
     const listenMockReturnValue = {
-      on: jest.fn()
+      on: jest.fn(),
     };
     const listenMock = jest.fn().mockReturnValue(listenMockReturnValue);
     const createServerMock = jest.spyOn(http, 'createServer').mockReturnValue({
-      listen: listenMock
+      listen: listenMock,
     } as any);
     const app = {} as any;
     const server = await Server.startService(app);
@@ -840,25 +802,25 @@ describe('Server', () => {
         https: {
           certPath: certPathTest,
           enabled: true,
-          keyPath: keyPathTest
+          keyPath: keyPathTest,
         },
-        port: portTest
-      }
+        port: portTest,
+      },
     };
     jest.spyOn(Location, 'validateLocationCode').mockReturnValue(true);
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
-    jest.spyOn(fs, 'readFileSync').mockImplementation(x => x as any);
+    jest.spyOn(fs, 'readFileSync').mockImplementation((x) => x as any);
     jest.spyOn(process, 'on').mockImplementation();
     const listenMockReturnValue = {
-      on: jest.fn()
+      on: jest.fn(),
     };
     const listenMock = jest.fn().mockReturnValue(listenMockReturnValue);
     const createServerMock = jest.spyOn(https, 'createServer').mockReturnValue({
-      listen: listenMock
+      listen: listenMock,
     } as any);
     const optionsTest: https.ServerOptions = {
       cert: certPathTest,
-      key: keyPathTest
+      key: keyPathTest,
     };
     const app = {} as any;
     const server = await Server.startService(app);
@@ -871,19 +833,19 @@ describe('Server', () => {
     const configSettingsTest: Config.IConfigSettings = {
       server: {
         https: {
-          enabled: false
-        }
-      }
+          enabled: false,
+        },
+      },
     };
     jest.spyOn(Location, 'validateLocationCode').mockReturnValue(true);
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const serverTest: any = {
       close: async (callback): Promise<any> => {
         await callback();
-      }
+      },
     };
     jest.spyOn(http, 'createServer').mockReturnValue({
-      listen: jest.fn().mockReturnValue(serverTest)
+      listen: jest.fn().mockReturnValue(serverTest),
     } as any);
     jest.spyOn(process, 'on').mockImplementation((event: string, callback): any => {
       if (event === 'SIGINT') {
@@ -903,19 +865,19 @@ describe('Server', () => {
     const configSettingsTest: Config.IConfigSettings = {
       server: {
         https: {
-          enabled: false
-        }
-      }
+          enabled: false,
+        },
+      },
     };
     jest.spyOn(Location, 'validateLocationCode').mockReturnValue(true);
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const serverTest: any = {
       close: async (callback): Promise<any> => {
         await callback();
-      }
+      },
     };
     jest.spyOn(http, 'createServer').mockReturnValue({
-      listen: jest.fn().mockReturnValue(serverTest)
+      listen: jest.fn().mockReturnValue(serverTest),
     } as any);
     jest.spyOn(process, 'on').mockImplementation((event: string, callback): any => {
       if (event === 'SIGUSR1') {
@@ -935,19 +897,19 @@ describe('Server', () => {
     const configSettingsTest: Config.IConfigSettings = {
       server: {
         https: {
-          enabled: false
-        }
-      }
+          enabled: false,
+        },
+      },
     };
     jest.spyOn(Location, 'validateLocationCode').mockReturnValue(true);
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const serverTest: any = {
       close: async (callback): Promise<any> => {
         await callback();
-      }
+      },
     };
     jest.spyOn(http, 'createServer').mockReturnValue({
-      listen: jest.fn().mockReturnValue(serverTest)
+      listen: jest.fn().mockReturnValue(serverTest),
     } as any);
     jest.spyOn(process, 'on').mockImplementation((event: string, callback): any => {
       if (event === 'SIGUSR2') {
@@ -964,9 +926,11 @@ describe('Server', () => {
   });
 
   it('stopService: should close the provided server', async () => {
-    const closeMock = jest.fn(async (callback: () => Promise<void>) => { await callback(); });
+    const closeMock = jest.fn(async (callback: () => Promise<void>) => {
+      await callback();
+    });
     const serverTest: any = {
-      close: closeMock
+      close: closeMock,
     };
     const cleanupServerMock = jest.spyOn(Server, 'cleanupServer').mockResolvedValue();
     await Server.stopService(serverTest);
