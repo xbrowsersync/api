@@ -1,17 +1,15 @@
+/* eslint-disable max-classes-per-file */
+
 // Base class for custom api exceptions
-export class ExceptionBase extends Error {
-  public message: string;
-  public name: string;
-  public status: number;
+export class ApiException extends Error {
+  message: string;
+  name: string;
+  status: number;
 
-  constructor(message: string) {
-    super(message);
-  }
-
-  public getResponseObject(): any {
+  getResponseObject(): any {
     return {
       code: this.name,
-      message: this.message
+      message: this.message,
     };
   }
 }
@@ -23,7 +21,7 @@ export class InvalidArgumentException extends Error {
   }
 }
 
-export class InvalidSyncIdException extends ExceptionBase {
+export class InvalidSyncIdException extends ApiException {
   constructor(message?: string) {
     super(message || 'Invalid sync ID');
     this.name = 'InvalidSyncIdException';
@@ -31,7 +29,7 @@ export class InvalidSyncIdException extends ExceptionBase {
   }
 }
 
-export class RequiredDataNotFoundException extends ExceptionBase {
+export class RequiredDataNotFoundException extends ApiException {
   constructor(message?: string) {
     super(message || 'Unable to find required data');
     this.name = 'RequiredDataNotFoundException';
@@ -39,7 +37,7 @@ export class RequiredDataNotFoundException extends ExceptionBase {
   }
 }
 
-export class NewSyncsForbiddenException extends ExceptionBase {
+export class NewSyncsForbiddenException extends ApiException {
   constructor(message?: string) {
     super(message || 'The service is not accepting new syncs');
     this.name = 'NewSyncsForbiddenException';
@@ -47,7 +45,7 @@ export class NewSyncsForbiddenException extends ExceptionBase {
   }
 }
 
-export class NewSyncsLimitExceededException extends ExceptionBase {
+export class NewSyncsLimitExceededException extends ApiException {
   constructor(message?: string) {
     super(message || 'Client has exceeded the daily new syncs limit');
     this.name = 'NewSyncsLimitExceededException';
@@ -55,7 +53,7 @@ export class NewSyncsLimitExceededException extends ExceptionBase {
   }
 }
 
-export class NotImplementedException extends ExceptionBase {
+export class NotImplementedException extends ApiException {
   constructor(message?: string) {
     super(message || 'The requested route has not been implemented');
     this.name = 'NotImplementedException';
@@ -63,7 +61,7 @@ export class NotImplementedException extends ExceptionBase {
   }
 }
 
-export class SyncConflictException extends ExceptionBase {
+export class SyncConflictException extends ApiException {
   constructor(message?: string) {
     super(message || 'A sync conflict was detected');
     this.name = 'SyncConflictException';
@@ -71,7 +69,7 @@ export class SyncConflictException extends ExceptionBase {
   }
 }
 
-export class UnsupportedVersionException extends ExceptionBase {
+export class UnsupportedVersionException extends ApiException {
   constructor(message?: string) {
     super(message || 'The requested API version is not supported');
     this.name = 'UnsupportedVersionException';
@@ -79,7 +77,7 @@ export class UnsupportedVersionException extends ExceptionBase {
   }
 }
 
-export class SyncDataLimitExceededException extends ExceptionBase {
+export class SyncDataLimitExceededException extends ApiException {
   constructor(message?: string) {
     super(message || 'Sync data limit exceeded');
     this.name = 'SyncDataLimitExceededException';
@@ -87,7 +85,7 @@ export class SyncDataLimitExceededException extends ExceptionBase {
   }
 }
 
-export class RequestThrottledException extends ExceptionBase {
+export class RequestThrottledException extends ApiException {
   constructor(message?: string) {
     super(message || 'Too many requests');
     this.name = 'RequestThrottledException';
@@ -95,7 +93,7 @@ export class RequestThrottledException extends ExceptionBase {
   }
 }
 
-export class OriginNotPermittedException extends ExceptionBase {
+export class OriginNotPermittedException extends ApiException {
   constructor(message?: string) {
     super(message || 'Client not permitted to access this service');
     this.name = 'OriginNotPermittedException';
@@ -103,7 +101,7 @@ export class OriginNotPermittedException extends ExceptionBase {
   }
 }
 
-export class UnspecifiedException extends ExceptionBase {
+export class UnspecifiedException extends ApiException {
   constructor(message?: string) {
     super(message || 'An unspecified error has occurred');
     this.name = 'UnspecifiedException';
@@ -111,7 +109,7 @@ export class UnspecifiedException extends ExceptionBase {
   }
 }
 
-export class ServiceNotAvailableException extends ExceptionBase {
+export class ServiceNotAvailableException extends ApiException {
   constructor(message?: string) {
     super(message || 'The service is currently offline');
     this.name = 'ServiceNotAvailableException';

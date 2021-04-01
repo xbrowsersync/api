@@ -1,12 +1,12 @@
 import 'jest';
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
+import { Verb } from '../common/enums';
 import * as Config from '../config';
-import InfoRouter from './info.router';
-import { Verb } from '../server';
+import { InfoRouter } from './info.router';
 
 jest.mock('express-routes-versioning', () => {
   return () => {
-    return () => { };
+    return () => {};
   };
 });
 
@@ -19,17 +19,17 @@ describe('InfoRouter', () => {
     const relativePathTest = '/';
     const configSettingsTest: Config.IConfigSettings = {
       server: {
-        relativePath: relativePathTest
-      }
+        relativePath: relativePathTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const initRoutesSpy = jest.spyOn(InfoRouter.prototype, 'initRoutes');
     const useMock = jest.fn().mockImplementation();
     const app: any = {
-      use: useMock
+      use: useMock,
     };
     jest.spyOn(InfoRouter.prototype, 'createRoute').mockImplementation();
-    new InfoRouter(app);
+    const infoRouter = new InfoRouter(app);
     expect(initRoutesSpy).toBeCalled();
     expect(useMock).toBeCalledWith(`${relativePathTest}info`, expect.any(Function));
   });
@@ -37,13 +37,12 @@ describe('InfoRouter', () => {
   it('initRoutes: should create root info route', async () => {
     const initRoutesSpy = jest.spyOn(InfoRouter.prototype, 'initRoutes');
     const app: any = {
-      use: jest.fn()
+      use: jest.fn(),
     };
     const createRouteMock = jest.spyOn(InfoRouter.prototype, 'createRoute').mockImplementation();
-    new InfoRouter(app);
+    const infoRouter = new InfoRouter(app);
     expect(initRoutesSpy).toBeCalled();
-    expect(createRouteMock).toBeCalledWith(Verb.get, '/', { '^1.0.0': expect.any(Function) }
-    );
+    expect(createRouteMock).toBeCalledWith(Verb.get, '/', { '^1.0.0': expect.any(Function) });
   });
 
   it('getInfo: should call service getInfo function and return the result in the response', async () => {
@@ -53,13 +52,13 @@ describe('InfoRouter', () => {
       return Promise.resolve(getInfoMockResult);
     });
     const serviceTest = {
-      getInfo: getInfoMock
+      getInfo: getInfoMock,
     };
     const router = new InfoRouter(null, serviceTest as any);
     const req: Partial<Request> = {};
     const sendMock = jest.fn();
     const res: Partial<Response> = {
-      send: sendMock
+      send: sendMock,
     };
     const next = jest.fn();
     await router.getInfo(req as Request, res as Response, next);
@@ -74,13 +73,13 @@ describe('InfoRouter', () => {
       throw errorTest;
     });
     const serviceTest = {
-      getInfo: getInfoMock
+      getInfo: getInfoMock,
     };
     const router = new InfoRouter(null, serviceTest as any);
     const req: Partial<Request> = {};
     const sendMock = jest.fn();
     const res: Partial<Response> = {
-      send: sendMock
+      send: sendMock,
     };
     const next = jest.fn();
     await router.getInfo(req as Request, res as Response, next);

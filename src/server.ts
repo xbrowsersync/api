@@ -1,59 +1,33 @@
-import * as bunyan from 'bunyan';
-import * as cors from 'cors';
-import * as express from 'express';
-import * as fs from 'fs';
-import * as helmet from 'helmet';
-import * as http from 'http';
-import * as https from 'https';
-import * as mkdirp from 'mkdirp';
+import bunyan from 'bunyan';
+import cors from 'cors';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+import helmet from 'helmet';
+import http from 'http';
+import https from 'https';
+import mkdirp from 'mkdirp';
+import noCache from 'nocache';
+import { LogLevel } from './common/enums';
 import * as Config from './config';
 import * as DB from './db';
 import {
-  ExceptionBase,
+  ApiException,
   NotImplementedException,
   OriginNotPermittedException,
   RequestThrottledException,
-  ServiceNotAvailableException,
   SyncDataLimitExceededException,
-  UnspecifiedException
+  UnspecifiedException,
 } from './exception';
-import BookmarksRouter from './routers/bookmarks.router';
-import DocsRouter from './routers/docs.router';
-import InfoRouter from './routers/info.router';
-import BookmarksService from './services/bookmarks.service';
-import InfoService from './services/info.service';
-import NewSyncLogsService from './services/newSyncLogs.service';
-import * as noCache from 'nocache';
 import * as Location from './location';
+import { BookmarksRouter } from './routers/bookmarks.router';
+import { DocsRouter } from './routers/docs.router';
+import { InfoRouter } from './routers/info.router';
+import { BookmarksService } from './services/bookmarks.service';
+import { InfoService } from './services/info.service';
+import { NewSyncLogsService } from './services/newSyncLogs.service';
 
 let logger: bunyan;
-
-export enum LogLevel {
-  Error,
-  Info
-}
-
-export enum ServiceStatus {
-  online = 1,
-  offline = 2,
-  noNewSyncs = 3
-}
-
-export enum Verb {
-  delete = 'delete',
-  get = 'get',
-  options = 'options',
-  patch = 'patch',
-  post = 'post',
-  put = 'put'
-}
-
-// Throws an error if the service status is set to offline in config
-export const checkServiceAvailability = (): void => {
-  if (!Config.get().status.online) {
-    throw new ServiceNotAvailableException();
-  }
-}
 
 // Cleans up server connections when stopping the service
 export const cleanupServer = async (server: http.Server | https.Server): Promise<void> => {
@@ -61,7 +35,7 @@ export const cleanupServer = async (server: http.Server | https.Server): Promise
   await DB.disconnect();
   server.removeAllListeners();
   process.removeAllListeners();
-}
+};
 
 // Creates a new express application, configures routes and connects to the database
 export const createApplication = async (): Promise<express.Express> => {
@@ -74,14 +48,13 @@ export const createApplication = async (): Promise<express.Express> => {
 
     // Establish database connection
     await DB.connect(logMessage);
-  }
-  catch (err) {
+  } catch (err) {
     logMessage(LogLevel.Error, `Couldn't create application`, null, err);
     return process.exit(1);
   }
 
   return app;
-}
+};
 
 // Creates a new bunyan logger for the module
 export const createLogger = (logStreams: bunyan.Stream[]): void => {
@@ -89,17 +62,17 @@ export const createLogger = (logStreams: bunyan.Stream[]): void => {
     logger = bunyan.createLogger({
       name: 'xBrowserSync_api',
       serializers: bunyan.stdSerializers,
-      streams: logStreams
+      streams: logStreams,
     });
-  }
-  catch (err) {
+  } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(`Failed to initialise logger.`);
     throw err;
   }
-}
+};
 
 // Handles and logs api errors
-export const handleError = (err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+export const handleError = (err: any, req: express.Request, res: express.Response): void => {
   if (!err) {
     return;
   }
@@ -108,8 +81,8 @@ export const handleError = (err: any, req: express.Request, res: express.Respons
   let responseObj: any;
   switch (true) {
     // If the error is one of our exceptions get the reponse object to return to the client
-    case err instanceof ExceptionBase:
-      responseObj = (err as ExceptionBase).getResponseObject();
+    case err instanceof ApiException:
+      responseObj = (err as ApiException).getResponseObject();
       break;
     // If the error is 413 Request Entity Too Large return a SyncDataLimitExceededException
     case err.status === 413:
@@ -124,7 +97,7 @@ export const handleError = (err: any, req: express.Request, res: express.Respons
 
   res.status(err.status || 500);
   res.json(responseObj);
-}
+};
 
 // Initialises the express application and middleware
 export const initApplication = (app: express.Express): void => {
@@ -135,7 +108,7 @@ export const initApplication = (app: express.Express): void => {
     // Add file log stream
     logStreams.push({
       level: Config.get().log.stdout.level,
-      stream: process.stdout
+      stream: process.stdout,
     });
   }
 
@@ -154,10 +127,10 @@ export const initApplication = (app: express.Express): void => {
         level: Config.get().log.file.level,
         path: Config.get().log.file.path,
         period: Config.get().log.file.rotationPeriod,
-        type: 'rotating-file'
+        type: 'rotating-file',
       });
-    }
-    catch (err) {
+    } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(`Failed to initialise log file.`);
       throw err;
     }
@@ -169,13 +142,7 @@ export const initApplication = (app: express.Express): void => {
   }
 
   // Create helmet config for security hardening
-  const helmetConfig: helmet.IHelmetConfiguration = {
-    contentSecurityPolicy: {
-      directives: { defaultSrc: ["'self'"] }
-    },
-    referrerPolicy: true
-  };
-  app.use(helmet(helmetConfig));
+  app.use(helmet());
   app.use(noCache());
 
   // Add default version to request if not supplied
@@ -190,38 +157,41 @@ export const initApplication = (app: express.Express): void => {
   }
 
   // Process JSON-encoded bodies, set body size limit to config value or default to 500kb
-  app.use(express.json({
-    limit: Config.get().maxSyncSize || 512000
-  }));
+  app.use(
+    express.json({
+      limit: Config.get().maxSyncSize || 512000,
+    })
+  );
 
   // Enable support for CORS
   const corsOptions: cors.CorsOptions =
-    Config.get().allowedOrigins.length > 0 ? {
-      origin: (origin, callback) => {
-        if (Config.get().allowedOrigins.indexOf(origin) !== -1) {
-          callback(null, true);
-        } else {
-          const err = new OriginNotPermittedException();
-          callback(err);
+    Config.get().allowedOrigins.length > 0
+      ? {
+          origin: (origin, callback) => {
+            if (Config.get().allowedOrigins.indexOf(origin) !== -1) {
+              callback(null, true);
+            } else {
+              const err = new OriginNotPermittedException();
+              callback(err);
+            }
+          },
         }
-      }
-    } : undefined;
+      : undefined;
   app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions));
 
   // Add thottling if enabled
   if (Config.get().throttle.maxRequests > 0) {
-    const rateLimit = require('express-rate-limit');
-    app.use(new rateLimit({
-      delayMs: 0,
-      handler: (req, res, next) => {
-        next(new RequestThrottledException());
-      },
-      max: Config.get().throttle.maxRequests,
-      windowMs: Config.get().throttle.timeWindow
-    }));
+    app.use(
+      rateLimit({
+        handler: (req, res, next) => {
+          next(new RequestThrottledException());
+        },
+        max: Config.get().throttle.maxRequests,
+        windowMs: Config.get().throttle.timeWindow,
+      })
+    );
   }
-}
+};
 
 // Configures api routing
 export const initRoutes = (app: express.Express): void => {
@@ -234,16 +204,16 @@ export const initRoutes = (app: express.Express): void => {
   const infoService = new InfoService(bookmarksService, logMessage);
 
   // Initialise routes
-  new DocsRouter(app);
-  new BookmarksRouter(app, bookmarksService);
-  new InfoRouter(app, infoService);
+  const docsRouter = new DocsRouter(app);
+  const bookmarkRouter = new BookmarksRouter(app, bookmarksService);
+  const infoRouter = new InfoRouter(app, infoService);
 
   // Handle all other routes with 404 error
   app.use((req, res, next) => {
     const err = new NotImplementedException();
     next(err);
   });
-}
+};
 
 // Logs messages and errors to console and to file (if enabled)
 export const logMessage = (level: LogLevel, message: string, req?: express.Request, err?: Error): void => {
@@ -256,10 +226,11 @@ export const logMessage = (level: LogLevel, message: string, req?: express.Reque
       logger.error({ req, err }, message);
       break;
     case LogLevel.Info:
+    default:
       logger.info({ req }, message);
       break;
   }
-}
+};
 
 // Starts the api service
 export const startService = async (app: express.Application): Promise<http.Server | https.Server> => {
@@ -273,17 +244,18 @@ export const startService = async (app: express.Application): Promise<http.Serve
   let server: http.Server | https.Server;
   const serverListening = () => {
     const protocol = Config.get().server.https.enabled ? 'https' : 'http';
-    const url = `${protocol}://${Config.get().server.host}:${Config.get().server.port}${Config.get().server.relativePath}`;
+    const url = `${protocol}://${Config.get().server.host}:${Config.get().server.port}${
+      Config.get().server.relativePath
+    }`;
     logMessage(LogLevel.Info, `Service started at ${url}`);
   };
   if (Config.get().server.https.enabled) {
     const options: https.ServerOptions = {
       cert: fs.readFileSync(Config.get().server.https.certPath),
-      key: fs.readFileSync(Config.get().server.https.keyPath)
+      key: fs.readFileSync(Config.get().server.https.keyPath),
     };
     server = https.createServer(options, app).listen(Config.get().server.port, null, serverListening);
-  }
-  else {
+  } else {
     server = http.createServer(app).listen(Config.get().server.port, null, serverListening);
   }
 
@@ -315,14 +287,14 @@ export const startService = async (app: express.Application): Promise<http.Serve
   });
 
   return server;
-}
+};
 
 // Stops the api service
 export const stopService = (server: http.Server | https.Server): Promise<void> => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     server.close(async () => {
       await cleanupServer(server);
       resolve();
     });
   });
-}
+};

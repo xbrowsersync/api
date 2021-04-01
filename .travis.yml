@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "lts/*"
+  - 'lts/*'
 services:
   - mongodb
 install:
@@ -8,4 +8,4 @@ install:
 script:
   - npm run build
   - npm run coverage
-  - npm run e2etests
+  - npm run test:e2e

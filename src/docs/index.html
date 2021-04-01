@@ -5,8 +5,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/png" href="./images/icon-128.png" sizes="128x128">
   <title>xBrowserSync API</title>
-  <link rel="icon" type="image/png" href="./icon-128.png" sizes="128x128">
 </head>
 
 <body id="home" class="index">
@@ -81,7 +81,8 @@
             are listed below.</p>
           <p>For more information visit the
             <a href="https://www.xbrowsersync.org/">xBrowserSync website</a> or check out the
-            <a href="https://github.com/xbrowsersync/api">API GitHub repo</a>.</p>
+            <a href="https://github.com/xbrowsersync/api">API GitHub repo</a>.
+          </p>
         </div>
       </div>
     </div>
@@ -106,7 +107,8 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.</li>
+              <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.
+            </li>
           </ul>
           <p>Response example:</p>
           <pre><code>{
@@ -116,11 +118,14 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>id:</strong> 32 character alphanumeric sync ID.</li>
+              <strong>id:</strong> 32 character alphanumeric sync ID.
+            </li>
             <li>
-              <strong>lastUpdated:</strong> Last updated timestamp for created bookmarks.</li>
+              <strong>lastUpdated:</strong> Last updated timestamp for created bookmarks.
+            </li>
             <li>
-              <strong>version:</strong>Version number of the xBrowserSync client used to create the sync.</li>
+              <strong>version:</strong>Version number of the xBrowserSync client used to create the sync.
+            </li>
           </ul>
         </div>
 
@@ -136,7 +141,8 @@
           <p>Query params:</p>
           <ul>
             <li>
-              <strong>id:</strong> 32 character alphanumeric sync ID.</li>
+              <strong>id:</strong> 32 character alphanumeric sync ID.
+            </li>
           </ul>
           <p>Response example:</p>
           <pre><code>{
@@ -146,11 +152,14 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+              <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.
+            </li>
             <li>
-              <strong>lastUpdated:</strong> Last updated timestamp for retrieved bookmarks.</li>
+              <strong>lastUpdated:</strong> Last updated timestamp for retrieved bookmarks.
+            </li>
             <li>
-              <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.</li>
+              <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.
+            </li>
           </ul>
         </div>
 
@@ -167,7 +176,8 @@
           <p>Query params:</p>
           <ul>
             <li>
-              <strong>id:</strong> 32 character alphanumeric sync ID.</li>
+              <strong>id:</strong> 32 character alphanumeric sync ID.
+            </li>
           </ul>
           <p>Post body example:</p>
           <pre><code>{
@@ -176,9 +186,11 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.</li>
+              <strong>bookmarks:</strong> Encrypted bookmark data salted using secret value.
+            </li>
             <li>
-              <strong>lastUpdated:</strong> Last updated timestamp to check against existing bookmarks.</li>
+              <strong>lastUpdated:</strong> Last updated timestamp to check against existing bookmarks.
+            </li>
           </ul>
           <p>Response example:</p>
           <pre><code>{
@@ -186,7 +198,8 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>lastUpdated:</strong> Last updated timestamp for updated bookmarks.</li>
+              <strong>lastUpdated:</strong> Last updated timestamp for updated bookmarks.
+            </li>
           </ul>
         </div>
 
@@ -202,7 +215,8 @@
           <p>Query params:</p>
           <ul>
             <li>
-              <strong>id:</strong> 32 character alphanumeric sync ID.</li>
+              <strong>id:</strong> 32 character alphanumeric sync ID.
+            </li>
           </ul>
           <p>Response example:</p>
           <pre><code>{
@@ -210,7 +224,8 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>lastUpdated:</strong> Last updated timestamp for corresponding bookmarks.</li>
+              <strong>lastUpdated:</strong> Last updated timestamp for corresponding bookmarks.
+            </li>
           </ul>
         </div>
 
@@ -228,7 +243,8 @@
           <p>Query params:</p>
           <ul>
             <li>
-              <strong>id:</strong> 32 character alphanumeric sync ID.</li>
+              <strong>id:</strong> 32 character alphanumeric sync ID.
+            </li>
           </ul>
           <p>Response example:</p>
           <pre><code>{
@@ -236,7 +252,8 @@
 }</code></pre>
           <ul>
             <li>
-              <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.</li>
+              <strong>version:</strong> Version number of the xBrowserSync client used to create the sync.
+            </li>
           </ul>
         </div>
 
@@ -267,13 +284,17 @@
           <ul>
             <li>
               <strong>status:</strong> Current service status code. 1 = Online; 2 = Offline; 3 = Not accepting new
-              syncs.</li>
+              syncs.
+            </li>
             <li>
-              <strong>message:</strong> Service information message.</li>
+              <strong>message:</strong> Service information message.
+            </li>
             <li>
-              <strong>version:</strong> API version service is using.</li>
+              <strong>version:</strong> API version service is using.
+            </li>
             <li>
-              <strong>maxSyncSize:</strong> Maximum sync size (in bytes) allowed by the service.</li>
+              <strong>maxSyncSize:</strong> Maximum sync size (in bytes) allowed by the service.
+            </li>
           </ul>
         </div>
       </div>

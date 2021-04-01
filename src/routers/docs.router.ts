@@ -1,14 +1,16 @@
-import * as express from 'express';
-import * as path from 'path';
+import express from 'express';
+import path from 'path';
 import * as Config from '../config';
-import BaseRouter, { IApiRouter } from '../routers/base.router';
+import { ApiRouter, IApiRouter } from './api.router';
 
 export const relativePathToDocs = '../docs';
 
 // Implementation of routes for API documentation
-export default class DocsRouter extends BaseRouter<void> implements IApiRouter {
+export class DocsRouter extends ApiRouter<void> implements IApiRouter {
   // Initialises the routes for this router implementation
   initRoutes(): void {
+    this.app.get('/favicon.ico', (req, res) => res.status(204));
+
     this.app.use(Config.get().server.relativePath, express.static(path.join(__dirname, relativePathToDocs)));
   }
 }

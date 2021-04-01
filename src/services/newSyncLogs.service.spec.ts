@@ -1,10 +1,10 @@
 import 'jest';
 import { Request } from 'express';
-import * as Config from '../../src/config';
-import NewSyncLogsModel from '../models/newSyncLogs.model';
-import NewSyncLogsService from './newSyncLogs.service';
-import { LogLevel } from '../server';
+import { LogLevel } from '../common/enums';
+import * as Config from '../config';
 import { UnspecifiedException } from '../exception';
+import { NewSyncLogsModel } from '../models/newSyncLogs.model';
+import { NewSyncLogsService } from './newSyncLogs.service';
 
 jest.mock('../models/newSyncLogs.model');
 
@@ -21,7 +21,9 @@ describe('NewSyncLogsService', () => {
   });
 
   it('createLog: should create a new sync log using the request IP address', async () => {
-    const getClientIpAddressMock = jest.spyOn(NewSyncLogsService.prototype, 'getClientIpAddress').mockReturnValue(ipAddressTest);
+    const getClientIpAddressMock = jest
+      .spyOn(NewSyncLogsService.prototype, 'getClientIpAddress')
+      .mockReturnValue(ipAddressTest);
     jest.spyOn(NewSyncLogsModel.prototype, 'save').mockResolvedValue(null);
     const newSyncLogsService = new NewSyncLogsService(null, jest.fn());
     const req: Partial<Request> = {};
@@ -38,9 +40,7 @@ describe('NewSyncLogsService', () => {
     });
     const newSyncLogsService = new NewSyncLogsService(null, logMock);
     const req: Partial<Request> = {};
-    await expect(newSyncLogsService.createLog(req as Request))
-      .rejects
-      .toThrow(errorTest);
+    await expect(newSyncLogsService.createLog(req as Request)).rejects.toThrow(errorTest);
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
   });
 
@@ -56,11 +56,11 @@ describe('NewSyncLogsService', () => {
   it('newSyncsLimitHit: should return true if the request IP address has hit the limit for daily new syncs created', async () => {
     jest.spyOn(NewSyncLogsService.prototype, 'getClientIpAddress').mockReturnValue(ipAddressTest);
     const configSettingsTest: Config.IConfigSettings = {
-      dailyNewSyncsLimit: 1
+      dailyNewSyncsLimit: 1,
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const countDocumentsMock = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
-      exec: () => Promise.resolve(1)
+      exec: () => Promise.resolve(1),
     } as any);
     const newSyncLogsService = new NewSyncLogsService(null, logMock);
     const req: Partial<Request> = {};
@@ -73,11 +73,11 @@ describe('NewSyncLogsService', () => {
     jest.spyOn(NewSyncLogsService.prototype, 'getClientIpAddress').mockReturnValue(ipAddressTest);
     const dailyNewSyncsLimitTest = 1;
     const configSettingsTest: Config.IConfigSettings = {
-      dailyNewSyncsLimit: dailyNewSyncsLimitTest
+      dailyNewSyncsLimit: dailyNewSyncsLimitTest,
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const countDocumentsMock = jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
-      exec: () => Promise.resolve(0)
+      exec: () => Promise.resolve(0),
     } as any);
     const newSyncLogsService = new NewSyncLogsService(null, logMock);
     const req: Partial<Request> = {};
@@ -103,29 +103,25 @@ describe('NewSyncLogsService', () => {
     });
     const newSyncLogsService = new NewSyncLogsService(null, logMock);
     const req: Partial<Request> = {};
-    await expect(newSyncLogsService.newSyncsLimitHit(req as Request))
-      .rejects
-      .toThrow(errorTest);
+    await expect(newSyncLogsService.newSyncsLimitHit(req as Request)).rejects.toThrow(errorTest);
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
   });
 
   it('newSyncsLimitHit: should log error if countDocuments returns a value less than zero', async () => {
     jest.spyOn(NewSyncLogsService.prototype, 'getClientIpAddress').mockReturnValue(ipAddressTest);
     jest.spyOn(NewSyncLogsModel, 'countDocuments').mockReturnValue({
-      exec: () => Promise.resolve(-1)
+      exec: () => Promise.resolve(-1),
     } as any);
     const newSyncLogsService = new NewSyncLogsService(null, logMock);
     const req: Partial<Request> = {};
-    await expect(newSyncLogsService.newSyncsLimitHit(req as Request))
-      .rejects
-      .toThrow(UnspecifiedException);
+    await expect(newSyncLogsService.newSyncsLimitHit(req as Request)).rejects.toThrow(UnspecifiedException);
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, expect.any(UnspecifiedException));
   });
 
   it('getClientIpAddress: should return the ip address associated with the request', () => {
     const newSyncLogsService = new NewSyncLogsService(null, logMock);
     const req: Partial<Request> = {
-      ip: ipAddressTest
+      ip: ipAddressTest,
     };
     const ipAddress = newSyncLogsService.getClientIpAddress(req as Request);
     expect(ipAddress).toStrictEqual(ipAddressTest);

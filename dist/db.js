@@ -1,26 +1,41 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose = require("mongoose");
-const Config = require("./config");
-const server_1 = require("./server");
+exports.disconnect = exports.connect = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const enums_1 = require("./common/enums");
+const Config = __importStar(require("./config"));
 // Initialises the database connection using config settings
-exports.connect = (log) => __awaiter(void 0, void 0, void 0, function* () {
+const connect = async (log) => {
     // Set the db connection options from config settings
     const options = {
         connectTimeoutMS: Config.get().db.connTimeout,
         keepAlive: true,
+        ssl: Config.get().db.useSRV || Config.get().db.ssl,
         useFindAndModify: false,
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
     };
     // Configure db credentials
     const username = Config.get().db.username || process.env.XBROWSERSYNC_DB_USER;
@@ -34,18 +49,21 @@ exports.connect = (log) => __awaiter(void 0, void 0, void 0, function* () {
     else {
         dbServerUrl += `://${creds}${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
     }
-    dbServerUrl += (Config.get().db.authSource) ? `?authSource=${Config.get().db.authSource}` : '';
+    dbServerUrl += Config.get().db.authSource ? `?authSource=${Config.get().db.authSource}` : '';
     // Connect to the database
     try {
-        yield mongoose.connect(dbServerUrl, options);
+        await mongoose_1.default.connect(dbServerUrl, options);
     }
     catch (err) {
-        log && log(server_1.LogLevel.Error, 'Unable to connect to database', null, err);
+        if ((log !== null && log !== void 0 ? log : undefined) !== undefined) {
+            log(enums_1.LogLevel.Error, 'Unable to connect to database', null, err);
+        }
         process.exit(1);
     }
-});
+};
+exports.connect = connect;
 // Closes the database connection
-exports.disconnect = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield mongoose.disconnect();
-});
-//# sourceMappingURL=db.js.map
+const disconnect = async () => {
+    await mongoose_1.default.disconnect();
+};
+exports.disconnect = disconnect;

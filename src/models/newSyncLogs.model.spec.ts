@@ -1,14 +1,14 @@
 import 'jest';
-import * as moment from 'moment';
-import NewSyncLogsModel from '../models/newSyncLogs.model'
-import * as Uuid from '../uuid';
+import moment from 'moment';
+import { convertUuidStringToBinary } from '../uuid';
+import { NewSyncLogsModel } from './newSyncLogs.model';
 
 describe('NewSyncLogsModel', () => {
   it('newSyncLogsSchema: should create a default valid UUID', () => {
     const newSyncLogsModel = new NewSyncLogsModel();
     expect(newSyncLogsModel.id).not.toBeNull();
     expect(() => {
-      Uuid.convertUuidStringToBinary(newSyncLogsModel.id);
+      convertUuidStringToBinary(newSyncLogsModel.id);
     }).not.toThrowError();
   });
 

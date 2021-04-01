@@ -1,6 +1,6 @@
 import 'jest';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import * as Config from './config';
 
 describe('Config', () => {
@@ -19,7 +19,9 @@ describe('Config', () => {
   });
 
   it('get: should return default settings values when no user settings provided', () => {
-    jest.spyOn(Config, 'getUserSettings').mockImplementation(() => { return {}; });
+    jest.spyOn(Config, 'getUserSettings').mockImplementation(() => {
+      return {};
+    });
     const maxSyncs = Config.get(true).maxSyncs;
     expect(maxSyncs).toBe(5242);
   });
@@ -27,7 +29,7 @@ describe('Config', () => {
   it('get: should return user settings values when user settings provided', () => {
     const maxSyncsTestVal = 9999;
     jest.spyOn(Config, 'getUserSettings').mockReturnValue({
-      maxSyncs: maxSyncsTestVal
+      maxSyncs: maxSyncsTestVal,
     });
     const maxSyncs = Config.get(true).maxSyncs;
     expect(maxSyncs).toStrictEqual(maxSyncsTestVal);

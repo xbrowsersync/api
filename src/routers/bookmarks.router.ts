@@ -1,27 +1,27 @@
 import { autobind } from 'core-decorators';
 import { NextFunction, Request, Response } from 'express';
+import { Verb } from '../common/enums';
 import * as Config from '../config';
 import { RequiredDataNotFoundException } from '../exception';
-import BaseRouter, { IApiRouter } from '../routers/base.router';
-import { Verb } from '../server';
-import BookmarksService from '../services/bookmarks.service';
-import * as Uuid from '../uuid';
+import { BookmarksService } from '../services/bookmarks.service';
+import { convertUuidStringToBinary } from '../uuid';
+import { ApiRouter, IApiRouter } from './api.router';
 
 // Implementation of routes for bookmarks operations
-export default class BookmarksRouter extends BaseRouter<BookmarksService> implements IApiRouter {
+export class BookmarksRouter extends ApiRouter<BookmarksService> implements IApiRouter {
   // Initialises the routes for this router implementation
   initRoutes(): void {
     this.app.use(`${Config.get().server.relativePath}bookmarks`, this._router);
     this.createRoute(Verb.post, '/', {
       '~1.0.0': this.createBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys
-      '^1.1.3': this.createBookmarks_v2
+      '^1.1.3': this.createBookmarks_v2,
     });
     this.createRoute(Verb.get, '/:id', { '^1.0.0': this.getBookmarks });
     this.createRoute(Verb.put, '/:id', {
       '~1.0.0': this.updateBookmarks_v1,
       // tslint:disable-next-line:object-literal-sort-keys
-      '^1.1.3': this.updateBookmarks_v2
+      '^1.1.3': this.updateBookmarks_v2,
     });
     this.createRoute(Verb.get, '/:id/lastUpdated', { '^1.0.0': this.getLastUpdated });
     this.createRoute(Verb.get, '/:id/version', { '^1.1.3': this.getVersion });
@@ -34,14 +34,13 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
       if (bookmarksData === '') {
-        throw new RequiredDataNotFoundException;
+        throw new RequiredDataNotFoundException();
       }
 
       // Call service method to create new bookmarks sync and return response as json
       const newSync = await this.service.createBookmarks_v1(bookmarksData, req);
       res.json(newSync);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
@@ -53,14 +52,13 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Get posted sync version
       const syncVersion = req.body.version;
       if (!syncVersion) {
-        throw new RequiredDataNotFoundException;
+        throw new RequiredDataNotFoundException();
       }
 
       // Call service method to create new sync and return response as json
       const newSync = await this.service.createBookmarks_v2(req.body.version, req);
       res.json(newSync);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
@@ -75,8 +73,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Call service method to retrieve bookmarks data and return response as json
       const bookmarks = await this.service.getBookmarks(id, req);
       res.json(bookmarks);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
@@ -96,24 +93,16 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Call service method to get bookmarks last updated date and return response as json
       const lastUpdated = await this.service.getLastUpdated(id, req);
       res.json(lastUpdated);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
 
   // Retrieves the sync ID from the request query string parameters
   getSyncId(req: Request): string {
+    // Check id is valid
     const id = req.params.id;
-
-    try {
-      // Check id is valid
-      Uuid.convertUuidStringToBinary(id);
-    }
-    catch (err) {
-      throw err;
-    }
-
+    convertUuidStringToBinary(id);
     return id;
   }
 
@@ -127,8 +116,7 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Call service method to get sync version and return response as json
       const syncVersion = await this.service.getVersion(id, req);
       res.json(syncVersion);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
@@ -143,14 +131,13 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
       if (bookmarksData === '') {
-        throw new RequiredDataNotFoundException;
+        throw new RequiredDataNotFoundException();
       }
 
       // Call service method to update bookmarks data and return response as json
       const bookmarksSync = await this.service.updateBookmarks_v1(id, bookmarksData, req);
       res.json(bookmarksSync);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
@@ -165,14 +152,19 @@ export default class BookmarksRouter extends BaseRouter<BookmarksService> implem
       // Get posted bookmarks data
       const bookmarksData = this.getBookmarksData(req);
       if (bookmarksData === '') {
-        throw new RequiredDataNotFoundException;
+        throw new RequiredDataNotFoundException();
       }
 
       // Call service method to update bookmarks data and return response as json
-      const bookmarksSync = await this.service.updateBookmarks_v2(id, bookmarksData, req.body.lastUpdated, req.body.version, req);
+      const bookmarksSync = await this.service.updateBookmarks_v2(
+        id,
+        bookmarksData,
+        req.body.lastUpdated,
+        req.body.version,
+        req
+      );
       res.json(bookmarksSync);
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }

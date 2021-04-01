@@ -1,5 +1,5 @@
-@import "mixins.scss";
-@import "variables.scss";
+@import 'mixins';
+@import 'variables';
 
 @include keyframes(spin) {
   100% {
@@ -24,11 +24,11 @@ html {
 }
 
 body {
-  font-family: $font-stack-regular;
-  overflow-x: hidden;
   color: $colour-text1;
   display: flex;
   flex-direction: column;
+  font-family: $font-stack-regular;
+  overflow-x: hidden;
 
   &.noscroll {
     @media (max-width: $width-medium) {
@@ -39,10 +39,11 @@ body {
 
 h1 {
   @include hide-text;
-  background: url("./images/logo.svg") no-repeat;
-  width: 10rem;
+
+  background: url('./images/logo.svg') no-repeat;
   height: 13rem;
   margin: auto;
+  width: 10rem;
 }
 
 h2 {
@@ -73,19 +74,19 @@ p {
 }
 
 a {
-  color: $colour-text1;
-  transition: color, ease-in, 0.2s;
-  cursor: pointer;
   border-bottom: 1px dotted $colour-text1;
+  color: $colour-text1;
+  cursor: pointer;
+  transition: color, ease-in, 0.2s;
 
   &:active,
   &:focus,
   &:hover,
   .active {
-    color: $colour-link-highlight;
     border-bottom-color: $colour-link-highlight;
-    text-decoration: none;
+    color: $colour-link-highlight;
     outline: 0;
+    text-decoration: none;
   }
 }
 
@@ -101,29 +102,30 @@ nav {
 
     &.open {
       @media (max-width: $width-medium) {
-        top: 0;
-        left: 0;
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        z-index: 100;
-        font-size: 1.5rem;
-        padding: 8% 0 0 10%;
         @include animation(slidein 0.3s forwards);
+
+        font-size: 1.5rem;
+        height: 100vh;
+        left: 0;
+        padding: 8% 0 0 10%;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+        z-index: 100;
 
         .nav,
         .navbar-collapse {
           display: block;
 
-          &:before {
+          &::before {
+            content: ' ' !important;
             display: table !important;
-            content: " " !important;
           }
         }
 
         .navbar-nav > li > a {
-          line-height: 2rem;
           display: inline-block;
+          line-height: 2rem;
         }
       }
     }
@@ -134,8 +136,8 @@ nav {
 
         li {
           a {
+            border-bottom: 0 !important;
             color: $colour-text1;
-            border-bottom: none !important;
 
             &:active,
             &:hover {
@@ -148,8 +150,8 @@ nav {
             }
 
             &.active {
-              color: $colour-link-highlight;
               background: transparent;
+              color: $colour-link-highlight;
 
               &:active,
               &:focus,
@@ -172,22 +174,22 @@ nav {
     }
 
     @media (max-width: $width-medium) {
+      margin-bottom: 0;
       min-height: auto;
       padding: 0;
-      margin-bottom: 0;
     }
   }
 }
 
 pre {
-  border: none;
   background: transparent;
+  border: 0;
   padding: 0;
 }
 
 code {
-  font-family: $font-stack-code;
   color: $colour-link-highlight !important;
+  font-family: $font-stack-code;
 }
 
 header {
@@ -215,9 +217,9 @@ header {
     margin-top: 2.5rem;
 
     @media (min-width: $width-medium) {
-      margin-top: 0;
       align-items: center;
       display: flex;
+      margin-top: 0;
     }
   }
 }
@@ -227,15 +229,15 @@ section {
 
   & > .container > .panel {
     a {
-      color: $colour-text2;
       border-bottom-color: $colour-text2;
+      color: $colour-text2;
 
       &:active,
       &:focus,
       &:hover,
       .active {
-        color: $colour-link-highlight;
         border-bottom-color: $colour-link-highlight;
+        color: $colour-link-highlight;
       }
     }
   }
@@ -245,15 +247,15 @@ section {
     color: $colour-section1-text;
 
     a {
-      color: $colour-section1-text;
       border-bottom-color: $colour-section1-text;
+      color: $colour-section1-text;
 
       &:active,
       &:focus,
       &:hover,
       .active {
-        color: $colour-link-highlight;
         border-bottom-color: $colour-link-highlight;
+        color: $colour-link-highlight;
       }
     }
   }
@@ -263,8 +265,8 @@ section {
     margin-bottom: 3rem;
 
     p {
-      margin-bottom: 0.5rem;
       font-style: italic;
+      margin-bottom: 0.5rem;
     }
 
     pre {
@@ -288,10 +290,10 @@ section {
     justify-content: space-between;
 
     .label {
+      border-radius: 0.4rem;
       color: $colour-text1;
       font-size: 0.75rem;
       font-weight: bold;
-      border-radius: 0.4rem;
       padding: 0.1rem 0.3rem;
       vertical-align: middle;
 
@@ -314,22 +316,22 @@ section {
   }
 
   .panel {
-    color: $colour-section2-text;
     background-color: $colour-section2-bg;
     border-radius: 2rem;
-    padding: 2rem;
     box-shadow: 0.6875rem 1.3125rem 4.125rem rgba(0, 0, 0, 0.25);
+    color: $colour-section2-text;
+    padding: 2rem;
 
     a {
-      color: $colour-section2-text;
       border-bottom-color: $colour-section2-text;
+      color: $colour-section2-text;
 
       &:active,
       &:focus,
       &:hover,
       .active {
-        color: $colour-link-highlight;
         border-bottom-color: $colour-link-highlight;
+        color: $colour-link-highlight;
       }
     }
   }
@@ -354,9 +356,9 @@ section {
 
       #servermessage {
         font-style: italic;
-        text-align: center;
-        quotes: "\201c""\201d";
         margin-top: 0.25rem;
+        quotes: '\201c''\201d';
+        text-align: center;
 
         & > p {
           display: inline-block;
@@ -369,9 +371,9 @@ section {
 
         & > span {
           display: block;
-          text-align: center;
-          min-width: 8rem;
           line-height: 1.4rem;
+          min-width: 8rem;
+          text-align: center;
         }
 
         #location {
@@ -406,24 +408,25 @@ span {
 }
 
 .background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
   @include background-gradient(20deg, $colour-bg1, 0, $colour-bg2, 100%);
 
+  height: 100%;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+
   .background-img {
-    display: block;
-    position: absolute;
-    z-index: 0;
-    width: $bg-width * 10;
-    height: $bg-height * 10;
-    top: -$bg-height;
-    background: url("./images/clouds.svg");
-    background-size: $bg-width;
+    background: url('./images/clouds.svg');
     background-repeat: repeat;
+    background-size: $bg-width;
+    display: block;
+    height: $bg-height * 10;
     opacity: 0.2;
+    position: absolute;
+    top: -$bg-height;
+    width: $bg-width * 10;
+    z-index: 0;
 
     @media (max-width: $width-medium) {
       background-size: 40rem;
@@ -438,41 +441,41 @@ span {
 }
 
 .hamburger {
+  border-bottom: 0.27rem solid $colour-text1;
+  border-top: 0.27rem solid $colour-text1;
   display: inline-block;
+  height: 1.34rem;
+  opacity: 0.9;
   position: relative;
   top: -0.3rem;
-  height: 1.34rem;
   width: 1.75rem;
-  border-top: 0.27rem solid $colour-text1;
-  border-bottom: 0.27rem solid $colour-text1;
-  opacity: 0.9;
 
-  &:before {
-    content: "";
+  &::before {
+    border-top: 0.27rem solid $colour-text1;
+    content: '';
+    left: 0;
     position: absolute;
     top: 0.27rem;
-    left: 0;
     width: 100%;
-    border-top: 0.27rem solid $colour-text1;
   }
 }
 
 .nav-menu-button {
-  display: none;
-  position: fixed;
-  z-index: 20;
-  top: 4%;
-  right: 6%;
-  height: 3rem;
-  width: 3rem;
-  padding: 0;
   background: rgba($colour-text2, 0.9);
-  color: $colour-text1;
-  border: none;
+  border: 0;
   border-radius: 5rem;
+  color: $colour-text1;
+  display: none;
   font-size: 1.75rem;
+  height: 3rem;
   line-height: 3.7rem;
   outline: none;
+  padding: 0;
+  position: fixed;
+  right: 6%;
+  top: 4%;
+  width: 3rem;
+  z-index: 20;
 
   @media (max-width: $width-medium) {
     display: block;

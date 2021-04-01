@@ -1,70 +1,71 @@
-import * as merge from 'deepmerge';
-import * as fs from 'fs';
-import * as path from 'path';
+import merge from 'deepmerge';
+import fs from 'fs';
+import path from 'path';
 
 export interface IConfigSettings {
-  allowedOrigins?: string[],
-  dailyNewSyncsLimit?: number,
+  allowedOrigins?: string[];
+  dailyNewSyncsLimit?: number;
   db?: {
-    authSource?: string,
-    connTimeout?: number,
-    host?: string,
-    name?: string,
-    useSRV?: boolean,
-    username?: string,
-    password?: string,
-    port?: number
-  },
-  location?: string,
+    authSource?: string;
+    connTimeout?: number;
+    host?: string;
+    name?: string;
+    ssl?: boolean;
+    useSRV?: boolean;
+    username?: string;
+    password?: string;
+    port?: number;
+  };
+  location?: string;
   log?: {
     file?: {
-      enabled?: boolean,
-      level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal',
-      path?: string,
-      rotatedFilesToKeep?: number,
-      rotationPeriod?: string
-    },
+      enabled?: boolean;
+      level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+      path?: string;
+      rotatedFilesToKeep?: number;
+      rotationPeriod?: string;
+    };
     stdout?: {
-      enabled?: boolean,
-      level?: string
-    }
-  },
-  maxSyncs?: number,
-  maxSyncSize?: number,
+      enabled?: boolean;
+      level?: string;
+    };
+  };
+  maxSyncs?: number;
+  maxSyncSize?: number;
   server?: {
-    behindProxy?: boolean,
-    host?: string,
+    behindProxy?: boolean;
+    host?: string;
     https?: {
-      certPath?: string,
-      enabled?: boolean,
-      keyPath?: string
-    },
-    port?: number,
-    relativePath?: string
-  },
+      certPath?: string;
+      enabled?: boolean;
+      keyPath?: string;
+    };
+    port?: number;
+    relativePath?: string;
+  };
   status?: {
-    allowNewSyncs?: boolean,
-    message?: string,
-    online?: boolean
-  },
+    allowNewSyncs?: boolean;
+    message?: string;
+    online?: boolean;
+  };
   tests?: {
-    db?: string,
-    port?: number
-  },
+    db?: string;
+    port?: number;
+  };
   throttle?: {
-    maxRequests?: number,
-    timeWindow?: number
-  },
-  version?: string
+    maxRequests?: number;
+    timeWindow?: number;
+  };
+  version?: string;
 }
 
-let _cachedConfig: IConfigSettings;
+let cachedConfig: IConfigSettings;
 export const getCachedConfig = (): IConfigSettings => {
-  return _cachedConfig;
-}
+  return cachedConfig;
+};
 export const setCachedConfig = (value: IConfigSettings): void => {
-  _cachedConfig = value;
-}
+  cachedConfig = value;
+};
 
 // Returns combined default and user-specified config settings
 export const get = (force?: boolean): IConfigSettings => {
@@ -89,23 +90,23 @@ export const get = (force?: boolean): IConfigSettings => {
 
   setCachedConfig({
     ...settings,
-    version
+    version,
   });
 
   return getCachedConfig();
-}
+};
 
 // Returns default config settings
 const getDefaultSettings = (pathToConfig: string): IConfigSettings => {
   const pathToSettings = path.join(pathToConfig, 'settings.default.json');
   return require(pathToSettings);
-}
+};
 
 // Returns version number from package.json
 export const getPackageVersion = (): string => {
   const packageJson = require('../package.json');
   return packageJson.version;
-}
+};
 
 // Returns user-specified config settings
 export const getUserSettings = (pathToConfig: string): IConfigSettings => {
@@ -115,4 +116,4 @@ export const getUserSettings = (pathToConfig: string): IConfigSettings => {
     userSettings = require(pathToUserSettings);
   }
   return userSettings;
-}
+};

@@ -1,9 +1,8 @@
 import 'jest';
-import * as express from 'express';
-import * as path from 'path';
-import versioning from 'express-routes-versioning';
+import express from 'express';
+import path from 'path';
 import * as Config from '../config';
-import DocsRouter, { relativePathToDocs } from './docs.router';
+import { DocsRouter, relativePathToDocs } from './docs.router';
 
 jest.mock('express-routes-versioning');
 
@@ -16,8 +15,8 @@ describe('DocsRouter', () => {
     const relativePathTest = '/';
     const configSettingsTest: Config.IConfigSettings = {
       server: {
-        relativePath: relativePathTest
-      }
+        relativePath: relativePathTest,
+      },
     };
     jest.spyOn(Config, 'get').mockReturnValue(configSettingsTest);
     const initRoutesSpy = jest.spyOn(DocsRouter.prototype, 'initRoutes');
@@ -36,7 +35,8 @@ describe('DocsRouter', () => {
       handler = args[1];
     });
     const app: any = {
-      use: useMock
+      get: jest.fn(),
+      use: useMock,
     };
     const router = new DocsRouter(app);
     expect(router).not.toBeNull();

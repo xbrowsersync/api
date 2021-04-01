@@ -1,17 +1,20 @@
 import { Request } from 'express';
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
+import { LogLevel } from './common/enums';
 import * as Config from './config';
-import { LogLevel } from './server';
 
 // Initialises the database connection using config settings
-export const connect = async (log?: (level: LogLevel, message: string, req?: Request, err?: Error) => void): Promise<void> => {
+export const connect = async (
+  log?: (level: LogLevel, message: string, req?: Request, err?: Error) => void
+): Promise<void> => {
   // Set the db connection options from config settings
   const options: mongoose.ConnectionOptions = {
     connectTimeoutMS: Config.get().db.connTimeout,
     keepAlive: true,
+    ssl: Config.get().db.useSRV || Config.get().db.ssl,
     useFindAndModify: false,
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   };
 
   // Configure db credentials
@@ -23,23 +26,23 @@ export const connect = async (log?: (level: LogLevel, message: string, req?: Req
   let dbServerUrl = 'mongodb';
   if (Config.get().db.useSRV) {
     dbServerUrl += `+srv://${creds}${Config.get().db.host}/${Config.get().db.name}`;
-  }
-  else {
+  } else {
     dbServerUrl += `://${creds}${Config.get().db.host}:${Config.get().db.port}/${Config.get().db.name}`;
   }
-  dbServerUrl += (Config.get().db.authSource) ? `?authSource=${Config.get().db.authSource}` : '';
+  dbServerUrl += Config.get().db.authSource ? `?authSource=${Config.get().db.authSource}` : '';
 
   // Connect to the database
   try {
     await mongoose.connect(dbServerUrl, options);
-  }
-  catch (err) {
-    log && log(LogLevel.Error, 'Unable to connect to database', null, err);
+  } catch (err) {
+    if ((log ?? undefined) !== undefined) {
+      log(LogLevel.Error, 'Unable to connect to database', null, err);
+    }
     process.exit(1);
   }
-}
+};
 
 // Closes the database connection
 export const disconnect = async (): Promise<void> => {
-  await mongoose.disconnect()
-}
+  await mongoose.disconnect();
+};
