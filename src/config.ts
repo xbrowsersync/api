@@ -10,6 +10,7 @@ export interface IConfigSettings {
     connTimeout?: number;
     host?: string;
     name?: string;
+    ssl?: boolean;
     useSRV?: boolean;
     username?: string;
     password?: string;

@@ -32,6 +32,7 @@ const connect = async (log) => {
     const options = {
         connectTimeoutMS: Config.get().db.connTimeout,
         keepAlive: true,
+        ssl: Config.get().db.useSRV || Config.get().db.ssl,
         useFindAndModify: false,
         useNewUrlParser: true,
         useUnifiedTopology: true,

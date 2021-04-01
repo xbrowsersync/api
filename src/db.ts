@@ -11,6 +11,7 @@ export const connect = async (
   const options: mongoose.ConnectionOptions = {
     connectTimeoutMS: Config.get().db.connTimeout,
     keepAlive: true,
+    ssl: Config.get().db.useSRV || Config.get().db.ssl,
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
