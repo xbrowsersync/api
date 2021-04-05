@@ -4,10 +4,10 @@ import { LogLevel } from '../common/enums';
 import * as Utils from '../common/utils';
 import * as Config from '../config';
 import {
-  InvalidSyncIdException,
   NewSyncsForbiddenException,
   NewSyncsLimitExceededException,
   SyncConflictException,
+  SyncNotFoundException,
   UnspecifiedException,
 } from '../exception';
 import { BookmarksModel, IBookmarks } from '../models/bookmarks.model';
@@ -211,16 +211,16 @@ describe('BookmarksService', () => {
     expect(bookmarksSync.lastUpdated).toStrictEqual(createdDateTestVal);
   });
 
-  it('getBookmarks: should throw a InvalidSyncIdException db operation returns null', async () => {
+  it('getBookmarks: should throw a SyncNotFoundException if db operation returns null', async () => {
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockReturnValue({
       exec: () => Promise.resolve(null),
     } as any);
     const bookmarksService = new BookmarksService(null, logMock);
     const req: Partial<Request> = {};
-    await expect(bookmarksService.getBookmarks(null, req as Request)).rejects.toThrow(InvalidSyncIdException);
+    await expect(bookmarksService.getBookmarks(null, req as Request)).rejects.toThrow(SyncNotFoundException);
   });
 
-  it('getBookmarks: should log errors that are not InvalidSyncIdException', async () => {
+  it('getBookmarks: should log errors that are not SyncNotFoundException', async () => {
     const errorTest = new Error();
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockImplementation(() => {
       throw errorTest;
@@ -231,8 +231,8 @@ describe('BookmarksService', () => {
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
   });
 
-  it('getBookmarks: should not log errors that are InvalidSyncIdException', async () => {
-    const errorTest = new InvalidSyncIdException();
+  it('getBookmarks: should not log errors that are SyncNotFoundException', async () => {
+    const errorTest = new SyncNotFoundException();
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockImplementation(() => {
       throw errorTest;
     });
@@ -256,16 +256,16 @@ describe('BookmarksService', () => {
     expect(bookmarksSync.lastUpdated).toStrictEqual(createdDateTestVal);
   });
 
-  it('getLastUpdated: should throw a InvalidSyncIdException db operation returns null', async () => {
+  it('getLastUpdated: should throw a SyncNotFoundException if db operation returns null', async () => {
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockReturnValue({
       exec: () => Promise.resolve(null),
     } as any);
     const bookmarksService = new BookmarksService(null, logMock);
     const req: Partial<Request> = {};
-    await expect(bookmarksService.getLastUpdated(null, req as Request)).rejects.toThrow(InvalidSyncIdException);
+    await expect(bookmarksService.getLastUpdated(null, req as Request)).rejects.toThrow(SyncNotFoundException);
   });
 
-  it('getLastUpdated: should log errors that are not InvalidSyncIdException', async () => {
+  it('getLastUpdated: should log errors that are not SyncNotFoundException', async () => {
     const errorTest = new Error();
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockImplementation(() => {
       throw errorTest;
@@ -276,8 +276,8 @@ describe('BookmarksService', () => {
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
   });
 
-  it('getLastUpdated: should not log errors that are InvalidSyncIdException', async () => {
-    const errorTest = new InvalidSyncIdException();
+  it('getLastUpdated: should not log errors that are SyncNotFoundException', async () => {
+    const errorTest = new SyncNotFoundException();
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockImplementation(() => {
       throw errorTest;
     });
@@ -301,16 +301,16 @@ describe('BookmarksService', () => {
     expect(bookmarksSync.version).toStrictEqual(syncVersionTestVal);
   });
 
-  it('getVersion: should throw a InvalidSyncIdException db operation returns null', async () => {
+  it('getVersion: should throw a SyncNotFoundException db operation returns null', async () => {
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockReturnValue({
       exec: () => Promise.resolve(null),
     } as any);
     const bookmarksService = new BookmarksService(null, logMock);
     const req: Partial<Request> = {};
-    await expect(bookmarksService.getVersion(null, req as Request)).rejects.toThrow(InvalidSyncIdException);
+    await expect(bookmarksService.getVersion(null, req as Request)).rejects.toThrow(SyncNotFoundException);
   });
 
-  it('getVersion: should log errors that are not InvalidSyncIdException', async () => {
+  it('getVersion: should log errors that are not SyncNotFoundException', async () => {
     const errorTest = new Error();
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockImplementation(() => {
       throw errorTest;
@@ -321,8 +321,8 @@ describe('BookmarksService', () => {
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
   });
 
-  it('getVersion: should not log errors that are InvalidSyncIdException', async () => {
-    const errorTest = new InvalidSyncIdException();
+  it('getVersion: should not log errors that are SyncNotFoundException', async () => {
+    const errorTest = new SyncNotFoundException();
     jest.spyOn(BookmarksModel, 'findOneAndUpdate').mockImplementation(() => {
       throw errorTest;
     });
@@ -447,7 +447,7 @@ describe('BookmarksService', () => {
     expect(updatedBookmarksSync.lastUpdated).toStrictEqual(createdDateTestVal);
   });
 
-  it('updateBookmarks_v2: should sdfsdf return updated date in response when updated bookmarks', async () => {
+  it('updateBookmarks_v2: should return updated date in response when updated bookmarks', async () => {
     const dbOpResult: IBookmarks = {
       lastUpdated: createdDateTestVal,
     };
@@ -467,7 +467,7 @@ describe('BookmarksService', () => {
     expect(Object.keys(updatePayload)).not.toContain('version');
   });
 
-  it('updateBookmarks_v2: should throw a InvalidSyncIdException if no existing bookmarks found', async () => {
+  it('updateBookmarks_v2: should throw a SyncNotFoundException if no existing bookmarks found', async () => {
     const findByIdMock = jest.spyOn(BookmarksModel, 'findById').mockReturnValue({
       exec: () => Promise.resolve(null),
     } as any);
@@ -475,7 +475,7 @@ describe('BookmarksService', () => {
     const bookmarksService = new BookmarksService(null, logMock);
     await expect(
       bookmarksService.updateBookmarks_v2(null, bookmarksDataTestVal, null, syncVersionTestVal, req as Request)
-    ).rejects.toThrow(InvalidSyncIdException);
+    ).rejects.toThrow(SyncNotFoundException);
     expect(findByIdMock).toHaveBeenCalled();
   });
 
@@ -500,7 +500,7 @@ describe('BookmarksService', () => {
     expect(findByIdMock).toHaveBeenCalled();
   });
 
-  it('updateBookmarks_v2: should log errors that are not InvalidSyncIdException', async () => {
+  it('updateBookmarks_v2: should log errors that are not SyncNotFoundException', async () => {
     const errorTest = new Error();
     jest.spyOn(BookmarksModel, 'findById').mockImplementation(() => {
       throw errorTest;
@@ -519,8 +519,8 @@ describe('BookmarksService', () => {
     expect(logMock).toHaveBeenCalledWith(LogLevel.Error, expect.any(String), req, errorTest);
   });
 
-  it('updateBookmarks_v2: should not log errors that are InvalidSyncIdException', async () => {
-    const errorTest = new InvalidSyncIdException();
+  it('updateBookmarks_v2: should not log errors that are SyncNotFoundException', async () => {
+    const errorTest = new SyncNotFoundException();
     jest.spyOn(BookmarksModel, 'findById').mockImplementation(() => {
       throw errorTest;
     });

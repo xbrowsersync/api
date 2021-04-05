@@ -119,7 +119,7 @@ class BookmarksService extends api_service_1.ApiService {
             // Query the db for the existing bookmarks data and update the last accessed date
             const updatedBookmarks = await bookmarks_model_1.BookmarksModel.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true }).exec();
             if (!updatedBookmarks) {
-                throw new exception_1.InvalidSyncIdException();
+                throw new exception_1.SyncNotFoundException();
             }
             // Return the existing bookmarks data if found
             const response = {
@@ -130,7 +130,7 @@ class BookmarksService extends api_service_1.ApiService {
             return response;
         }
         catch (err) {
-            if (!(err instanceof exception_1.InvalidSyncIdException)) {
+            if (!(err instanceof exception_1.SyncNotFoundException)) {
                 this.log(enums_1.LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
             }
             throw err;
@@ -144,7 +144,7 @@ class BookmarksService extends api_service_1.ApiService {
             // Query the db for the existing bookmarks data and update the last accessed date
             const updatedBookmarks = await bookmarks_model_1.BookmarksModel.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true }).exec();
             if (!updatedBookmarks) {
-                throw new exception_1.InvalidSyncIdException();
+                throw new exception_1.SyncNotFoundException();
             }
             // Return the last updated date if bookmarks data found
             const response = {
@@ -153,7 +153,7 @@ class BookmarksService extends api_service_1.ApiService {
             return response;
         }
         catch (err) {
-            if (!(err instanceof exception_1.InvalidSyncIdException)) {
+            if (!(err instanceof exception_1.SyncNotFoundException)) {
                 this.log(enums_1.LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
             }
             throw err;
@@ -167,7 +167,7 @@ class BookmarksService extends api_service_1.ApiService {
             // Query the db for the existing bookmarks data and update the last accessed date
             const updatedBookmarks = await bookmarks_model_1.BookmarksModel.findOneAndUpdate({ _id: id }, { lastAccessed: new Date() }, { new: true }).exec();
             if (!updatedBookmarks) {
-                throw new exception_1.InvalidSyncIdException();
+                throw new exception_1.SyncNotFoundException();
             }
             // Return the last updated date if bookmarks data found
             const response = {
@@ -176,7 +176,7 @@ class BookmarksService extends api_service_1.ApiService {
             return response;
         }
         catch (err) {
-            if (!(err instanceof exception_1.InvalidSyncIdException)) {
+            if (!(err instanceof exception_1.SyncNotFoundException)) {
                 this.log(enums_1.LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
             }
             throw err;
@@ -238,7 +238,7 @@ class BookmarksService extends api_service_1.ApiService {
             // Get the existing bookmarks using the supplied id
             const existingBookmarks = await bookmarks_model_1.BookmarksModel.findById(id).exec();
             if (!existingBookmarks) {
-                throw new exception_1.InvalidSyncIdException();
+                throw new exception_1.SyncNotFoundException();
             }
             // Check for sync conflicts using the supplied lastUpdated value
             if (lastUpdated && lastUpdated !== existingBookmarks.lastUpdated.toISOString()) {
@@ -253,7 +253,7 @@ class BookmarksService extends api_service_1.ApiService {
             return response;
         }
         catch (err) {
-            if (!(err instanceof exception_1.InvalidSyncIdException)) {
+            if (!(err instanceof exception_1.SyncNotFoundException)) {
                 this.log(enums_1.LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
             }
             throw err;

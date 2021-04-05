@@ -3,10 +3,10 @@ import { LogLevel } from '../common/enums';
 import { checkServiceAvailability } from '../common/utils';
 import * as Config from '../config';
 import {
-  InvalidSyncIdException,
   NewSyncsForbiddenException,
   NewSyncsLimitExceededException,
   SyncConflictException,
+  SyncNotFoundException,
   UnspecifiedException,
 } from '../exception';
 import { BookmarksModel, IBookmarks } from '../models/bookmarks.model';
@@ -153,7 +153,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       ).exec();
 
       if (!updatedBookmarks) {
-        throw new InvalidSyncIdException();
+        throw new SyncNotFoundException();
       }
 
       // Return the existing bookmarks data if found
@@ -164,7 +164,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       };
       return response;
     } catch (err) {
-      if (!(err instanceof InvalidSyncIdException)) {
+      if (!(err instanceof SyncNotFoundException)) {
         this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarks', req, err);
       }
       throw err;
@@ -185,7 +185,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       ).exec();
 
       if (!updatedBookmarks) {
-        throw new InvalidSyncIdException();
+        throw new SyncNotFoundException();
       }
 
       // Return the last updated date if bookmarks data found
@@ -194,7 +194,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       };
       return response;
     } catch (err) {
-      if (!(err instanceof InvalidSyncIdException)) {
+      if (!(err instanceof SyncNotFoundException)) {
         this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getLastUpdated', req, err);
       }
       throw err;
@@ -215,7 +215,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       ).exec();
 
       if (!updatedBookmarks) {
-        throw new InvalidSyncIdException();
+        throw new SyncNotFoundException();
       }
 
       // Return the last updated date if bookmarks data found
@@ -224,7 +224,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       };
       return response;
     } catch (err) {
-      if (!(err instanceof InvalidSyncIdException)) {
+      if (!(err instanceof SyncNotFoundException)) {
         this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getVersion', req, err);
       }
       throw err;
@@ -305,7 +305,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       // Get the existing bookmarks using the supplied id
       const existingBookmarks = await BookmarksModel.findById(id).exec();
       if (!existingBookmarks) {
-        throw new InvalidSyncIdException();
+        throw new SyncNotFoundException();
       }
 
       // Check for sync conflicts using the supplied lastUpdated value
@@ -323,7 +323,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
       return response;
     } catch (err) {
-      if (!(err instanceof InvalidSyncIdException)) {
+      if (!(err instanceof SyncNotFoundException)) {
         this.log(LogLevel.Error, 'Exception occurred in BookmarksService.createBookmarks', req, err);
       }
       throw err;

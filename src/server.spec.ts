@@ -575,23 +575,16 @@ describe('Server', () => {
     expect(enableMock).toHaveBeenCalledWith('trust proxy');
   });
 
-  it('handleError: should not set response status code if no error provided', async () => {
-    const statusMock = jest.fn();
-    const res: any = {
-      json: () => {},
-      status: statusMock,
-    };
-    Server.handleError(null, null, res);
-    expect(statusMock).not.toHaveBeenCalled();
-  });
-
   it('handleError: should set response status code to 500 if no status code provided', async () => {
     const statusMock = jest.fn();
+    const req: any = {
+      accepts: jest.fn,
+    };
     const res: any = {
       json: () => {},
       status: statusMock,
     };
-    Server.handleError(new Error(), null, res);
+    Server.handleError(new Error(), req, res, jest.fn);
     expect(statusMock).toHaveBeenCalledWith(500);
   });
 
@@ -600,11 +593,14 @@ describe('Server', () => {
     const exception = new ApiException('');
     exception.status = statusTest;
     const statusMock = jest.fn();
+    const req: any = {
+      accepts: jest.fn,
+    };
     const res: any = {
       json: () => {},
       status: statusMock,
     };
-    Server.handleError(exception, null, res);
+    Server.handleError(exception, req, res, jest.fn);
     expect(statusMock).toHaveBeenCalledWith(statusTest);
   });
 
@@ -612,11 +608,14 @@ describe('Server', () => {
     const message = 'test';
     const exception = new ApiException(message);
     const jsonMock = jest.fn();
+    const req: any = {
+      accepts: jest.fn,
+    };
     const res: any = {
       json: jsonMock,
       status: () => {},
     };
-    Server.handleError(exception, null, res);
+    Server.handleError(exception, req, res, jest.fn);
     expect(jsonMock).toHaveBeenCalledWith(exception.getResponseObject());
   });
 
@@ -624,21 +623,27 @@ describe('Server', () => {
     const exception = new Error();
     (exception as any).status = 413;
     const jsonMock = jest.fn();
+    const req: any = {
+      accepts: jest.fn,
+    };
     const res: any = {
       json: jsonMock,
       status: () => {},
     };
-    Server.handleError(exception, null, res);
+    Server.handleError(exception, req, res, jest.fn);
     expect(jsonMock).toHaveBeenCalledWith(new SyncDataLimitExceededException().getResponseObject());
   });
 
   it('handleError: should set response json to UnspecifiedException response object if provided error is not an instance of ExceptionBase', async () => {
     const jsonMock = jest.fn();
+    const req: any = {
+      accepts: jest.fn,
+    };
     const res: any = {
       json: jsonMock,
-      status: () => {},
+      status: jest.fn,
     };
-    Server.handleError(new Error(), null, res);
+    Server.handleError(new Error(), req, res, jest.fn);
     expect(jsonMock).toHaveBeenCalledWith(new UnspecifiedException().getResponseObject());
   });
 

@@ -29,6 +29,14 @@ export class InvalidSyncIdException extends ApiException {
   }
 }
 
+export class SyncNotFoundException extends ApiException {
+  constructor(message?: string) {
+    super(message || 'Sync does not exist');
+    this.name = 'SyncNotFoundException';
+    this.status = 401; // Unauthorized
+  }
+}
+
 export class RequiredDataNotFoundException extends ApiException {
   constructor(message?: string) {
     super(message || 'Unable to find required data');

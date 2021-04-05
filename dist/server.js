@@ -87,9 +87,9 @@ const createLogger = (logStreams) => {
 };
 exports.createLogger = createLogger;
 // Handles and logs api errors
-const handleError = (err, req, res) => {
-    if (!err) {
-        return;
+const handleError = (err, req, res, next) => {
+    if (res.headersSent) {
+        return next(err);
     }
     // Determine the response value based on the error thrown
     let responseObj;
@@ -109,7 +109,11 @@ const handleError = (err, req, res) => {
             responseObj = err.getResponseObject();
     }
     res.status(err.status || 500);
-    res.json(responseObj);
+    if (req.accepts('json')) {
+        res.json(responseObj);
+        return;
+    }
+    next(responseObj);
 };
 exports.handleError = handleError;
 // Initialises the express application and middleware

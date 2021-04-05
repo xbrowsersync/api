@@ -72,9 +72,14 @@ export const createLogger = (logStreams: bunyan.Stream[]): void => {
 };
 
 // Handles and logs api errors
-export const handleError = (err: any, req: express.Request, res: express.Response): void => {
-  if (!err) {
-    return;
+export const handleError = (
+  err: any,
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void => {
+  if (res.headersSent) {
+    return next(err);
   }
 
   // Determine the response value based on the error thrown
@@ -96,7 +101,11 @@ export const handleError = (err: any, req: express.Request, res: express.Respons
   }
 
   res.status(err.status || 500);
-  res.json(responseObj);
+  if (req.accepts('json')) {
+    res.json(responseObj);
+    return;
+  }
+  next(responseObj);
 };
 
 // Initialises the express application and middleware

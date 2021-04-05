@@ -1,7 +1,7 @@
 "use strict";
 /* eslint-disable max-classes-per-file */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServiceNotAvailableException = exports.UnspecifiedException = exports.OriginNotPermittedException = exports.RequestThrottledException = exports.SyncDataLimitExceededException = exports.UnsupportedVersionException = exports.SyncConflictException = exports.NotImplementedException = exports.NewSyncsLimitExceededException = exports.NewSyncsForbiddenException = exports.RequiredDataNotFoundException = exports.InvalidSyncIdException = exports.InvalidArgumentException = exports.ApiException = void 0;
+exports.ServiceNotAvailableException = exports.UnspecifiedException = exports.OriginNotPermittedException = exports.RequestThrottledException = exports.SyncDataLimitExceededException = exports.UnsupportedVersionException = exports.SyncConflictException = exports.NotImplementedException = exports.NewSyncsLimitExceededException = exports.NewSyncsForbiddenException = exports.RequiredDataNotFoundException = exports.SyncNotFoundException = exports.InvalidSyncIdException = exports.InvalidArgumentException = exports.ApiException = void 0;
 // Base class for custom api exceptions
 class ApiException extends Error {
     getResponseObject() {
@@ -27,6 +27,14 @@ class InvalidSyncIdException extends ApiException {
     }
 }
 exports.InvalidSyncIdException = InvalidSyncIdException;
+class SyncNotFoundException extends ApiException {
+    constructor(message) {
+        super(message || 'Sync does not exist');
+        this.name = 'SyncNotFoundException';
+        this.status = 401; // Unauthorized
+    }
+}
+exports.SyncNotFoundException = SyncNotFoundException;
 class RequiredDataNotFoundException extends ApiException {
     constructor(message) {
         super(message || 'Unable to find required data');
