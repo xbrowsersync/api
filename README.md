@@ -212,6 +212,12 @@ Once you've upgraded and completed the installation steps below, you can import 
   mongoimport --db xbrowsersync -c bookmarks --file /path/to/export/file
   ```
 
+## Other Implementations
+
+### Google Cloud
+
+- [sbogomolov/xbrowsersync-gcf](https://github.com/sbogomolov/xbrowsersync-gcf): An implementation of the xBrowserSync API using Google Cloud Functions with Firestore backend.
+
 ## VS Code
 
 If you're using [VS Code](https://code.visualstudio.com/), you have the following launch configurations:
