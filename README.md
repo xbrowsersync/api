@@ -217,6 +217,7 @@ Once you've upgraded and completed the installation steps below, you can import 
 ### Google Cloud
 
 - [sbogomolov/xbrowsersync-gcf](https://github.com/sbogomolov/xbrowsersync-gcf): An implementation of the xBrowserSync API using Google Cloud Functions with Firestore backend.
+- [txchen/xbrowsersync-cfw](https://github.com/txchen/xbrowsersync-cfw): An implementation of the xBrowserSync API using Cloudflare worker and KV.
 
 ## VS Code
 
