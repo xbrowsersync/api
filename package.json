@@ -44,7 +44,7 @@
     "express-rate-limit": "^5.2.6",
     "express-routes-versioning": "^1.0.1",
     "helmet": "^4.4.1",
-    "marked": "^2.0.1",
+    "marked": "^4.0.10",
     "mkdirp": "^1.0.4",
     "moment": "^2.29.1",
     "mongodb": "^3.6.5",
