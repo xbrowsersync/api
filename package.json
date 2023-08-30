@@ -47,7 +47,7 @@
     "marked": "^2.0.1",
     "mkdirp": "^1.0.4",
     "moment": "^2.29.1",
-    "mongodb": "^3.6.5",
+    "mongodb": "^3.6.12",
     "mongoose": "^5.12.3",
     "nocache": "^2.1.0",
     "smooth-scroll": "^16.1.3",
