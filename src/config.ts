@@ -6,12 +6,11 @@ export interface IConfigSettings {
   allowedOrigins?: string[];
   dailyNewSyncsLimit?: number;
   db?: {
-    authSource?: string;
+    type?: 'mysql' | 'mariadb' | 'postgres' | 'sqlite';
     connTimeout?: number;
     host?: string;
     name?: string;
     ssl?: boolean;
-    useSRV?: boolean;
     username?: string;
     password?: string;
     port?: number;
@@ -113,7 +112,11 @@ export const getUserSettings = (pathToConfig: string): IConfigSettings => {
   const pathToUserSettings = path.join(pathToConfig, 'settings.json');
   let userSettings: IConfigSettings = {};
   if (fs.existsSync(pathToUserSettings)) {
-    userSettings = require(pathToUserSettings);
+    try {
+      userSettings = require(pathToUserSettings);
+    } catch (e) {
+      console.error('Error loading settings.json. Check valid JSON syntax');
+    }
   }
   return userSettings;
 };
