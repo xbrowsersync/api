@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { LogLevel } from '../common/enums';
 import * as Config from '../config';
 import { UnspecifiedException } from '../exception';
-import { INewSyncLog, NewSyncLogsModel } from '../models/newSyncLogs.model';
+import { INewSyncLog, NewSyncLog } from '../models/newSyncLogs.model';
 import { ApiService } from './api.service';
 
 // Implementation of data service for new sync log operations
@@ -17,10 +17,8 @@ export class NewSyncLogsService extends ApiService<void> {
     }
 
     // Create new sync log payload
-    const newLogPayload: INewSyncLog = {
-      ipAddress: clientIp,
-    };
-    const newSyncLogsModel = new NewSyncLogsModel(newLogPayload);
+    const newSyncLogsModel = new NewSyncLog();
+    newSyncLogsModel.ipAddress = clientIp;
 
     // Commit the payload to the db
     try {
@@ -30,7 +28,7 @@ export class NewSyncLogsService extends ApiService<void> {
       throw err;
     }
 
-    return newLogPayload;
+    return newSyncLogsModel;
   }
 
   // Returns true/false depending on whether a given request's ip address has hit the limit for daily new syncs created
@@ -46,7 +44,7 @@ export class NewSyncLogsService extends ApiService<void> {
 
     // Query the newsynclogs collection for the total number of logs for the given ip address
     try {
-      newSyncsCreated = await NewSyncLogsModel.countDocuments({ ipAddress: clientIp }).exec();
+      newSyncsCreated = await NewSyncLog.countBy({ ipAddress: clientIp });
     } catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in NewSyncLogsService.newSyncsLimitHit', req, err);
       throw err;
