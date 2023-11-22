@@ -76,10 +76,18 @@ export const get = (force?: boolean): IConfigSettings => {
   const pathToConfig = path.join(__dirname, '../config');
 
   // Get default settings values
-  const defaultSettings = getDefaultSettings(pathToConfig);
+  const defaultSettings = require('./config.default').default;
 
   // Get user settings values if present
-  const userSettings = getUserSettings(pathToConfig);
+  let userSettings = getUserSettings(pathToConfig);
+
+  if (!userSettings) {
+    userSettings = getUserSettings('/settings.json');
+  }
+
+  if (!userSettings) {
+    userSettings = getUserSettings('/usr/src/app/settings.json');
+  }
 
   // Merge default and user settings
   const settings: any = merge(defaultSettings, userSettings);
@@ -103,8 +111,8 @@ const getDefaultSettings = (pathToConfig: string): IConfigSettings => {
 
 // Returns version number from package.json
 export const getPackageVersion = (): string => {
-  const packageJson = require('../package.json');
-  return packageJson.version;
+  const config = require('./config.default').default;
+  return config.version;
 };
 
 // Returns user-specified config settings
