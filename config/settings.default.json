@@ -2,15 +2,13 @@
   "allowedOrigins": [],
   "dailyNewSyncsLimit": 3,
   "db": {
-    "authSource": "admin",
-    "connTimeout": 30000,
+    "type": "mysql",
     "host": "127.0.0.1",
     "name": "xbrowsersync",
-    "password": "",
-    "port": 27017,
+    "port": 3306,
     "ssl": false,
-    "useSRV": false,
-    "username": ""
+    "username": "",
+    "password": ""
   },
   "location": "",
   "log": {
