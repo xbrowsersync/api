@@ -30,6 +30,7 @@
     "@typescript-eslint/semi": "warn",
     "class-methods-use-this": "off",
     "consistent-return": "off",
+    "selector-pseudo-class-no-unknown": "off",
     "func-style": "warn",
     "global-require": "off",
     "import/extensions": "off",

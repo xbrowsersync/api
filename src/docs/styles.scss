@@ -318,7 +318,7 @@ section {
   .panel {
     background-color: $colour-section2-bg;
     border-radius: 2rem;
-    box-shadow: 0.6875rem 1.3125rem 4.125rem rgba(0, 0, 0, 0.25);
+    box-shadow: 0.6875rem 1.3125rem 4.125rem rgba(0, 0, 0, 0.25); /* stylelint-disable-line */
     color: $colour-section2-text;
     padding: 2rem;
 
@@ -380,7 +380,7 @@ section {
           display: none;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 768px) { /* stylelint-disable-line */
           display: block;
           margin-bottom: 1rem;
         }
