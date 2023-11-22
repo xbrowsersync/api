@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
   password: Config.get().db.password,
   database: Config.get().db.name,
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: [Bookmarks, NewSyncLog],
   subscribers: [],
   migrations: [],

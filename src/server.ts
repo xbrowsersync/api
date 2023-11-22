@@ -213,9 +213,9 @@ export const initRoutes = (app: express.Express): void => {
   const infoService = new InfoService(bookmarksService, logMessage);
 
   // Initialise routes
-  const docsRouter = new DocsRouter(app);
-  const bookmarkRouter = new BookmarksRouter(app, bookmarksService);
-  const infoRouter = new InfoRouter(app, infoService);
+  new DocsRouter(app);
+  new BookmarksRouter(app, bookmarksService);
+  new InfoRouter(app, infoService);
 
   // Handle all other routes with 404 error
   app.use((req, res, next) => {

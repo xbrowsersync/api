@@ -111,9 +111,6 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Create new bookmarks payload
-      const newBookmarks: IBookmarks = {
-        version: syncVersion,
-      };
       const bookmarksModel = new Bookmarks();
       bookmarksModel.version = syncVersion;
 

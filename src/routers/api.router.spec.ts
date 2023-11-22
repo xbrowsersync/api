@@ -32,12 +32,12 @@ describe('ApiRouter', () => {
 
   it('ApiRouter: initRoutes should throw NotImplementedException', async () => {
     expect(() => {
-      const apiRouter = new ApiRouter(null);
+      new ApiRouter(null);
     }).toThrow(NotImplementedException);
   });
 
   it('ApiRouter: unsupportedVersion should throw UnsupportedVersionException', async () => {
-    const initRoutesMock = jest.spyOn(ApiRouter.prototype, 'initRoutes').mockImplementation();
+    jest.spyOn(ApiRouter.prototype, 'initRoutes').mockImplementation();
     const router = new ApiRouter(null);
     expect(() => {
       router.unsupportedVersion();

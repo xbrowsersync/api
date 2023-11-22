@@ -26,4 +26,8 @@ export class NewSyncLog extends BaseEntity implements INewSyncLog {
 
   @CreateDateColumn()
   syncCreated: Date;
+
+  static construct<T>(this: new () => T, params: Partial<T>): T {
+    return Object.assign(new this(), params);
+  }
 }
