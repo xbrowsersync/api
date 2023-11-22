@@ -18,7 +18,8 @@
   },
   "plugins": [
     "simple-import-sort",
-    "unused-imports"
+    "unused-imports",
+    "import"
   ],
   "rules": {
     "@typescript-eslint/comma-dangle": "off",
