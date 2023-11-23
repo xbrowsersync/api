@@ -54,7 +54,7 @@ class DocsPage {
 
         // If the server has configured a message, display it
         if (apiInfo.message) {
-          serverMessageEl.innerHTML = DOMPurify.sanitize(marked(apiInfo.message), {});
+          serverMessageEl.innerHTML = DOMPurify.sanitize(marked.parse(apiInfo.message), {});
         }
       }
 

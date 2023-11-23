@@ -6,12 +6,11 @@ export interface IConfigSettings {
   allowedOrigins?: string[];
   dailyNewSyncsLimit?: number;
   db?: {
-    authSource?: string;
+    type?: 'mysql' | 'mariadb' | 'postgres' | 'sqlite';
     connTimeout?: number;
     host?: string;
     name?: string;
     ssl?: boolean;
-    useSRV?: boolean;
     username?: string;
     password?: string;
     port?: number;
@@ -77,10 +76,10 @@ export const get = (force?: boolean): IConfigSettings => {
   const pathToConfig = path.join(__dirname, '../config');
 
   // Get default settings values
-  const defaultSettings = getDefaultSettings(pathToConfig);
+  const defaultSettings = getDefaultSettings();
 
   // Get user settings values if present
-  const userSettings = getUserSettings(pathToConfig);
+  let userSettings = getUserSettings([pathToConfig, '/', '/usr/src/app/']);
 
   // Merge default and user settings
   const settings: any = merge(defaultSettings, userSettings);
@@ -97,23 +96,34 @@ export const get = (force?: boolean): IConfigSettings => {
 };
 
 // Returns default config settings
-const getDefaultSettings = (pathToConfig: string): IConfigSettings => {
-  const pathToSettings = path.join(pathToConfig, 'settings.default.json');
-  return require(pathToSettings);
+const getDefaultSettings = (): IConfigSettings => {
+  return require('./config.default').default;
 };
 
 // Returns version number from package.json
 export const getPackageVersion = (): string => {
-  const packageJson = require('../package.json');
-  return packageJson.version;
+  const config = require('./config.default').default;
+  return config.version;
 };
 
 // Returns user-specified config settings
-export const getUserSettings = (pathToConfig: string): IConfigSettings => {
-  const pathToUserSettings = path.join(pathToConfig, 'settings.json');
+export const getUserSettings = (pathsToConfig: string[]): IConfigSettings => {
   let userSettings: IConfigSettings = {};
-  if (fs.existsSync(pathToUserSettings)) {
-    userSettings = require(pathToUserSettings);
+
+  for (let i in pathsToConfig) {
+    const folder = pathsToConfig[i];
+    const pathToUserSettings = path.join(folder, 'settings.json');
+
+    if (fs.existsSync(pathToUserSettings)) {
+      try {
+        userSettings = require(pathToUserSettings);
+      } catch (e) {
+        console.error('Error loading ' + pathToUserSettings + '. Check valid JSON syntax');
+      }
+
+      return userSettings;
+    }
   }
+
   return userSettings;
 };

@@ -7,10 +7,13 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: Path.resolve(__dirname, 'dist/docs'),
+    hashFunction: 'xxhash64',
   },
   devtool: 'source-map',
   devServer: {
-    contentBase: Path.join(__dirname, 'dist'),
+    static: {
+      directory: Path.join(__dirname, 'dist'),
+    },
     compress: true,
     port: 8083,
   },
@@ -32,11 +35,17 @@ module.exports = {
       },
       {
         test: /\.(sa|sc|c)ss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          { loader: 'css-loader' },
+          { loader: 'sass-loader' },
+        ],
       },
       {
         test: /\.(svg|jpg|gif|woff|woff2|eot|ttf|otf)$/,
-        use: 'file-loader',
+        type: 'asset/resource',
       },
     ],
   },
@@ -52,5 +61,4 @@ module.exports = {
       filename: 'styles.css',
     }),
   ],
-  stats: 'errors-only',
 };

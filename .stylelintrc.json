@@ -1,12 +1,11 @@
 {
   "extends": [
     "stylelint-config-standard",
-    "stylelint-config-sass-guidelines",
+    "stylelint-config-standard-scss",
     "stylelint-prettier/recommended"
   ],
   "rules": {
     "declaration-block-no-duplicate-properties": null,
-    "declaration-property-value-blacklist": null,
     "font-family-no-missing-generic-family-keyword": null,
     "max-nesting-depth": 20,
     "no-descending-specificity": null,

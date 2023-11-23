@@ -29,7 +29,7 @@ describe('InfoRouter', () => {
       use: useMock,
     };
     jest.spyOn(InfoRouter.prototype, 'createRoute').mockImplementation();
-    const infoRouter = new InfoRouter(app);
+    new InfoRouter(app);
     expect(initRoutesSpy).toBeCalled();
     expect(useMock).toBeCalledWith(`${relativePathTest}info`, expect.any(Function));
   });
@@ -40,7 +40,7 @@ describe('InfoRouter', () => {
       use: jest.fn(),
     };
     const createRouteMock = jest.spyOn(InfoRouter.prototype, 'createRoute').mockImplementation();
-    const infoRouter = new InfoRouter(app);
+    new InfoRouter(app);
     expect(initRoutesSpy).toBeCalled();
     expect(createRouteMock).toBeCalledWith(Verb.get, '/', { '^1.0.0': expect.any(Function) });
   });

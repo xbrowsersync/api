@@ -31,7 +31,7 @@ describe('InfoRouter', () => {
       use: useMock,
     };
     jest.spyOn(BookmarksRouter.prototype, 'createRoute').mockImplementation();
-    const bookmarksRouter = new BookmarksRouter(app);
+    new BookmarksRouter(app);
     expect(initRoutesSpy).toHaveBeenCalled();
     expect(useMock).toHaveBeenCalledWith(`${relativePathTest}bookmarks`, expect.any(Function));
   });
@@ -42,7 +42,7 @@ describe('InfoRouter', () => {
       use: jest.fn(),
     };
     const createRouteMock = jest.spyOn(BookmarksRouter.prototype, 'createRoute').mockImplementation();
-    const bookmarksRouter = new BookmarksRouter(app);
+    new BookmarksRouter(app);
     expect(initRoutesSpy).toHaveBeenCalled();
     expect(createRouteMock).toHaveBeenCalledWith(Verb.post, '/', {
       '~1.0.0': expect.any(Function),
@@ -56,7 +56,7 @@ describe('InfoRouter', () => {
       use: jest.fn(),
     };
     const createRouteMock = jest.spyOn(BookmarksRouter.prototype, 'createRoute').mockImplementation();
-    const bookmarksRouter = new BookmarksRouter(app);
+    new BookmarksRouter(app);
     expect(initRoutesSpy).toHaveBeenCalled();
     expect(createRouteMock).toHaveBeenCalledWith(Verb.get, '/:id', { '^1.0.0': expect.any(Function) });
     expect(createRouteMock).toHaveBeenCalledWith(Verb.put, '/:id', {
@@ -71,7 +71,7 @@ describe('InfoRouter', () => {
       use: jest.fn(),
     };
     const createRouteMock = jest.spyOn(BookmarksRouter.prototype, 'createRoute').mockImplementation();
-    const bookmarksRouter = new BookmarksRouter(app);
+    new BookmarksRouter(app);
     expect(initRoutesSpy).toHaveBeenCalled();
     expect(createRouteMock).toHaveBeenCalledWith(Verb.get, '/:id/lastUpdated', { '^1.0.0': expect.any(Function) });
   });
@@ -82,7 +82,7 @@ describe('InfoRouter', () => {
       use: jest.fn(),
     };
     const createRouteMock = jest.spyOn(BookmarksRouter.prototype, 'createRoute').mockImplementation();
-    const bookmarksRouter = new BookmarksRouter(app);
+    new BookmarksRouter(app);
     expect(initRoutesSpy).toHaveBeenCalled();
     expect(createRouteMock).toHaveBeenCalledWith(Verb.get, '/:id/version', { '^1.1.3': expect.any(Function) });
   });

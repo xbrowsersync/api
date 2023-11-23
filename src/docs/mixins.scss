@@ -42,7 +42,7 @@
 }
 
 @mixin placeholder {
-  &:placeholder {
+  &:placeholder { /* stylelint-disable-line */
     opacity: 1;
     @content;
   }

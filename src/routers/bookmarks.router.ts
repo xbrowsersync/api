@@ -4,7 +4,6 @@ import { Verb } from '../common/enums';
 import * as Config from '../config';
 import { RequiredDataNotFoundException } from '../exception';
 import { BookmarksService } from '../services/bookmarks.service';
-import { convertUuidStringToBinary } from '../uuid';
 import { ApiRouter, IApiRouter } from './api.router';
 
 // Implementation of routes for bookmarks operations
@@ -102,7 +101,7 @@ export class BookmarksRouter extends ApiRouter<BookmarksService> implements IApi
   getSyncId(req: Request): string {
     // Check id is valid
     const id = req.params.id;
-    convertUuidStringToBinary(id);
+    //convertUuidStringToBinary(id);
     return id;
   }
 

@@ -1,54 +1,41 @@
-import { Binary } from 'mongodb';
-import mongoose from 'mongoose';
-import { convertBytesToUuidString, convertUuidStringToBinary, generateRandomUuid } from '../uuid';
+import moment from 'moment';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-// Interface for bookmarks model
 export interface IBookmarks {
-  _id?: any;
+  _id?: string;
   bookmarks?: string;
   lastAccessed?: Date;
   lastUpdated?: Date;
   version?: string;
 }
 
-// Interface for bookmarks mongoose model
-export interface IBookmarksModel extends IBookmarks, mongoose.Document {
-  _id: any;
-}
+@Entity()
+export class Bookmarks extends BaseEntity implements IBookmarks {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-// Create bookmarks schema to store bookmarks sync data
-// Store IDs as binary uuid v4 and disable default id properties
-// No concurrent updates so disable version keys
-const bookmarksSchema = new mongoose.Schema(
-  {
-    _id: {
-      type: mongoose.Schema.Types.Buffer,
-      get: convertBytesToUuidString,
-      set: (idValue: string | Binary) => {
-        if (idValue instanceof Binary) {
-          return idValue;
-        }
+  @Column({
+    type: 'text',
+    default: '',
+  })
+  bookmarks: string;
 
-        return convertUuidStringToBinary(idValue as string);
-      },
-      default: () => generateRandomUuid(),
-    },
-    bookmarks: String,
-    lastAccessed: {
-      default: Date,
-      type: Date,
-    },
-    lastUpdated: {
-      default: Date,
-      type: Date,
-    },
-    version: String,
-  },
-  {
-    _id: false,
-    id: false,
-    versionKey: false,
+  @Column({
+    type: Date,
+    default: moment().format('YYYY-MM-DD hh:mm:ss'),
+  })
+  lastAccessed: Date;
+
+  @UpdateDateColumn()
+  lastUpdated: Date;
+
+  @Column({
+    type: String,
+    length: 6,
+  })
+  version: string;
+
+  static construct<T>(this: new () => T, params: Partial<T>): T {
+    return Object.assign(new this(), params);
   }
-);
-
-export const BookmarksModel = mongoose.model<IBookmarksModel>('Bookmark', bookmarksSchema, 'bookmarks');
+}

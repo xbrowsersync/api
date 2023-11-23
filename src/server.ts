@@ -10,7 +10,7 @@ import mkdirp from 'mkdirp';
 import noCache from 'nocache';
 import { LogLevel } from './common/enums';
 import * as Config from './config';
-import * as DB from './db';
+import { AppDataSource } from './db';
 import {
   ApiException,
   NotImplementedException,
@@ -32,7 +32,7 @@ let logger: bunyan;
 // Cleans up server connections when stopping the service
 export const cleanupServer = async (server: http.Server | https.Server): Promise<void> => {
   logMessage(LogLevel.Info, `Service shutting down`);
-  await DB.disconnect();
+  AppDataSource.destroy();
   server.removeAllListeners();
   process.removeAllListeners();
 };
@@ -45,13 +45,12 @@ export const createApplication = async (): Promise<express.Express> => {
     initApplication(app);
     initRoutes(app);
     app.use(handleError);
-
-    // Establish database connection
-    await DB.connect(logMessage);
   } catch (err) {
     logMessage(LogLevel.Error, `Couldn't create application`, null, err);
     return process.exit(1);
   }
+
+  AppDataSource.initialize();
 
   return app;
 };
@@ -60,6 +59,7 @@ export const createApplication = async (): Promise<express.Express> => {
 export const createLogger = (logStreams: bunyan.Stream[]): void => {
   try {
     logger = bunyan.createLogger({
+      level: 'debug',
       name: 'xBrowserSync_api',
       serializers: bunyan.stdSerializers,
       streams: logStreams,
@@ -213,9 +213,9 @@ export const initRoutes = (app: express.Express): void => {
   const infoService = new InfoService(bookmarksService, logMessage);
 
   // Initialise routes
-  const docsRouter = new DocsRouter(app);
-  const bookmarkRouter = new BookmarksRouter(app, bookmarksService);
-  const infoRouter = new InfoRouter(app, infoService);
+  new DocsRouter(app);
+  new BookmarksRouter(app, bookmarksService);
+  new InfoRouter(app, infoService);
 
   // Handle all other routes with 404 error
   app.use((req, res, next) => {

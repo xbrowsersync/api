@@ -1,4 +1,8 @@
 # xBrowserSync
+
+This is a fork of the original xBrowserSync, which support MySQL, PostgreSQL, SQLite3 and provide up to date dependencies, but keep the rest of application equal, so it is a full replacement of original version.  
+At the moment, there is no mass migration available. Every user must migrate own bookmarks himself.
+
 ## API service
 
 [![Build Status](https://travis-ci.org/xbrowsersync/api.svg)](https://travis-ci.org/xbrowsersync/api) [![Coverage Status](https://coveralls.io/repos/github/xbrowsersync/api/badge.svg?branch=master)](https://coveralls.io/github/xbrowsersync/api?branch=master) ![Dependencies](https://img.shields.io/depfu/xbrowsersync/api) [![Known Vulnerabilities](https://snyk.io/test/github/xbrowsersync/api/badge.svg?targetFile=package.json)](https://snyk.io/test/github/xbrowsersync/api?targetFile=package.json) [![GitHub license](https://img.shields.io/github/license/xbrowsersync/api.svg)](https://github.com/xbrowsersync/api/blob/master/LICENSE.md) [![Liberapay patrons](http://img.shields.io/liberapay/patrons/xbrowsersync.svg?logo=liberapay)](https://liberapay.com/xbrowsersync/donate)
@@ -20,7 +24,9 @@ The available API methods are documented on the home page of each xBrowserSync s
 
 The easiest way to get up and running is by using [Docker](https://www.docker.com/) to run the xBrowserSync API as a container. Docker is a popular container management and imaging platform that allows you to quickly work with containers on Linux and Windows.
 
-Once you have installed Docker you can use the [xBrowserSync API Docker image](https://hub.docker.com/r/xbrowsersync/api) to get a production-ready xBrowserSync service up and running with minimal effort (view the [README](https://github.com/xbrowsersync/api-docker/blob/master/README.md) for more information).
+Once you have installed Docker you can use the [xBrowserSync API Docker image](https://hub.docker.com/r/swarnat/xbrowsersync-api) to get a production-ready xBrowserSync service up and running with minimal effort (view the [README](https://github.com/xbrowsersync/api-docker/blob/master/README.md) for more information).
+
+All configurations can be done over environment variables or as bind mount of settings.json.
 
 ## Manual installation
 
@@ -29,11 +35,11 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/)
-- [MongoDB](https://www.mongodb.com/)
+- MySQL, PostgreSQL database server
 
 ### 1. Clone the xBrowserSync API source repo
 
-    $ git clone https://github.com/xbrowsersync/api.git
+    $ git clone https://github.com/swarnat/xbrowsersync-api.git
 
 ### 2. Install and build xBrowserSync API package
 
@@ -41,24 +47,16 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
 
     $ npm install --unsafe-perm
 
-### 3. Configure MongoDB databases
+### 3. Configure SQL databases
 
-  1. Run the following commands in the mongo shell:
+  1. Create a database and User
   
-      (Replace `[password]` with a cleartext password of your choice)
-
-      ```
-      use admin
-      db.createUser({ user: "xbrowsersyncdb", pwd: "[password]", roles: [ { role: "readWrite", db: "xbrowsersync" }, { role: "readWrite", db: "xbrowsersynctest" } ] })
-      use xbrowsersync
-      db.newsynclogs.createIndex( { "expiresAt": 1 }, { expireAfterSeconds: 0 } )
-      db.newsynclogs.createIndex({ "ipAddress": 1 })
-      ```
-
   2. Add the following environment variables to hold xBrowserSync DB account username and password:
 
-      - `XBROWSERSYNC_DB_USER`
-      - `XBROWSERSYNC_DB_PWD`
+      - `XBSAPI_DB_HOST`
+      - `XBSAPI_DB_NAME`
+      - `XBSAPI_DB_USERNAME`
+      - `XBSAPI_DB_PASSWORD`
 
       On Windows, open a Command Prompt and type (replacing `[password]` with the password entered in the mongo shell):
   
@@ -76,20 +74,11 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
       Add the lines (replacing `[password]` with the password entered in the mongo shell):
       
       ```
-      export XBROWSERSYNC_DB_USER=xbrowsersyncdb
-      export XBROWSERSYNC_DB_PWD=[password]
+      export XBSAPI_DB_USERNAME=xbrowsersyncdb
+      export XBSAPI_DB_PASSWORD=[password]
       ```
       
       Save and exit, then log out and back in again.
-
-  #### If exposing your service to the public it is recommended you also perform the following steps:
-  
-  3. Add a TTL index on `bookmarks.lastAccessed` to delete syncs that have not been accessed for 3 weeks:
-   
-      ```
-      use xbrowsersync
-      db.bookmarks.createIndex( { "lastAccessed": 1 }, { expireAfterSeconds: 21*86400 } )
-      ```
 
 ### 4. Modify configuration settings
 
@@ -105,25 +94,23 @@ The file `config/settings.default.json` contains all of the default configuratio
 
 Any changes to the user configuration will require the service to be restarted before being picked up. The available configuration settings are:
 
-Config Setting | Description | Default Value
--------------- | ----------- | -------------
+Config Setting | Description | Default Value | Environment Variable
+-------------- | ----------- | ------------- | --------------------
 `allowedOrigins` | Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted | `[]` (All origins permitted)
-`dailyNewSyncsLimit` | The maximum number of new syncs that a user can create per day - helps to prevent abuse of the service. If this setting is enabled, IP addresses are added to newsynclogs collection to track usage which is cleared down each day. Set as `0` to disable (allows users to create as many syncs as they want). | `3`
-`db.authSource` | The database to use for authentication. | `admin`
+`dailyNewSyncsLimit` | The maximum number of new syncs that a user can create per day - helps to prevent abuse of the service. If this setting is enabled, IP addresses are added to newsynclogs collection to track usage which is cleared down each day. Set as `0` to disable (allows users to create as many syncs as they want). | `3` | XBSAPI_DAILYNEWSYNCSLIMIT
+`db.type` | Define the database type you want to use. One of `mysql`, `postgres`, `sqlite` | `sqlite` (30 secs) | XBSAPI_DB_TYPE
 `db.connTimeout` | The connection timeout period to use for MongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
-`db.host` | The MongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1`
-`db.name` | Name of the MongoDB database to use. | `xbrowsersync`
-`db.ssl` | Connect to MongoDB over SSL. | `false`
-`db.useSRV` | Use MongoDB's [DNS Seedlist Connection Format](https://docs.mongodb.com/manual/reference/connection-string/#dns-seedlist-connection-format) to connect to the database. If set to true, `db.host` should also be set to the relevant DNS hostname. | `false`
-`db.username` | Username of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable)
-`db.password` | Password of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable)
-`db.port` | The port to use to connect to MongoDB. | `27017`
-`location` | The geographic location of the service, determined by an ISO 3166-1-alpha-2 code. Helps users determine if the service is geographically suitable for them when exposing the service to the public. | `gb`
+`db.host` | The MongoDB server address to connect to, either a hostname, IP address, or UNIX domain socket. | `127.0.0.1` | XBSAPI_DB_HOST
+`db.name` | Name of the MongoDB database to use. | `xbrowsersync` | XBSAPI_DB_NAME
+`db.username` | Username of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable) | XBSAPI_DB_USERNAME
+`db.password` | Password of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable) | XBSAPI_DB_PASSWORD
+`db.port` | The port to use to connect to MongoDB. | `3306` | XBSAPI_DB_PORT
+`location` | The geographic location of the service, determined by an ISO 3166-1-alpha-2 code. Helps users determine if the service is geographically suitable for them when exposing the service to the public. | `gb` | XBSAPI_LOCATION
 `log.file.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.file.path` and the log file is rotated automatically each period set by `log.file.rotationPeriod`, resulting in files "`log.file.path`.0", "`log.file.path`.1", etc. | `true`
-`log.file.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
-`log.file.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log`
-`log.file.rotatedFilesToKeep` | Maximum number of rotated log files to retain. | `5`
-`log.file.rotationPeriod` | 	The period at which to rotate log files. This is a string of the format "$number$scope" where "$scope" is one of "ms" (milliseconds -- only useful for testing), "h" (hours), "d" (days), "w" (weeks), "m" (months), "y" (years). Or one of the following names can be used "hourly" (means 1h), "daily" (1d), "weekly" (1w), "monthly" (1m), "yearly" (1y). Rotation is done at the start of the scope: top of the hour (h), midnight (d), start of Sunday (w), start of the 1st of the month (m), start of Jan 1st (y). | `1d`
+`log.file.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info` | XBSAPI_LOG_FILE_LEVEL
+`log.file.path` | File path to log messages to (ensure the account node is running as has permission to write to this location). | `/var/log/xBrowserSync/api.log` | XBSAPI_LOG_FILE_PATH
+`log.file.rotatedFilesToKeep` | Maximum number of rotated log files to retain. | `5` | XBSAPI_LOG_FILE_KEEPROTATION
+`log.file.rotationPeriod` | 	The period at which to rotate log files. This is a string of the format "$number$scope" where "$scope" is one of "ms" (milliseconds -- only useful for testing), "h" (hours), "d" (days), "w" (weeks), "m" (months), "y" (years). Or one of the following names can be used "hourly" (means 1h), "daily" (1d), "weekly" (1w), "monthly" (1m), "yearly" (1y). Rotation is done at the start of the scope: top of the hour (h), midnight (d), start of Sunday (w), start of the 1st of the month (m), start of Jan 1st (y). | `1d` | XBSAPI_LOG_FILE_ROTATIONPERIOD
 `log.stdout.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to stdout. | `true`
 `log.stdout.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info`
 `maxSyncs` | The maximum number of unique syncs to be stored on the service, once this limit is reached no more new syncs are permitted. Users with an existing sync ID are able to get and update their sync data as normal. This value multiplied by the maxSyncSize will determine the maximum amount of disk space used by the xBrowserSync service. Set as `0` to disable. | `5242`

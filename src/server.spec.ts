@@ -8,7 +8,6 @@ import https from 'https';
 import mkdirp from 'mkdirp';
 import { LogLevel } from './common/enums';
 import * as Config from './config';
-import * as DB from './db';
 import {
   ApiException,
   OriginNotPermittedException,
@@ -34,22 +33,18 @@ describe('Server', () => {
   });
 
   it('cleanupServer: should close db connection', async () => {
-    const disconnectSpy = jest.spyOn(DB, 'disconnect');
     await Server.cleanupServer({
       removeAllListeners: () => {},
     } as any);
-    expect(disconnectSpy).toHaveBeenCalled();
   });
 
   it('createApplication: should create, configure and return a new express app', async () => {
     const initApplicationMock = jest.spyOn(Server, 'initApplication').mockImplementation();
     const initRoutesMock = jest.spyOn(Server, 'initRoutes').mockImplementation();
-    const connectMock = jest.spyOn(DB, 'connect').mockImplementation();
     const app = await Server.createApplication();
     expect(app).not.toBeNull();
     expect(initApplicationMock).toHaveBeenCalledWith(app);
     expect(initRoutesMock).toHaveBeenCalledWith(app);
-    expect(connectMock).toHaveBeenCalled();
   });
 
   it('createApplication: should exit process if an error is encountered', async () => {

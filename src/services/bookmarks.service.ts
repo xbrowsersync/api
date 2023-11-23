@@ -9,7 +9,7 @@ import {
   SyncNotFoundException,
   UnspecifiedException,
 } from '../exception';
-import { BookmarksModel, IBookmarks } from '../models/bookmarks.model';
+import { Bookmarks, IBookmarks } from '../models/bookmarks.model';
 import { ApiService } from './api.service';
 import { NewSyncLogsService } from './newSyncLogs.service';
 
@@ -65,10 +65,9 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Create new bookmarks payload
-      const newBookmarks: IBookmarks = {
-        bookmarks: bookmarksData,
-      };
-      const bookmarksModel = new BookmarksModel(newBookmarks);
+      const bookmarksModel = new Bookmarks();
+
+      bookmarksModel.bookmarks = bookmarksData;
 
       // Commit the bookmarks payload to the db
       const savedBookmarks = await bookmarksModel.save();
@@ -81,7 +80,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
       // Return the response data
       const returnObj: ICreateBookmarksResponse = {
-        id: savedBookmarks._id,
+        id: savedBookmarks.id,
         lastUpdated: savedBookmarks.lastUpdated,
       };
       return returnObj;
@@ -112,10 +111,8 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Create new bookmarks payload
-      const newBookmarks: IBookmarks = {
-        version: syncVersion,
-      };
-      const bookmarksModel = new BookmarksModel(newBookmarks);
+      const bookmarksModel = new Bookmarks();
+      bookmarksModel.version = syncVersion;
 
       // Commit the bookmarks payload to the db
       const savedBookmarks = await bookmarksModel.save();
@@ -128,7 +125,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
       // Return the response data
       const returnObj: ICreateBookmarksResponse = {
-        id: savedBookmarks._id,
+        id: savedBookmarks.id,
         lastUpdated: savedBookmarks.lastUpdated,
         version: savedBookmarks.version,
       };
@@ -146,15 +143,14 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Query the db for the existing bookmarks data and update the last accessed date
-      const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
-        { _id: id },
-        { lastAccessed: new Date() },
-        { new: true }
-      ).exec();
+      const updatedBookmarks = await Bookmarks.findOneBy({ id });
 
       if (!updatedBookmarks) {
         throw new SyncNotFoundException();
       }
+
+      updatedBookmarks.lastAccessed = new Date();
+      updatedBookmarks.save();
 
       // Return the existing bookmarks data if found
       const response: IGetBookmarksResponse = {
@@ -178,15 +174,14 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Query the db for the existing bookmarks data and update the last accessed date
-      const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
-        { _id: id },
-        { lastAccessed: new Date() },
-        { new: true }
-      ).exec();
+      const updatedBookmarks = await Bookmarks.findOneBy({ id });
 
       if (!updatedBookmarks) {
         throw new SyncNotFoundException();
       }
+
+      updatedBookmarks.lastAccessed = new Date();
+      updatedBookmarks.save();
 
       // Return the last updated date if bookmarks data found
       const response: IGetLastUpdatedResponse = {
@@ -208,15 +203,14 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Query the db for the existing bookmarks data and update the last accessed date
-      const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
-        { _id: id },
-        { lastAccessed: new Date() },
-        { new: true }
-      ).exec();
+      const updatedBookmarks = await Bookmarks.findOneBy({ id });
 
       if (!updatedBookmarks) {
         throw new SyncNotFoundException();
       }
+
+      updatedBookmarks.lastAccessed = new Date();
+      updatedBookmarks.save();
 
       // Return the last updated date if bookmarks data found
       const response: IGetVersionResponse = {
@@ -256,15 +250,16 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
     try {
       // Update the bookmarks data corresponding to the sync id in the db
       const now = new Date();
-      const updatedBookmarks = await BookmarksModel.findOneAndUpdate(
-        { _id: id },
-        {
-          bookmarks: bookmarksData,
-          lastAccessed: now,
-          lastUpdated: now,
-        },
-        { new: true }
-      ).exec();
+      const updatedBookmarks = await Bookmarks.findOneBy({ id });
+
+      if (!updatedBookmarks) {
+        throw new SyncNotFoundException();
+      }
+
+      updatedBookmarks.bookmarks = bookmarksData;
+      updatedBookmarks.lastAccessed = now;
+      updatedBookmarks.lastUpdated = now;
+      await updatedBookmarks.save();
 
       // Return the last updated date if bookmarks data found and updated
       const response: IGetLastUpdatedResponse = {};
@@ -303,7 +298,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
 
     try {
       // Get the existing bookmarks using the supplied id
-      const existingBookmarks = await BookmarksModel.findById(id).exec();
+      const existingBookmarks = await Bookmarks.findOneBy({ id });
       if (!existingBookmarks) {
         throw new SyncNotFoundException();
       }
@@ -314,7 +309,9 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       }
 
       // Update the bookmarks data corresponding to the sync id in the db
-      const updatedBookmarks = await BookmarksModel.findOneAndUpdate({ _id: id }, updatePayload, { new: true }).exec();
+
+      await Bookmarks.createQueryBuilder().where('id = :id', { id }).update(updatePayload).execute();
+      const updatedBookmarks = await Bookmarks.findOneBy({ id });
 
       // Return the last updated date if bookmarks data found and updated
       const response: IGetLastUpdatedResponse = {
@@ -335,7 +332,7 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
     let bookmarksCount = -1;
 
     try {
-      bookmarksCount = await BookmarksModel.estimatedDocumentCount().exec();
+      bookmarksCount = await Bookmarks.count();
     } catch (err) {
       this.log(LogLevel.Error, 'Exception occurred in BookmarksService.getBookmarksCount', null, err);
       throw err;
