@@ -1,0 +1,16 @@
+version: '2.4'
+
+services:
+  web:
+    #image: swarnat/xbrowsersync-api:latest
+    build: ..
+    restart: always
+    env_file:
+      - xbrowsersync.env
+    volumes:
+      - data:/usr/src/app/data
+    ports:
+      - '8080:8080'
+
+volumes:
+  data:
