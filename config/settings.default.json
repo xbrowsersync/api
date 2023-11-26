@@ -2,6 +2,7 @@
   "allowedOrigins": [],
   "dailyNewSyncsLimit": 3,
   "db": {
+    "type": "sqlite",
     "authSource": "admin",
     "connTimeout": 30000,
     "host": "127.0.0.1",
@@ -10,7 +11,8 @@
     "port": 27017,
     "ssl": false,
     "useSRV": false,
-    "username": ""
+    "username": "",
+    "filepath": ""
   },
   "location": "",
   "log": {
@@ -23,7 +25,7 @@
     },
     "stdout": {
       "enabled": true,
-      "level": "info"
+      "level": "debug"
     }
   },
   "maxSyncs": 5242,

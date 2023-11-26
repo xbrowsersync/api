@@ -26,7 +26,10 @@
     "postbuild": "echo \"Done!\"",
     "watch:api": "tsc-watch --onSuccess \"node ./dist/api.js\"",
     "watch:docs": "webpack serve --config webpack.config.js --mode development",
-    "watch": "npm run build:api:dev && concurrently --kill-others \"npm run watch:api\" \"npm run watch:docs\""
+    "watch": "npm run build:api:dev && concurrently --kill-others \"npm run watch:api\" \"npm run watch:docs\"",
+    
+    "typeorm": "ts-node ./node_modules/typeorm/cli.js",
+    "typeorm:migration:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate -d ./src/db.ts"
   },
   "engines": {
     "node": ">=20.0.0"

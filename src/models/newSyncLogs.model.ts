@@ -10,7 +10,7 @@ export interface INewSyncLog {
 @Entity()
 export class NewSyncLog extends BaseEntity implements INewSyncLog {
   @PrimaryGeneratedColumn()
-  _id: string;
+  id: string;
 
   @Column({
     type: Date,

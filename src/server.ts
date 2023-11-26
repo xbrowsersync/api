@@ -32,7 +32,7 @@ let logger: bunyan;
 // Cleans up server connections when stopping the service
 export const cleanupServer = async (server: http.Server | https.Server): Promise<void> => {
   logMessage(LogLevel.Info, `Service shutting down`);
-  AppDataSource.destroy();
+  await AppDataSource.destroy();
   server.removeAllListeners();
   process.removeAllListeners();
 };
@@ -49,6 +49,8 @@ export const createApplication = async (): Promise<express.Express> => {
     logMessage(LogLevel.Error, `Couldn't create application`, null, err);
     return process.exit(1);
   }
+
+  logMessage(LogLevel.Info, 'Connect to Database by using ' + Config.get().db.type);
 
   AppDataSource.initialize();
 
@@ -114,6 +116,8 @@ export const initApplication = (app: express.Express): void => {
 
   // Enabled logging to stdout if required
   if (Config.get().log.stdout.enabled) {
+    console.log('Enable stdout log');
+
     // Add file log stream
     logStreams.push({
       level: Config.get().log.stdout.level,
@@ -124,6 +128,8 @@ export const initApplication = (app: express.Express): void => {
   // Enable logging to file if required
   if (Config.get().log.file.enabled) {
     try {
+      console.log('Enable File log to ' + Config.get().log.file.path);
+
       // Ensure log directory exists
       const logDirectory = Config.get().log.file.path.substring(0, Config.get().log.file.path.lastIndexOf('/'));
       if (!fs.existsSync(logDirectory)) {

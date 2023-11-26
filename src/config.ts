@@ -14,6 +14,8 @@ export interface IConfigSettings {
     username?: string;
     password?: string;
     port?: number;
+    // For sqlite database file
+    filepath?: string;
   };
   location?: string;
   log?: {

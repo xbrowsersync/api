@@ -2,7 +2,7 @@ import moment from 'moment';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export interface IBookmarks {
-  _id?: string;
+  id?: string;
   bookmarks?: string;
   lastAccessed?: Date;
   lastUpdated?: Date;

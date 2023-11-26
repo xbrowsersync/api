@@ -26,7 +26,8 @@ The easiest way to get up and running is by using [Docker](https://www.docker.co
 
 Once you have installed Docker you can use the [xBrowserSync API Docker image](https://hub.docker.com/r/swarnat/xbrowsersync-api) to get a production-ready xBrowserSync service up and running with minimal effort (view the [README](https://github.com/xbrowsersync/api-docker/blob/master/README.md) for more information).
 
-All configurations can be done over environment variables or as bind mount of settings.json.
+All configurations can be done over [examples/xbrowsersync.env](environment variables) or as bind mount of settings.json.
+Also there is a [examples/docker-compose.yaml](docker-compose.yaml) file for you to quick start the service.
 
 ## Manual installation
 
@@ -49,6 +50,13 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
 
 ### 3. Configure SQL databases
 
+#### SQLite
+
+The sqlite3 database is created within folder **/usr/src/app/data** and called **xbrowsersync.sqlite3**.  
+For persistence of bookmarks mount a volume into that path, like shown in [examples//docker-compose.yaml](examples//docker-compose.yaml)
+
+#### MySQL, PostgreSQL
+
   1. Create a database and User
   
   2. Add the following environment variables to hold xBrowserSync DB account username and password:
@@ -61,8 +69,8 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
       On Windows, open a Command Prompt and type (replacing `[password]` with the password entered in the mongo shell):
   
       ```
-      setx XBROWSERSYNC_DB_USER "xbrowsersyncdb"
-      setx XBROWSERSYNC_DB_PWD "[password]"
+      setx XBSAPI_DB_USERNAME "xbrowsersyncdb"
+      setx XBSAPI_DB_PASSWORD "[password]"
       ```
   
       On Ubuntu/Debian Linux, open a terminal emulator and type:
@@ -84,6 +92,8 @@ Whilst running in a Docker container is the recommended way to run your xBrowser
 
 The file `config/settings.default.json` contains all of the default configuration settings. User configuration values should be stored in `config/settings.json` and will override the defaults. Should you wish to change any of the configuration settings, copy `settings.default.json` and rename the copy to `settings.json` before changing any values as required. Be sure to remove any settings that have not been changed so that any amendments to the default values in future versions are picked up. For example, a basic user configuration to modify the service status message could look like:
 
+As alternative you can also set the corresponding environment variables, you found within [examples/xbrowsersync.env](examples/xbrowsersync.env)
+
 ```
 {
   "status": {
@@ -96,7 +106,7 @@ Any changes to the user configuration will require the service to be restarted b
 
 Config Setting | Description | Default Value | Environment Variable
 -------------- | ----------- | ------------- | --------------------
-`allowedOrigins` | Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted | `[]` (All origins permitted)
+`allowedOrigins` | Array of origins permitted to access the service. Each origin can be a `String` or a `RegExp`. For example `[ 'http://example1.com', /\.example2\.com$/ ]` will accept any request from `http://example1.com` or from a subdomain of `example2.com`. If the array is empty, all origins are permitted | `[]` (All origins permitted) | XBSAPI_ALLOWEDORIGINS<br/>*comma separated domainlist*
 `dailyNewSyncsLimit` | The maximum number of new syncs that a user can create per day - helps to prevent abuse of the service. If this setting is enabled, IP addresses are added to newsynclogs collection to track usage which is cleared down each day. Set as `0` to disable (allows users to create as many syncs as they want). | `3` | XBSAPI_DAILYNEWSYNCSLIMIT
 `db.type` | Define the database type you want to use. One of `mysql`, `postgres`, `sqlite` | `sqlite` (30 secs) | XBSAPI_DB_TYPE
 `db.connTimeout` | The connection timeout period to use for MongoDB. Using a high value helps prevent dropped connections in a hosted environment. | `30000` (30 secs)
@@ -104,7 +114,8 @@ Config Setting | Description | Default Value | Environment Variable
 `db.name` | Name of the MongoDB database to use. | `xbrowsersync` | XBSAPI_DB_NAME
 `db.username` | Username of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_USER`. | (Empty string, defers to environment variable) | XBSAPI_DB_USERNAME
 `db.password` | Password of the account used to access MongoDB. Set as empty string to use environment variable `XBROWSERSYNC_DB_PWD`. | (Empty string, defers to environment variable) | XBSAPI_DB_PASSWORD
-`db.port` | The port to use to connect to MongoDB. | `3306` | XBSAPI_DB_PORT
+`db.port` | The port to use to connect to database server. | `3306` | XBSAPI_DB_PORT
+`db.filepath` | When SQLite is used, this define the path to database. | `data` | XBSAPI_DB_FILEPATH
 `location` | The geographic location of the service, determined by an ISO 3166-1-alpha-2 code. Helps users determine if the service is geographically suitable for them when exposing the service to the public. | `gb` | XBSAPI_LOCATION
 `log.file.enabled` | If set to true, [Bunyan](https://github.com/trentm/node-bunyan) will be used to capture minimal logging (service start/stop, new sync created, errors) to file. Logged messages are output to `log.file.path` and the log file is rotated automatically each period set by `log.file.rotationPeriod`, resulting in files "`log.file.path`.0", "`log.file.path`.1", etc. | `true`
 `log.file.level` | Bunyan log level to capture: `trace`, `debug`, `info`, `warn`, `error`, `fatal`. | `info` | XBSAPI_LOG_FILE_LEVEL
@@ -161,43 +172,15 @@ You can then run the end to end tests by running the following command:
 
     $ npm run test
 
-## Upgrading from an earlier version
+## DB Migrations
 
-### <= v1.1.5
+Because TypeORM works with database migrations, you need to generate them:
 
-From v1.1.6, database users are created in the admin database. When upgrading from an earlier version you'll either need to drop the existing users in the xbrowsersync database and recreate them in the admin database, or simply add the following to your `config/settings.json` file:
+```
+npm run typeorm:migration:generate -- ./src/migrations/<migrationname>
+```
 
-  ```
-  "db": {
-    "authSource": "xbrowsersync"
-  }
-  ```
-
-Config settings for logging has also changed so ensure you update your `config/settings.json` file if you have customised logging settings.
-
-### <= v1.0.3
-
-If you are curently running v1.0.3 (or earlier) of the xBrowserSync API, you will need to export existing syncs and delete the xBrowserSync database before upgrading.
-
-To export existing syncs, run the following command:
-
-  ```
-  mongoexport --db xBrowserSync -c bookmarks --out /path/to/export/file
-  ```
-
-Then to delete the database, run the following commands in the mongo shell:
-
-  ```
-  use xBrowserSync
-  db.dropAllUsers()
-  db.dropDatabase()
-  ```
-
-Once you've upgraded and completed the installation steps below, you can import the syncs by running the following command:
-
-  ```
-  mongoimport --db xbrowsersync -c bookmarks --file /path/to/export/file
-  ```
+After this, add them to **src/db.ts** within migrations array to add them to compiled result.
 
 ## Other Implementations
 
