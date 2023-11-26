@@ -2,7 +2,8 @@ import path from 'path';
 
 export default {
   version: '1.1.13',
-  allowedOrigins: (process.env.XBSAPI_ALLOWEDORIGINS ??= '').split(','),
+  allowedOrigins:
+    (process.env.XBSAPI_ALLOWEDORIGINS ??= '') != '' ? (process.env.XBSAPI_ALLOWEDORIGINS ??= '').split(',') : [],
   dailyNewSyncsLimit: +(process.env.XBSAPI_DAILYNEWSYNCSLIMIT ??= '3'),
   db: {
     type: (process.env.XBSAPI_DB_TYPE ??= 'sqlite'),
