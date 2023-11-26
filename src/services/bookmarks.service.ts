@@ -113,6 +113,8 @@ export class BookmarksService extends ApiService<NewSyncLogsService> {
       // Create new bookmarks payload
       const bookmarksModel = new Bookmarks();
       bookmarksModel.version = syncVersion;
+      bookmarksModel.lastUpdated = new Date();
+      bookmarksModel.lastAccessed = new Date();
 
       // Commit the bookmarks payload to the db
       const savedBookmarks = await bookmarksModel.save();
