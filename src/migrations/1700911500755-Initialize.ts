@@ -5,7 +5,9 @@ export class Initialize1700911500755 implements MigrationInterface {
   name = 'Initialize1700911500755';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    AppDataSource.synchronize();
+    await queryRunner.startTransaction();
+    await AppDataSource.synchronize();
+    await queryRunner.commitTransaction();
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
