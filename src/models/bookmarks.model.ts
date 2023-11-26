@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface IBookmarks {
   id?: string;
@@ -11,7 +12,7 @@ export interface IBookmarks {
 
 @Entity()
 export class Bookmarks extends BaseEntity implements IBookmarks {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column({
@@ -34,6 +35,11 @@ export class Bookmarks extends BaseEntity implements IBookmarks {
     length: 6,
   })
   version: string;
+
+  @BeforeInsert()
+  generateUuid() {
+    this.id = uuidv4().replace(/-/g, '');
+  }
 
   static construct<T>(this: new () => T, params: Partial<T>): T {
     return Object.assign(new this(), params);
