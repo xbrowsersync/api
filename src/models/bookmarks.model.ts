@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface IBookmarks {
@@ -27,7 +27,10 @@ export class Bookmarks extends BaseEntity implements IBookmarks {
   })
   lastAccessed: Date;
 
-  @UpdateDateColumn()
+  @Column({
+    type: Date,
+    default: moment().format('YYYY-MM-DD hh:mm:ss'),
+  })
   lastUpdated: Date;
 
   @Column({

@@ -1,7 +1,7 @@
 import path from 'path';
 
 export default {
-  version: '1.2.0',
+  version: '1.2.1',
   allowedOrigins:
     (process.env.XBSAPI_ALLOWEDORIGINS ??= '') != '' ? (process.env.XBSAPI_ALLOWEDORIGINS ??= '').split(',') : [],
   dailyNewSyncsLimit: +(process.env.XBSAPI_DAILYNEWSYNCSLIMIT ??= '3'),
