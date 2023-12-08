@@ -1,0 +1,33 @@
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361365,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T12:54:18.918Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361365,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T12:54:18.921Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361717,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T12:55:42.253Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361717,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T12:55:42.256Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361829,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T12:58:03.984Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361829,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T12:58:03.986Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361829,"level":30,"req":null,"msg":"Process terminated by SIGINT","time":"2023-11-26T12:58:06.595Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":361829,"level":30,"msg":"Service shutting down","time":"2023-11-26T12:58:06.596Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362088,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T12:58:15.580Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362088,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T12:58:15.582Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362116,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T12:59:22.791Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362116,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T12:59:22.794Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362377,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T12:59:41.839Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362377,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T12:59:41.841Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362405,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:00:47.267Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362405,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:00:47.269Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362506,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:02:37.032Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362506,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:02:37.034Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362528,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:02:44.456Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362528,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:02:44.458Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362555,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:03:00.891Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362555,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:03:00.893Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362663,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:03:55.837Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362663,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:03:55.840Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362684,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:04:04.364Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362684,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:04:04.366Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":362684,"level":30,"req":{"method":"POST","url":"/bookmarks","headers":{"host":"localhost:8080","connection":"keep-alive","content-length":"19","sec-ch-ua":"\"Google Chrome\";v=\"119\", \"Chromium\";v=\"119\", \"Not?A_Brand\";v=\"24\"","accept":"application/json, text/plain, */*","content-type":"application/json;charset=UTF-8","accept-version":"1.1.3","sec-ch-ua-mobile":"?0","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36","sec-ch-ua-platform":"\"Windows\"","origin":"chrome-extension://lcbjdhceifofjlpecfpeimnnphbcjgnc","sec-fetch-site":"none","sec-fetch-mode":"cors","sec-fetch-dest":"empty","accept-encoding":"gzip, deflate, br","accept-language":"de,en;q=0.9,de-DE;q=0.8,en-US;q=0.7","cookie":"pmaUser-1=ZgRX1GIlWHAczkS9KkEXlfrOIkKsfK338CX6LGKqIAja4Hl1ciHZKGIhHlOxUEI%3D"},"remoteAddress":"::1","remotePort":44070},"msg":"New bookmarks sync created","time":"2023-11-26T13:04:18.942Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":363079,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:10:14.507Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":363079,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:10:14.509Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":363102,"level":30,"msg":"Connect to Database by using sqlite","time":"2023-11-26T13:10:24.411Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":363102,"level":30,"msg":"Service started at http://0.0.0.0:8080/","time":"2023-11-26T13:10:24.413Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":363102,"level":30,"req":null,"msg":"Process terminated by SIGINT","time":"2023-11-26T13:10:46.236Z","v":0}
+{"name":"xBrowserSync_api","hostname":"JamiroV4","pid":363102,"level":30,"msg":"Service shutting down","time":"2023-11-26T13:10:46.237Z","v":0}

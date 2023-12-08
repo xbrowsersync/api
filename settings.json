@@ -1,0 +1,27 @@
+{
+  "location": "DE",
+  "status": {
+    "active": true,
+    "message": "Welcome to <b>Datentechnik Warnat</b>"
+  },
+  "db": {
+    "type": "mysql",
+    "host": "172.18.0.1",
+    "name": "xbookmark",
+    "username": "root",
+    "password": "admin"
+  },  
+  "log": {
+    "file": {
+      "enabled": false,
+      "level": "info",
+      "path": "/opt/repositories/xbrowsersync-api/api.log",
+      "rotatedFilesToKeep": 5,
+      "rotationPeriod": "1d"
+    },
+    "stdout": {
+      "enabled": true,
+      "level": "debug"
+    }
+  }
+}
