@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as Config from './config';
 import { Initialize1700911500755 } from './migrations/1700911500755-Initialize';
+import { UpdateLastupdated1702054772068 } from './migrations/1702054772068-update_lastupdated';
 import { Bookmarks } from './models/bookmarks.model';
 import { NewSyncLog } from './models/newSyncLogs.model';
 
@@ -22,6 +23,7 @@ export const AppDataSource = new DataSource({
   migrationsTableName: 'migration',
   migrations: [
     Initialize1700911500755,
+    UpdateLastupdated1702054772068,
     // Add further migrations here
   ],
 });
