@@ -33,7 +33,7 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "bootstrap": "^4.6.0",
+    "bootstrap": "^5.3.3",
     "bunyan": "^1.8.15",
     "core-decorators": "^0.20.0",
     "cors": "^2.8.5",
