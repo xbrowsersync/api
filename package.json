@@ -39,7 +39,7 @@
     "cors": "^2.8.5",
     "country-list": "^2.2.0",
     "deepmerge": "^4.2.2",
-    "dompurify": "^2.2.7",
+    "dompurify": "^2.5.7",
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
     "express-routes-versioning": "^1.0.1",
